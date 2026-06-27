@@ -18,6 +18,7 @@ from cds.core.asot.models import (
     SourceType,
     VerificationMethod,
 )
+from cds.core.model.lifecycle import IpStatus
 from cds.core.namespaces import CDS, SKOS
 
 _SCHEMES: tuple[type[StrEnum], ...] = (
@@ -26,6 +27,7 @@ _SCHEMES: tuple[type[StrEnum], ...] = (
     CaptureTier,
     RetrievalStatus,
     VerificationMethod,
+    IpStatus,
 )
 
 

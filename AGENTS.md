@@ -30,6 +30,13 @@ human-consumable, so holding the text in M is not "distributing" it. (Engineerin
 licensing-bureaucracy layer — Zargham's deliberate call.) The discipline: never fabricate or misrecall a
 definition — secure the verbatim and check against it.
 
+**IP-status override (operator-controlled).** The View's cite-only default can be overridden by the lifecycle
+model's `ip_status` flag (on the top-level `cds:LifecycleModel`): when the **operator** sets it to `NC` —
+asserting the use case complies with CC-BY-NC-SA (e.g. non-commercial education) — the View **may** render
+restricted canon (e.g. SEBoK definitions), and any report rendered with the flag on is itself licensed
+**CC-BY-NC-SA** (ShareAlike propagates). The **operator, not the tool**, is responsible for judging whether
+the circumstances qualify; the default (`OPEN`) renders no restricted canon and cites the source.
+
 ## Authorities, not derivatives
 
 Every definition **backtraces** to a primary authority — SEBoK or an INCOSE primary reference (SE Handbook,
