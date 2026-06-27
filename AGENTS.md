@@ -20,14 +20,14 @@ When required canon is not yet secured (a blocked page, a paywalled standard, an
 Never guess; never invent; never cite a derivative (the `Incose-Extraction-*` / `SE-Primer` repos and
 `Terminology`'s curated text are **orientation only**, never an authority).
 
-**Reference, don't reproduce (the desk-reference model).** For reference canon like the SEBoK glossary we do
-**not** reproduce definition text at all — we record the term and a *verified reference* to its source,
-exactly as an engineer cites SEBoK or the Handbook at their desk. Repos built with `cds` contain no SEBoK
-terminology as text, which dissolves the NC-redistribution concern. The no-fabrication rule still holds:
-reference the authority, never invent a definition. Verbatim text (`skos:definition` / `cds:quote`) is stored
-only for our own synthesis gloss or sources that grant reproduction (e.g. the GtWR summary). "Verified" for a
-reference means a human (or a recorded machine-administered check) confirmed the term is genuinely defined at
-that source.
+**Guard locally, reference in distribution.** We **do** hold the verbatim definition in our *local* RDF —
+not to distribute it, but as a **hallucination guard**: the work checks every concept against the
+authoritative text, never LLM weights, the same way an engineer checks SEBoK/the Handbook when it counts.
+That local verbatim is the ground truth `verify` checks against (and is gitignored for NC sources). Only
+*distribution* of NC text is excluded — committed/published artifacts strip NC verbatim and carry term +
+reference (`cds:cites` + grounding) instead. Verbatim may be reproduced in distribution only for our own
+gloss or reproduction-granting canon (e.g. the GtWR summary). The discipline: never fabricate or misrecall a
+definition — secure the verbatim from the authority and check against it.
 
 ## Authorities, not derivatives
 

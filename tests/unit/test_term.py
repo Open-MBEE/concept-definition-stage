@@ -61,10 +61,13 @@ def test_term_serialization_is_byte_deterministic() -> None:
     assert out1 == out2
 
 
-# Glossary strategy: reference the source, never reproduce SEBoK definition text.
-_REFERENCE_ONLY_YAML = """
+# Hallucination guard: the verbatim definition is held in the LOCAL/working graph so the work
+# checks against the authoritative source, never LLM memory. The published build strips
+# non-redistributable (NC) verbatim — slice 6. Text here is SYNTHETIC, never real SEBoK.
+_GUARDED_YAML = """
 slug: stakeholder
 pref_label: Stakeholder
+definition: "SYNTHETIC placeholder text for testing the hallucination guard."
 grounding:
   - relation: exact-match
     target: https://sebokwiki.org/wiki/Stakeholder_(glossary)
@@ -72,13 +75,13 @@ cites: [https://w3id.org/cds/src/sebok-stakeholder]
 """
 
 
-def test_glossary_term_references_its_source_without_emitting_definition_text() -> None:
-    t = load_term(_REFERENCE_ONLY_YAML)
-    assert t.definition is None
+def test_term_to_graph_holds_verbatim_definition_as_a_hallucination_guard() -> None:
+    t = load_term(_GUARDED_YAML)
     g = term_to_graph(t, scheme=_SCHEME)
     s = term_iri(t.slug)
-    # we do NOT reproduce SEBoK definition text — repos built with cds contain no glossary text
-    assert not list(g.objects(s, SKOS.definition))
-    # the term is still grounded + cites its authoritative source (the desk-reference model)
+    # the verbatim is held locally so authoring + verify check the source, not LLM weights
+    definition = "SYNTHETIC placeholder text for testing the hallucination guard."
+    assert (s, SKOS.definition, Literal(definition)) in g
+    # still grounded + cites its authoritative source
     assert (s, SKOS.exactMatch, URIRef("https://sebokwiki.org/wiki/Stakeholder_(glossary)")) in g
     assert (s, CDS.cites, URIRef("https://w3id.org/cds/src/sebok-stakeholder")) in g

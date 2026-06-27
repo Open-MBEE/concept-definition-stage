@@ -4,13 +4,17 @@ A term is a ``skos:Concept`` in the Concept Definition scheme. Following the "gr
 everything, no bare terms" ethos, every term carries at least one grounding edge (an
 alignment to an existing concept) and cites the boundary object(s) its definition came from.
 
-Reference, don't reproduce: for the SEBoK glossary we do **not** emit definition text at all.
-A term records its label and a *verified reference* to its authoritative source (``cds:cites``
-+ a grounding edge to the SEBoK concept) — the way an engineer reads SEBoK or the Handbook as a
-desk reference ("we got our definition from here"). Repos built with this package therefore
-contain no SEBoK terminology as text, which dissolves the NC-redistribution concern entirely.
-``definition`` is reserved for our own synthesis gloss or reproduction-granting canon (e.g.
-GtWR) and is emitted only when present.
+Two layers — guard locally, reference in distribution:
+
+* **Local/working graph (the hallucination guard).** We hold the verbatim ``definition`` so the
+  work checks against the authoritative source, never LLM memory — the same discipline as an
+  engineer who, when it counts, reads SEBoK/the Handbook rather than trusting recall.
+  ``term_to_graph`` emits the verbatim when present; this graph is the ground truth ``verify``
+  checks against, and is gitignored for NC sources.
+* **Published/distributed graph (slice 6).** A redistribution filter strips non-redistributable
+  (NC, e.g. SEBoK) verbatim, leaving term + reference (``cds:cites`` + grounding) — so committed
+  repos carry no NC text. ``definition`` may be reproduced in distribution only for our own gloss
+  or reproduction-granting canon (e.g. GtWR).
 """
 
 from __future__ import annotations

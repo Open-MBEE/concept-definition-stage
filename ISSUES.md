@@ -12,9 +12,10 @@ These are tracked here until the public remote is provisioned; then each becomes
 
 - **URI scheme** — hash (`cds#`) for vocabulary/classes, slash (`cds/term/`, `cds/src/`) for
   individuals. Confirmed.
-- **SEBoK definition handling** — *reference, don't reproduce*: repos built with `cds` contain
-  **no SEBoK definition text**; a term records a verified reference to its source (desk-reference
-  model). Dissolves the NC-redistribution concern for SEBoK.
+- **SEBoK definition handling** — *guard locally, reference in distribution*: the verbatim
+  definition is held in the **local** RDF as a hallucination guard (the work checks the
+  authoritative text, never LLM memory); only *distribution* of NC text is excluded — published
+  repos strip NC verbatim and carry term + reference. (Published redistribution filter: slice 6.)
 
 ## Open audit-flagged questions (not yet resolved)
 
