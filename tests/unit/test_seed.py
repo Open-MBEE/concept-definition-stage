@@ -7,7 +7,13 @@ from pathlib import Path
 from cds.core.asot.hashing import content_hash
 from cds.core.asot.models import RetrievalStatus
 from cds.core.asot.registry import INCOSE_AUTHORITY
-from cds.stages.concept_definition.seed import GTWR_SOURCE, seed_authorities, seed_sources
+from cds.core.licenses import GTWR_LICENSE
+from cds.stages.concept_definition.seed import (
+    GTWR_SOURCE,
+    seed_authorities,
+    seed_licenses,
+    seed_sources,
+)
 
 _GTWR_HASH = "sha256:0bf5918db034757fb63fb81a677263ebe36323eee95e51fbd0197aecdd574176"
 
@@ -31,3 +37,8 @@ def test_seed_registers_sebok_and_incose_and_the_gtwr_source() -> None:
     assert "https://w3id.org/cds/auth/sebok" in auth_ids
     assert "https://w3id.org/cds/auth/incose" in auth_ids
     assert GTWR_SOURCE in seed_sources()
+
+
+def test_gtwr_source_carries_its_custom_license_reference() -> None:
+    assert GTWR_SOURCE.license == GTWR_LICENSE.ref
+    assert GTWR_LICENSE in seed_licenses()

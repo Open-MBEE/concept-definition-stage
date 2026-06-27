@@ -11,9 +11,10 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from rdflib import URIRef
+from pydantic import BaseModel
+from rdflib import RDF, RDFS, Graph, Literal, URIRef
 
-from cds.core.namespaces import SPDX
+from cds.core.namespaces import CDS, CDS_LICENSE, DCTERMS, SPDX
 
 
 class TextLicense(StrEnum):
@@ -51,5 +52,56 @@ def sebok_renderable(text_license: str) -> bool:
 
 
 def license_iri(license_id: str) -> URIRef:
-    """Ground a license id to an IRI (SPDX for known ids; the id itself if already a URL)."""
-    return URIRef(license_id) if license_id.startswith("http") else SPDX[license_id]
+    """Ground a license id to an IRI.
+
+    A full URL is used as-is; an SPDX ``LicenseRef-…`` (custom/document-local) license grounds to
+    our ``cds/license/`` namespace; any other id is treated as a standard SPDX id (spdx.org).
+    """
+    if license_id.startswith("http"):
+        return URIRef(license_id)
+    if license_id.startswith("LicenseRef-"):
+        return CDS_LICENSE[license_id]
+    return SPDX[license_id]
+
+
+class CustomLicense(BaseModel):
+    """A document-local custom license (SPDX ``LicenseRef-…``) with its verbatim terms.
+
+    ``reproducible`` records whether the terms permit reproduction/redistribution — which the
+    View consults (independently of SEBoK compatibility). We track; the operator judges.
+    """
+
+    ref: str
+    name: str
+    text: str
+    reproducible: bool
+    source: str | None = None
+
+
+# The INCOSE GtWR v4 summary grants reproduction with attribution — so its terms (and the summary
+# itself) are reproducible. Verbatim from the summary's COPYRIGHT INFORMATION (held PDF).
+GTWR_LICENSE = CustomLicense(
+    ref="LicenseRef-INCOSE-GtWR-Summary",
+    name="INCOSE Guide to Writing Requirements v4 Summary — reproduction with attribution",
+    text=(
+        "Given this is a summary of the Guide for Writing Requirements, permission to reproduce "
+        "and use this summary is granted, with attribution to INCOSE and the original author(s) "
+        "where practical, provided this copyright notice is included with all reproductions and "
+        "derivative works."
+    ),
+    reproducible=True,
+    source="INCOSE-TP-2010-006-04",
+)
+
+
+def custom_license_graph(lic: CustomLicense) -> Graph:
+    """Emit a self-describing definition of a custom license."""
+    g = Graph()
+    s = license_iri(lic.ref)
+    g.add((s, RDF.type, DCTERMS.LicenseDocument))
+    g.add((s, RDFS.label, Literal(lic.name)))
+    g.add((s, CDS.licenseText, Literal(lic.text)))
+    g.add((s, CDS.reproducible, Literal(lic.reproducible)))
+    if lic.source is not None:
+        g.add((s, DCTERMS.source, Literal(lic.source)))
+    return g
