@@ -8,7 +8,8 @@ from __future__ import annotations
 
 from rdflib import Namespace
 
-CDS = Namespace("https://w3id.org/cds#")
+CDS = Namespace("https://w3id.org/cds#")  # vocabulary / classes / properties (hash)
+CDS_TERM = Namespace("https://w3id.org/cds/term/")  # individual concepts (slash)
 PROV = Namespace("http://www.w3.org/ns/prov#")
 SKOS = Namespace("http://www.w3.org/2004/02/skos/core#")
 DCTERMS = Namespace("http://purl.org/dc/terms/")
