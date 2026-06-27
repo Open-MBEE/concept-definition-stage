@@ -18,16 +18,16 @@ from cds.core.asot.models import (
     SourceType,
     VerificationMethod,
 )
-from cds.core.model.lifecycle import IpStatus
 from cds.core.namespaces import CDS, SKOS
 
+# Licenses are NOT in this control vocab — they ground to the external SPDX registry
+# (see cds.core.model.lifecycle). These are the ASoT/provenance enums only.
 _SCHEMES: tuple[type[StrEnum], ...] = (
     AuthorityKind,
     SourceType,
     CaptureTier,
     RetrievalStatus,
     VerificationMethod,
-    IpStatus,
 )
 
 

@@ -30,12 +30,14 @@ human-consumable, so holding the text in M is not "distributing" it. (Engineerin
 licensing-bureaucracy layer — Zargham's deliberate call.) The discipline: never fabricate or misrecall a
 definition — secure the verbatim and check against it.
 
-**IP-status override (operator-controlled).** The View's cite-only default can be overridden by the lifecycle
-model's `ip_status` flag (on the top-level `cds:LifecycleModel`): when the **operator** sets it to `NC` —
-asserting the use case complies with CC-BY-NC-SA (e.g. non-commercial education) — the View **may** render
-restricted canon (e.g. SEBoK definitions), and any report rendered with the flag on is itself licensed
-**CC-BY-NC-SA** (ShareAlike propagates). The **operator, not the tool**, is responsible for judging whether
-the circumstances qualify; the default (`OPEN`) renders no restricted canon and cites the source.
+**License-keyed View rendering (operator-controlled).** The lifecycle model (`cds:LifecycleModel`) declares a
+`text_license` (default `CC-BY-NC-SA-4.0`) and a `code_license` (default `Apache-2.0`). The View renders
+restricted canon (e.g. SEBoK definitions, which are CC-BY-NC-SA) **only when `text_license` is compatible
+with SEBoK** (the BY-NC-SA family); otherwise it cites the authoritative source. Any report rendered with
+restricted canon inherits that text license (ShareAlike). The **operator, not the tool**, chooses the
+licenses and is responsible for whether the use qualifies (e.g. non-commercial education). The default
+renders SEBoK; an operator wanting unencumbered outputs sets a permissive `text_license` (→ cite-only).
+License ids are SPDX (or custom) — user-extensible.
 
 ## Authorities, not derivatives
 
