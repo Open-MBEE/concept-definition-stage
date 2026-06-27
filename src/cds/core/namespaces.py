@@ -1,0 +1,16 @@
+"""RDF namespaces used across cds.
+
+The ``cds:`` core lives at ``https://w3id.org/cds#`` (w3id registration is a non-blocking
+TODO). Everything else is reused W3C / OMG vocabulary.
+"""
+
+from __future__ import annotations
+
+from rdflib import Namespace
+
+CDS = Namespace("https://w3id.org/cds#")
+PROV = Namespace("http://www.w3.org/ns/prov#")
+SKOS = Namespace("http://www.w3.org/2004/02/skos/core#")
+DCTERMS = Namespace("http://purl.org/dc/terms/")
+SEBOK = Namespace("https://sebokwiki.org/wiki/")
+OMG_SYSML = Namespace("https://www.omg.org/spec/SysML/20240201/SysML#")

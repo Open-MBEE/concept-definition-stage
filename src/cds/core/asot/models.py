@@ -8,12 +8,24 @@ independent of the RDF SHACL layer. Models grow as tests drive them.
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, model_validator
 
 
-class SourceType(str, Enum):
+class AuthorityKind(StrEnum):
+    """The kind of authority that holds content (aligns to the stakeholder cast)."""
+
+    CURATED_CANON = "curated-canon"  # SEBoK
+    STANDARD = "standard"  # ISO / INCOSE
+    SPONSOR = "sponsor"
+    CONSULTED_STAKEHOLDER = "consulted-stakeholder"
+    DOMAIN_EXPERT = "domain-expert"
+    REGULATORY = "regulatory"
+    INFORMAL = "informal"
+
+
+class SourceType(StrEnum):
     """The kind of artifact a boundary object points at."""
 
     WEB_PAGE = "web-page"
@@ -23,7 +35,7 @@ class SourceType(str, Enum):
     IMAGE = "image"
 
 
-class CaptureTier(str, Enum):
+class CaptureTier(StrEnum):
     """How faithfully a source is captured.
 
     ``REFERENCE`` — not vendored: locator + content hash + timestamps only (e.g. live SEBoK
@@ -36,11 +48,31 @@ class CaptureTier(str, Enum):
     SNAPSHOT = "snapshot"
 
 
+class RetrievalStatus(StrEnum):
+    """Construction-order stages 2-3: a source must reach ``VERIFIED`` before a term builds."""
+
+    PENDING = "pending"
+    PROVIDED = "provided"
+    VERIFIED = "verified"
+
+
+class Authority(BaseModel):
+    """An entity holding authoritative content (``prov:Agent``)."""
+
+    id: str
+    kind: AuthorityKind
+    label: str
+
+
 class Source(BaseModel):
     """A boundary object: a specific artifact held by an authority, with provenance.
 
-    Tiered-capture invariant (enforced here, not in SHACL): a ``REFERENCE`` source is never
-    vendored (no snapshot); a ``SNAPSHOT`` source must hold a content-addressed copy.
+    Invariants (enforced here, not in SHACL):
+
+    * Tier — a ``REFERENCE`` source is never vendored (no snapshot); a ``SNAPSHOT`` source
+      must hold a content-addressed copy.
+    * Retrieval — ``PROVIDED``/``VERIFIED`` require a ``content_hash``; ``VERIFIED`` also
+      requires a ``verified_at`` timestamp.
     """
 
     id: str
@@ -52,13 +84,45 @@ class Source(BaseModel):
     snapshot: str | None = None
     retrieved_at: datetime | None = None
     verified_at: datetime | None = None
+    retrieval_status: RetrievalStatus = RetrievalStatus.PENDING
+    retrieval_issue: str | None = None
 
     @model_validator(mode="after")
-    def _enforce_tier(self) -> Source:
+    def _enforce_invariants(self) -> Source:
         if self.tier is CaptureTier.REFERENCE and self.snapshot is not None:
             raise ValueError(
                 "REFERENCE-tier source is not vendored — it must not carry a snapshot"
             )
         if self.tier is CaptureTier.SNAPSHOT and self.snapshot is None:
             raise ValueError("SNAPSHOT-tier source must hold a content-addressed snapshot")
+        needs_hash = self.retrieval_status in (RetrievalStatus.PROVIDED, RetrievalStatus.VERIFIED)
+        if needs_hash and self.content_hash is None:
+            raise ValueError(f"{self.retrieval_status.value} source requires a content_hash")
+        if self.retrieval_status is RetrievalStatus.VERIFIED and self.verified_at is None:
+            raise ValueError("verified source requires a verified_at timestamp")
         return self
+
+
+class Citation(BaseModel):
+    """A reified link ``concept -> cds:cites -> Source``, optionally carrying a verbatim quote.
+
+    The quote is held locally for verification; for NC sources it is not redistributed.
+    """
+
+    id: str
+    concept: str
+    source: str
+    quote: str | None = None
+
+
+class Synthesis(BaseModel):
+    """Our authoritative output: derived from its cited sources (``prov:wasDerivedFrom``).
+
+    ``generated_at`` is a *stable input* (release/commit time), never build-time ``now()``,
+    so the canonical serialization stays byte-deterministic.
+    """
+
+    id: str
+    derived_from: list[str] = []
+    generated_at: datetime | None = None
+    generated_by: str | None = None
