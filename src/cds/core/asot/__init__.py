@@ -15,9 +15,8 @@ from cds.core.asot.models import (
     RetrievalStatus,
     Source,
     SourceType,
-    Synthesis,
 )
-from cds.core.asot.rdf import to_graph
+from cds.core.asot.rdf import retrieval_activity_iri, to_graph
 from cds.core.asot.registry import (
     INCOSE_AUTHORITY,
     SEBOK_AUTHORITY,
@@ -35,9 +34,9 @@ __all__ = [
     "RetrievalStatus",
     "Source",
     "SourceType",
-    "Synthesis",
     "content_hash",
     "register_pdf_source",
+    "retrieval_activity_iri",
     "to_graph",
     "write_snapshot",
 ]

@@ -16,7 +16,6 @@ from cds.core.asot.models import (
     RetrievalStatus,
     Source,
     SourceType,
-    Synthesis,
 )
 
 _T = datetime(2026, 6, 27, 17, 22, tzinfo=UTC)
@@ -107,12 +106,3 @@ def test_citation_links_concept_to_source_with_optional_quote() -> None:
     )
     assert c.source.endswith("sebok-soi")
     assert c.quote is not None and c.quote.startswith("The system")
-
-
-def test_synthesis_derives_from_its_sources() -> None:
-    s = Synthesis(
-        id="https://w3id.org/cds/scheme/concept-definition",
-        derived_from=["https://w3id.org/cds/src/sebok-soi"],
-        generated_at=_T,
-    )
-    assert "https://w3id.org/cds/src/sebok-soi" in s.derived_from

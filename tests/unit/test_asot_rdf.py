@@ -12,9 +12,8 @@ from cds.core.asot.models import (
     CaptureTier,
     Source,
     SourceType,
-    Synthesis,
 )
-from cds.core.asot.rdf import to_graph
+from cds.core.asot.rdf import retrieval_activity_iri, to_graph
 from cds.core.controlled import controlled_concept, controlled_vocab_graph
 from cds.core.namespaces import CDS, PROV, SKOS
 
@@ -43,16 +42,30 @@ def test_authority_is_a_prov_agent_with_label() -> None:
     assert (s, CDS.authorityKind, controlled_concept(AuthorityKind.CURATED_CANON)) in g
 
 
-def test_source_is_a_prov_entity_bound_to_its_authority() -> None:
+def test_source_entity_carries_only_entity_attributes() -> None:
     g = to_graph(sources=[_SRC])
     s = URIRef(_SRC.id)
+    # entity = what the source IS
     assert (s, RDF.type, PROV.Entity) in g
-    assert (s, CDS.fromAuthority, URIRef(_AUTH.id)) in g
+    assert (s, PROV.wasAttributedTo, URIRef(_AUTH.id)) in g
     assert (s, CDS.contentHash, Literal("sha256:abc")) in g
-    # retrievedAt is a typed xsd:dateTime
-    assert (s, CDS.retrievedAt, Literal(_T)) in g
-    # sourceType is a grounded SKOS concept too
     assert (s, CDS.sourceType, controlled_concept(SourceType.WEB_PAGE)) in g
+    # activity attributes do NOT live on the entity
+    assert (s, CDS.retrievedAt, Literal(_T)) not in g
+    assert s not in {x for (x, p, _o) in g if p == PROV.endedAtTime}
+
+
+def test_retrieval_is_a_distinct_activity_with_the_act_attributes() -> None:
+    g = to_graph(sources=[_SRC])
+    s = URIRef(_SRC.id)
+    act = retrieval_activity_iri(_SRC)
+    # union: the source entity wasGeneratedBy the retrieval activity
+    assert (s, PROV.wasGeneratedBy, act) in g
+    assert (act, RDF.type, PROV.Activity) in g
+    assert (act, RDF.type, CDS.RetrievalActivity) in g
+    # the act = when/what-state, distinct from the entity's content attributes
+    assert (act, PROV.endedAtTime, Literal(_T)) in g
+    assert (act, CDS.retrievalStatus, controlled_concept(_SRC.retrieval_status)) in g
 
 
 def test_controlled_vocab_defines_concepts_in_named_schemes() -> None:
@@ -64,13 +77,3 @@ def test_controlled_vocab_defines_concepts_in_named_schemes() -> None:
     assert (CDS["AuthorityKind"], RDF.type, SKOS.ConceptScheme) in g
 
 
-def test_synthesis_was_derived_from_each_source() -> None:
-    syn = Synthesis(
-        id="https://w3id.org/cds/scheme/concept-definition",
-        derived_from=[_SRC.id],
-        generated_at=_T,
-    )
-    g = to_graph(synthesis=syn)
-    s = URIRef(syn.id)
-    assert (s, RDF.type, PROV.Entity) in g
-    assert (s, PROV.wasDerivedFrom, URIRef(_SRC.id)) in g

@@ -115,14 +115,7 @@ class Citation(BaseModel):
     quote: str | None = None
 
 
-class Synthesis(BaseModel):
-    """Our authoritative output: derived from its cited sources (``prov:wasDerivedFrom``).
-
-    ``generated_at`` is a *stable input* (release/commit time), never build-time ``now()``,
-    so the canonical serialization stays byte-deterministic.
-    """
-
-    id: str
-    derived_from: list[str] = []
-    generated_at: datetime | None = None
-    generated_by: str | None = None
+# NOTE: ``cds:Synthesis`` is **reserved** for the concept-definition artifact (the integrated
+# set of needs synthesized from divergent stakeholder/sponsor/expert inputs) — a v0.2 thing.
+# The v0.1 vocabulary is a provenance-tracked ``skos:ConceptScheme`` (reference canon), not a
+# synthesis, so no Synthesis model is defined here yet.
