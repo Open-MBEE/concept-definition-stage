@@ -12,15 +12,16 @@ These are tracked here until the public remote is provisioned; then each becomes
 
 - **URI scheme** — hash (`cds#`) for vocabulary/classes, slash (`cds/term/`, `cds/src/`) for
   individuals. Confirmed.
-- **SEBoK definition handling** — *guard locally, reference in distribution*: the verbatim
-  definition is held in the **local** RDF as a hallucination guard (the work checks the
-  authoritative text, never LLM memory); only *distribution* of NC text is excluded — published
-  repos strip NC verbatim and carry term + reference. (Published redistribution filter: slice 6.)
+- **SEBoK definition handling** — *text in the model, citation in the view*: verbatim canon is
+  **materialized in the committed RDF (M)** so the software can enforce standards + guard against
+  hallucination; the **View layer** excludes the text and cites the authoritative source. Engineering
+  enforcement > licensing bureaucracy (Z's deliberate call). RDF isn't human-consumable, so holding the
+  text in M is not "distributing" it. (View-layer exclusion lands slice 8.)
 
 ## Open audit-flagged questions (not yet resolved)
 
 - **Authorship / copyright identity.** `pyproject` names "Michael Zargham" while `LICENSE`
   says "cds contributors" — reconcile for an Open-MBEE community Apache repo.
-- **NC-verbatim gitignore convention.** `sources/private/` + `*.verbatim.txt` no longer needed for
-  SEBoK (text is never stored), but still relevant for snapshotting **private/ephemeral** sources
-  (sponsor docs, transcripts) — confirm the convention for those.
+- **`sources/private/` convention.** Reserved for genuinely-confidential source snapshots
+  (sponsor docs, transcripts; v0.2). Verbatim canon TEXT is no longer gitignored (it lives in the
+  committed M). Confirm `sources/private/` is the right home for confidential v0.2 material.

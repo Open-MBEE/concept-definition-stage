@@ -14,10 +14,10 @@ build/
 /build/
 site/                      # mkdocs output
 
-# Redistribution policy: verbatim NC-source canon is held locally for verification only,
-# NOT redistributed. Keep extracted verbatim text + NC snapshots out of the published repo.
+# Verbatim canon text is materialized in the committed RDF (the M layer) — see AGENTS.md;
+# non-distribution is enforced at the View layer, not by gitignore.
+# sources/private/ is reserved for genuinely-confidential source snapshots (e.g. sponsor docs, v0.2).
 /sources/private/
-*.verbatim.txt
 
 # OS
 .DS_Store

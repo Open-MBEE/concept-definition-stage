@@ -4,17 +4,17 @@ A term is a ``skos:Concept`` in the Concept Definition scheme. Following the "gr
 everything, no bare terms" ethos, every term carries at least one grounding edge (an
 alignment to an existing concept) and cites the boundary object(s) its definition came from.
 
-Two layers — guard locally, reference in distribution:
+Text in the model, citation in the view (the standards-in-code resolution):
 
-* **Local/working graph (the hallucination guard).** We hold the verbatim ``definition`` so the
-  work checks against the authoritative source, never LLM memory — the same discipline as an
-  engineer who, when it counts, reads SEBoK/the Handbook rather than trusting recall.
-  ``term_to_graph`` emits the verbatim when present; this graph is the ground truth ``verify``
-  checks against, and is gitignored for NC sources.
-* **Published/distributed graph (slice 6).** A redistribution filter strips non-redistributable
-  (NC, e.g. SEBoK) verbatim, leaving term + reference (``cds:cites`` + grounding) — so committed
-  repos carry no NC text. ``definition`` may be reproduced in distribution only for our own gloss
-  or reproduction-granting canon (e.g. GtWR).
+* **M (RDF triples) — the verbatim text is materialized and committed.** The software must hold
+  the standards to enforce them, and the verbatim is the **hallucination guard** (the work checks
+  the authoritative text, never LLM memory). ``term_to_graph`` emits ``skos:definition`` when
+  present. It is **not** gitignored and **not** stripped from the committed RDF.
+* **V (compilers / views, slice 8) — the text is excluded; views cite the authoritative source.**
+  Human-consumable outputs emit the citation (e.g. the sebokwiki URL), not our local copy.
+  Non-distribution is enforced at the view layer — RDF triples are not human-consumable — not by
+  withholding text from the model. (Engineering enforcement supersedes the licensing-bureaucracy
+  layer; the View is simply restricted from emitting the held copy.)
 """
 
 from __future__ import annotations

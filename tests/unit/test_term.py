@@ -61,9 +61,9 @@ def test_term_serialization_is_byte_deterministic() -> None:
     assert out1 == out2
 
 
-# Hallucination guard: the verbatim definition is held in the LOCAL/working graph so the work
-# checks against the authoritative source, never LLM memory. The published build strips
-# non-redistributable (NC) verbatim — slice 6. Text here is SYNTHETIC, never real SEBoK.
+# Hallucination guard: the verbatim definition is materialized in the M (RDF) layer so the work
+# checks against the authoritative text, never LLM memory. The View layer (slice 8) excludes the
+# text and cites the source instead. Text here is SYNTHETIC, never real SEBoK.
 _GUARDED_YAML = """
 slug: stakeholder
 pref_label: Stakeholder

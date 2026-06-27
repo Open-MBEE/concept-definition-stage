@@ -12,19 +12,20 @@ triples are invalid (Tier-1) until the prior stage's preconditions hold, so an o
    exists before any source can bind to it.
 2. **Citation record secured** — a `cds:Source` (boundary object) binds to the authority and moves through
    retrieval `pending → provided → verified`. Nothing downstream is valid until verified.
-3. **Verbatim canon attached locally (the hallucination guard)** — `skos:definition` / `cds:quote` is secured
-   verbatim from the authority and held in the *local* RDF, on a verified source, so the work checks against
-   the source rather than LLM memory. *Distribution* is separate: the published build strips NC verbatim
-   (committed repos carry term + reference, not SEBoK text); verbatim is reproduced in distribution only for
-   our own gloss or reproduction-granting sources (e.g. GtWR). No-fabrication holds: secure + check, never
-   invent.
+3. **Verbatim canon materialized in the model (the hallucination guard)** — `skos:definition` / `cds:quote`
+   is secured verbatim from the authority and **committed in the RDF**, on a verified source, so the software
+   can enforce the standards and check concepts against the source rather than LLM memory. Non-distribution
+   is handled at the **View** layer (step 7): compilers cite the authoritative source instead of emitting the
+   held text. No-fabrication holds: secure + check, never invent.
 4. **Concept created + cites the record** — a `cds:Concept` makes a concise `cds:cites` to the local citation
    record (two-hop traceability: concept → citation → authority).
 5. **Concept grounded** — every concept carries ≥1 grounding edge (`rdfs:subClassOf` / a `skos:*Match`) to an
    existing vocabulary, and optionally a SysML v2 structural anchor. No bare terms.
-6. **Concept admitted to the synthesis** — `prov:wasDerivedFrom` links the concept's sources into the
-   `cds:Synthesis` (our authoritative output).
-7. **Synthesis rendered / exported** — deterministic Typst→PDF; pluggable downstream adapters.
+6. **Concept admitted to the scheme** — `skos:inScheme` the Concept Definition scheme. (`cds:Synthesis` is
+   reserved for the concept-definition artifact — the integrated set of needs — synthesized in v0.2.)
+7. **Scheme rendered / exported** — deterministic Typst→PDF and pluggable downstream adapters. The **View
+   excludes the verbatim canon text and cites the authoritative source instead** (non-distribution at the
+   view layer; the held text stays in the model).
 
 ## AICC
 

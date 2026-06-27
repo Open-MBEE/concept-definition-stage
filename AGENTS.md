@@ -20,14 +20,15 @@ When required canon is not yet secured (a blocked page, a paywalled standard, an
 Never guess; never invent; never cite a derivative (the `Incose-Extraction-*` / `SE-Primer` repos and
 `Terminology`'s curated text are **orientation only**, never an authority).
 
-**Guard locally, reference in distribution.** We **do** hold the verbatim definition in our *local* RDF —
-not to distribute it, but as a **hallucination guard**: the work checks every concept against the
-authoritative text, never LLM weights, the same way an engineer checks SEBoK/the Handbook when it counts.
-That local verbatim is the ground truth `verify` checks against (and is gitignored for NC sources). Only
-*distribution* of NC text is excluded — committed/published artifacts strip NC verbatim and carry term +
-reference (`cds:cites` + grounding) instead. Verbatim may be reproduced in distribution only for our own
-gloss or reproduction-granting canon (e.g. the GtWR summary). The discipline: never fabricate or misrecall a
-definition — secure the verbatim from the authority and check against it.
+**Text in the model, citation in the view.** The verbatim definition is **materialized in the M layer (RDF
+triples) and committed** — the software must hold the standards to enforce them, and the verbatim is the
+**hallucination guard** (the work checks the authoritative text, never LLM weights, the way an engineer
+checks SEBoK/the Handbook when it counts). Do **not** gitignore it or strip it from the RDF. Non-distribution
+is enforced at the **V layer**: compilers/views are *restricted from emitting* the verbatim and instead cite
+the **authoritative source** (e.g. the sebokwiki URL), not our local copy. RDF triples are not
+human-consumable, so holding the text in M is not "distributing" it. (Engineering enforcement supersedes the
+licensing-bureaucracy layer — Zargham's deliberate call.) The discipline: never fabricate or misrecall a
+definition — secure the verbatim and check against it.
 
 ## Authorities, not derivatives
 
