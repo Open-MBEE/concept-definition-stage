@@ -10,10 +10,17 @@ from cds.core.asot.models import (
     Authority,
     AuthorityKind,
     CaptureTier,
+    RetrievalStatus,
     Source,
     SourceType,
+    Verification,
+    VerificationMethod,
 )
-from cds.core.asot.rdf import retrieval_activity_iri, to_graph
+from cds.core.asot.rdf import (
+    retrieval_activity_iri,
+    to_graph,
+    verification_activity_iri,
+)
 from cds.core.controlled import controlled_concept, controlled_vocab_graph
 from cds.core.namespaces import CDS, PROV, SKOS
 
@@ -66,6 +73,38 @@ def test_retrieval_is_a_distinct_activity_with_the_act_attributes() -> None:
     # the act = when/what-state, distinct from the entity's content attributes
     assert (act, PROV.endedAtTime, Literal(_T)) in g
     assert (act, CDS.retrievalStatus, controlled_concept(_SRC.retrieval_status)) in g
+
+
+_VSRC = Source(
+    id="https://w3id.org/cds/src/gtwr",
+    from_authority=_AUTH.id,
+    locator="INCOSE-TP-2010-006-04",
+    source_type=SourceType.PDF,
+    tier=CaptureTier.SNAPSHOT,
+    content_hash="sha256:deadbeef",
+    snapshot="deadbeef.pdf",
+    retrieved_at=_T,
+    retrieval_status=RetrievalStatus.VERIFIED,
+    verifications=[
+        Verification(method=VerificationMethod.CHECKSUM, verified_at=_T, note="sha256 match")
+    ],
+)
+
+
+def test_verification_is_a_separate_activity_recording_method_and_note() -> None:
+    g = to_graph(sources=[_VSRC])
+    s = URIRef(_VSRC.id)
+    vact = verification_activity_iri(_VSRC, 0)
+    assert (vact, RDF.type, PROV.Activity) in g
+    assert (vact, RDF.type, CDS.VerificationActivity) in g
+    assert (vact, PROV.used, s) in g  # the verification used (checked) the source
+    assert (vact, PROV.endedAtTime, Literal(_T)) in g
+    assert (vact, CDS.verificationMethod, controlled_concept(VerificationMethod.CHECKSUM)) in g
+    assert (vact, CDS.verificationNote, Literal("sha256 match")) in g
+    # the retrieval activity is distinct and does not carry verification attributes
+    ract = retrieval_activity_iri(_VSRC)
+    assert ract != vact
+    assert (ract, CDS.verificationMethod, controlled_concept(VerificationMethod.CHECKSUM)) not in g
 
 
 def test_controlled_vocab_defines_concepts_in_named_schemes() -> None:

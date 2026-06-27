@@ -24,8 +24,17 @@ from cds.core.namespaces import CDS, PROV
 
 
 def retrieval_activity_iri(source: Source) -> URIRef:
-    """The IRI of the retrieval/verification activity that generated a source record."""
+    """The IRI of the retrieval (capture) activity that generated a source record."""
     return URIRef(f"{source.id}/retrieval")
+
+
+def verification_activity_iri(source: Source, index: int) -> URIRef:
+    """The IRI of the ``index``-th verification activity over a source.
+
+    Verifications are separate acts from the retrieval: an older retrieval can be re-verified
+    (a new verification activity) without re-capturing.
+    """
+    return URIRef(f"{source.id}/verification/{index}")
 
 
 def to_graph(
@@ -62,7 +71,7 @@ def to_graph(
         if src.snapshot is not None:
             g.add((s, CDS.snapshot, Literal(src.snapshot)))
 
-        # --- activity: the ACT of retrieving/verifying it ---
+        # --- activity: the ACT of retrieving (capturing) it ---
         act = retrieval_activity_iri(src)
         g.add((s, PROV.wasGeneratedBy, act))
         g.add((act, RDF.type, PROV.Activity))
@@ -70,9 +79,21 @@ def to_graph(
         g.add((act, CDS.retrievalStatus, controlled_concept(src.retrieval_status)))
         if src.retrieved_at is not None:
             g.add((act, PROV.endedAtTime, Literal(src.retrieved_at)))
-        if src.verified_at is not None:
-            g.add((act, CDS.verifiedAt, Literal(src.verified_at)))
         if src.retrieval_issue is not None:
             g.add((act, CDS.retrievalIssue, Literal(src.retrieval_issue)))
+
+        # --- activities: each verification is its own act, recording method + note ---
+        for index, ver in enumerate(src.verifications):
+            vact = verification_activity_iri(src, index)
+            g.add((vact, RDF.type, PROV.Activity))
+            g.add((vact, RDF.type, CDS.VerificationActivity))
+            g.add((vact, PROV.used, s))
+            g.add((s, CDS.wasVerifiedBy, vact))
+            g.add((vact, PROV.endedAtTime, Literal(ver.verified_at)))
+            g.add((vact, CDS.verificationMethod, controlled_concept(ver.method)))
+            if ver.note is not None:
+                g.add((vact, CDS.verificationNote, Literal(ver.note)))
+            if ver.by is not None:
+                g.add((vact, PROV.wasAssociatedWith, URIRef(ver.by)))
 
     return g

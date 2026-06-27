@@ -15,8 +15,14 @@ from cds.core.asot.models import (
     RetrievalStatus,
     Source,
     SourceType,
+    Verification,
+    VerificationMethod,
 )
-from cds.core.asot.rdf import retrieval_activity_iri, to_graph
+from cds.core.asot.rdf import (
+    retrieval_activity_iri,
+    to_graph,
+    verification_activity_iri,
+)
 from cds.core.asot.registry import (
     INCOSE_AUTHORITY,
     SEBOK_AUTHORITY,
@@ -34,9 +40,12 @@ __all__ = [
     "RetrievalStatus",
     "Source",
     "SourceType",
+    "Verification",
+    "VerificationMethod",
     "content_hash",
     "register_pdf_source",
     "retrieval_activity_iri",
     "to_graph",
+    "verification_activity_iri",
     "write_snapshot",
 ]

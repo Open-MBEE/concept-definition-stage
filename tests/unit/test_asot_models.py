@@ -16,6 +16,8 @@ from cds.core.asot.models import (
     RetrievalStatus,
     Source,
     SourceType,
+    Verification,
+    VerificationMethod,
 )
 
 _T = datetime(2026, 6, 27, 17, 22, tzinfo=UTC)
@@ -74,14 +76,45 @@ def test_provided_source_requires_content_hash() -> None:
         Source(**_ref_kwargs(content_hash=None, retrieval_status=RetrievalStatus.PROVIDED))
 
 
-def test_verified_source_requires_verified_at() -> None:
-    with pytest.raises(ValidationError, match="verified"):
-        Source(**_ref_kwargs(retrieval_status=RetrievalStatus.VERIFIED, verified_at=None))
+def test_verified_source_requires_a_verification() -> None:
+    with pytest.raises(ValidationError, match="verification"):
+        Source(**_ref_kwargs(retrieval_status=RetrievalStatus.VERIFIED))
 
 
-def test_verified_source_with_hash_and_time_is_valid() -> None:
-    s = Source(**_ref_kwargs(retrieval_status=RetrievalStatus.VERIFIED, verified_at=_T))
+def test_verified_source_with_a_verification_is_valid() -> None:
+    s = Source(
+        **_ref_kwargs(
+            retrieval_status=RetrievalStatus.VERIFIED,
+            verifications=[
+                Verification(
+                    method=VerificationMethod.CHECKSUM,
+                    verified_at=_T,
+                    note="sha256 content-addressed match",
+                )
+            ],
+        )
+    )
     assert s.retrieval_status is RetrievalStatus.VERIFIED
+    assert s.verifications[0].method is VerificationMethod.CHECKSUM
+
+
+def test_a_retrieval_can_be_reverified_without_recapture() -> None:
+    # one capture, several verifications over time (e.g. a later re-check)
+    s = Source(
+        **_ref_kwargs(
+            retrieval_status=RetrievalStatus.VERIFIED,
+            verifications=[
+                Verification(method=VerificationMethod.CHECKSUM, verified_at=_T),
+                Verification(
+                    method=VerificationMethod.MACHINE_VISUAL,
+                    verified_at=_T,
+                    note="LLM screenshot parse re-confirmed the rendered text",
+                ),
+            ],
+        )
+    )
+    assert len(s.verifications) == 2
+    assert s.verifications[1].method is VerificationMethod.MACHINE_VISUAL
 
 
 # --- Authority / Citation / Synthesis ---

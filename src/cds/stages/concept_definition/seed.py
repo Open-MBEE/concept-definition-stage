@@ -16,6 +16,8 @@ from cds.core.asot.models import (
     RetrievalStatus,
     Source,
     SourceType,
+    Verification,
+    VerificationMethod,
 )
 from cds.core.asot.registry import INCOSE_AUTHORITY, SEBOK_AUTHORITY
 
@@ -31,8 +33,14 @@ GTWR_SOURCE = Source(
     content_hash=f"sha256:{_GTWR_SHA256}",
     snapshot=f"{_GTWR_SHA256}.pdf",
     retrieved_at=_CAPTURED_AT,
-    verified_at=_CAPTURED_AT,
     retrieval_status=RetrievalStatus.VERIFIED,
+    verifications=[
+        Verification(
+            method=VerificationMethod.CHECKSUM,
+            verified_at=_CAPTURED_AT,
+            note="content-addressed snapshot; sha256 matches the held file",
+        )
+    ],
 )
 
 

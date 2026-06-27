@@ -18,6 +18,8 @@ from cds.core.asot.models import (
     RetrievalStatus,
     Source,
     SourceType,
+    Verification,
+    VerificationMethod,
 )
 from cds.core.asot.snapshot import write_snapshot
 
@@ -43,18 +45,29 @@ def register_pdf_source(
     sources_root: Path,
     verified_at: datetime,
 ) -> Source:
-    """Snapshot a held PDF and return a verified ``SNAPSHOT``-tier boundary object."""
+    """Snapshot a held PDF and return a verified ``SNAPSHOT``-tier boundary object.
+
+    The verification method is ``checksum`` — the content-addressed snapshot is, by
+    construction, a deterministic hash match of the held file.
+    """
     data = pdf_path.read_bytes()
     snapshot = write_snapshot(data, root=sources_root, suffix=".pdf")
+    digest = content_hash(data)
     return Source(
         id=id,
         from_authority=authority.id,
         locator=locator,
         source_type=SourceType.PDF,
         tier=CaptureTier.SNAPSHOT,
-        content_hash=content_hash(data),
+        content_hash=digest,
         snapshot=str(snapshot),
         retrieved_at=verified_at,
-        verified_at=verified_at,
         retrieval_status=RetrievalStatus.VERIFIED,
+        verifications=[
+            Verification(
+                method=VerificationMethod.CHECKSUM,
+                verified_at=verified_at,
+                note=f"content-addressed snapshot; {digest} matches the held file",
+            )
+        ],
     )

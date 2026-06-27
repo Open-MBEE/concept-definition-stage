@@ -11,10 +11,22 @@ from enum import StrEnum
 
 from rdflib import RDF, Graph, Literal, URIRef
 
-from cds.core.asot.models import AuthorityKind, CaptureTier, RetrievalStatus, SourceType
+from cds.core.asot.models import (
+    AuthorityKind,
+    CaptureTier,
+    RetrievalStatus,
+    SourceType,
+    VerificationMethod,
+)
 from cds.core.namespaces import CDS, SKOS
 
-_SCHEMES: tuple[type[StrEnum], ...] = (AuthorityKind, SourceType, CaptureTier, RetrievalStatus)
+_SCHEMES: tuple[type[StrEnum], ...] = (
+    AuthorityKind,
+    SourceType,
+    CaptureTier,
+    RetrievalStatus,
+    VerificationMethod,
+)
 
 
 def scheme_iri(enum_cls: type[StrEnum]) -> URIRef:

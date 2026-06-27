@@ -56,12 +56,35 @@ class RetrievalStatus(StrEnum):
     VERIFIED = "verified"
 
 
+class VerificationMethod(StrEnum):
+    """How a source's content was confirmed — epistemically load-bearing (trust level)."""
+
+    CHECKSUM = "checksum"  # deterministic content-hash match
+    VISUAL_INSPECTION = "visual-inspection"  # human visual inspection
+    MACHINE_VISUAL = "machine-visual-inspection"  # machine-administered (e.g. LLM screenshot parse)
+
+
 class Authority(BaseModel):
     """An entity holding authoritative content (``prov:Agent``)."""
 
     id: str
     kind: AuthorityKind
     label: str
+
+
+class Verification(BaseModel):
+    """A single verification event — how/when a source's content was confirmed.
+
+    A source may carry several verifications over time: a later re-verification of an *older*
+    retrieval, without a new capture. ``method`` records the trust level (deterministic
+    ``checksum`` vs human ``visual-inspection`` vs machine-administered ``machine-visual``);
+    ``note`` records, in prose, how it was verified.
+    """
+
+    method: VerificationMethod
+    verified_at: datetime
+    note: str | None = None
+    by: str | None = None
 
 
 class Source(BaseModel):
@@ -83,7 +106,7 @@ class Source(BaseModel):
     content_hash: str | None = None
     snapshot: str | None = None
     retrieved_at: datetime | None = None
-    verified_at: datetime | None = None
+    verifications: list[Verification] = []
     retrieval_status: RetrievalStatus = RetrievalStatus.PENDING
     retrieval_issue: str | None = None
 
@@ -98,8 +121,8 @@ class Source(BaseModel):
         needs_hash = self.retrieval_status in (RetrievalStatus.PROVIDED, RetrievalStatus.VERIFIED)
         if needs_hash and self.content_hash is None:
             raise ValueError(f"{self.retrieval_status.value} source requires a content_hash")
-        if self.retrieval_status is RetrievalStatus.VERIFIED and self.verified_at is None:
-            raise ValueError("verified source requires a verified_at timestamp")
+        if self.retrieval_status is RetrievalStatus.VERIFIED and not self.verifications:
+            raise ValueError("verified source requires at least one verification")
         return self
 
 
