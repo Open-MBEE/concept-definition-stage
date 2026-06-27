@@ -15,7 +15,8 @@ from cds.core.asot.models import (
     Synthesis,
 )
 from cds.core.asot.rdf import to_graph
-from cds.core.namespaces import CDS, PROV
+from cds.core.controlled import controlled_concept, controlled_vocab_graph
+from cds.core.namespaces import CDS, PROV, SKOS
 
 _T = datetime(2026, 6, 27, 17, 22, tzinfo=UTC)
 
@@ -38,7 +39,8 @@ def test_authority_is_a_prov_agent_with_label() -> None:
     s = URIRef(_AUTH.id)
     assert (s, RDF.type, PROV.Agent) in g
     assert (s, RDFS.label, Literal("SEBoK")) in g
-    assert (s, CDS.authorityKind, Literal("curated-canon")) in g
+    # control vocab is grounded as a SKOS concept, not a bare Literal
+    assert (s, CDS.authorityKind, controlled_concept(AuthorityKind.CURATED_CANON)) in g
 
 
 def test_source_is_a_prov_entity_bound_to_its_authority() -> None:
@@ -49,6 +51,17 @@ def test_source_is_a_prov_entity_bound_to_its_authority() -> None:
     assert (s, CDS.contentHash, Literal("sha256:abc")) in g
     # retrievedAt is a typed xsd:dateTime
     assert (s, CDS.retrievedAt, Literal(_T)) in g
+    # sourceType is a grounded SKOS concept too
+    assert (s, CDS.sourceType, controlled_concept(SourceType.WEB_PAGE)) in g
+
+
+def test_controlled_vocab_defines_concepts_in_named_schemes() -> None:
+    g = controlled_vocab_graph()
+    concept = controlled_concept(AuthorityKind.CURATED_CANON)
+    assert (concept, RDF.type, SKOS.Concept) in g
+    assert (concept, SKOS.prefLabel, Literal("curated-canon")) in g
+    assert (concept, SKOS.inScheme, CDS["AuthorityKind"]) in g
+    assert (CDS["AuthorityKind"], RDF.type, SKOS.ConceptScheme) in g
 
 
 def test_synthesis_was_derived_from_each_source() -> None:

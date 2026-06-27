@@ -21,7 +21,13 @@ def to_graph(
     sources: Iterable[Source] | None = None,
     synthesis: Synthesis | None = None,
 ) -> Graph:
-    """Build an in-memory graph from ASoT models."""
+    """Build an in-memory graph from ASoT models.
+
+    Control-vocab values (authorityKind/sourceType/captureTier/retrievalStatus) are emitted
+    as grounded SKOS concept IRIs; their scheme definitions live in ``controlled_vocab_graph``.
+    """
+    from cds.core.controlled import controlled_concept  # local: avoids an import cycle
+
     g = Graph()
     g.bind("cds", CDS)
     g.bind("prov", PROV)
@@ -30,16 +36,16 @@ def to_graph(
         s = URIRef(a.id)
         g.add((s, RDF.type, PROV.Agent))
         g.add((s, RDFS.label, Literal(a.label)))
-        g.add((s, CDS.authorityKind, Literal(str(a.kind))))
+        g.add((s, CDS.authorityKind, controlled_concept(a.kind)))
 
     for src in sources or []:
         s = URIRef(src.id)
         g.add((s, RDF.type, PROV.Entity))
         g.add((s, CDS.fromAuthority, URIRef(src.from_authority)))
         g.add((s, CDS.locator, Literal(src.locator)))
-        g.add((s, CDS.sourceType, Literal(str(src.source_type))))
-        g.add((s, CDS.captureTier, Literal(str(src.tier))))
-        g.add((s, CDS.retrievalStatus, Literal(str(src.retrieval_status))))
+        g.add((s, CDS.sourceType, controlled_concept(src.source_type)))
+        g.add((s, CDS.captureTier, controlled_concept(src.tier)))
+        g.add((s, CDS.retrievalStatus, controlled_concept(src.retrieval_status)))
         if src.content_hash is not None:
             g.add((s, CDS.contentHash, Literal(src.content_hash)))
         if src.retrieved_at is not None:
