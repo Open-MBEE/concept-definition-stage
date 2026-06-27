@@ -59,3 +59,26 @@ def test_term_serialization_is_byte_deterministic() -> None:
     out1 = canonical_turtle(term_to_graph(load_term(_YAML), scheme=_SCHEME), prefixes=_PREFIXES)
     out2 = canonical_turtle(term_to_graph(load_term(_YAML), scheme=_SCHEME), prefixes=_PREFIXES)
     assert out1 == out2
+
+
+# Glossary strategy: reference the source, never reproduce SEBoK definition text.
+_REFERENCE_ONLY_YAML = """
+slug: stakeholder
+pref_label: Stakeholder
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/Stakeholder_(glossary)
+cites: [https://w3id.org/cds/src/sebok-stakeholder]
+"""
+
+
+def test_glossary_term_references_its_source_without_emitting_definition_text() -> None:
+    t = load_term(_REFERENCE_ONLY_YAML)
+    assert t.definition is None
+    g = term_to_graph(t, scheme=_SCHEME)
+    s = term_iri(t.slug)
+    # we do NOT reproduce SEBoK definition text — repos built with cds contain no glossary text
+    assert not list(g.objects(s, SKOS.definition))
+    # the term is still grounded + cites its authoritative source (the desk-reference model)
+    assert (s, SKOS.exactMatch, URIRef("https://sebokwiki.org/wiki/Stakeholder_(glossary)")) in g
+    assert (s, CDS.cites, URIRef("https://w3id.org/cds/src/sebok-stakeholder")) in g

@@ -4,10 +4,13 @@ A term is a ``skos:Concept`` in the Concept Definition scheme. Following the "gr
 everything, no bare terms" ethos, every term carries at least one grounding edge (an
 alignment to an existing concept) and cites the boundary object(s) its definition came from.
 
-Redistribution note: ``definition`` holds verbatim text only for permissively-licensed or
-our-own gloss. SEBoK (NC) terms cite + link instead (``definition`` omitted in the published
-scheme; the verbatim lives in the held citation record). The build wires that policy in
-slice 6; here ``definition`` is emitted when present.
+Reference, don't reproduce: for the SEBoK glossary we do **not** emit definition text at all.
+A term records its label and a *verified reference* to its authoritative source (``cds:cites``
++ a grounding edge to the SEBoK concept) — the way an engineer reads SEBoK or the Handbook as a
+desk reference ("we got our definition from here"). Repos built with this package therefore
+contain no SEBoK terminology as text, which dissolves the NC-redistribution concern entirely.
+``definition`` is reserved for our own synthesis gloss or reproduction-granting canon (e.g.
+GtWR) and is emitted only when present.
 """
 
 from __future__ import annotations

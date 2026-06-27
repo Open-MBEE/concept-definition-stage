@@ -12,8 +12,11 @@ triples are invalid (Tier-1) until the prior stage's preconditions hold, so an o
    exists before any source can bind to it.
 2. **Citation record secured** — a `cds:Source` (boundary object) binds to the authority and moves through
    retrieval `pending → provided → verified`. Nothing downstream is valid until verified.
-3. **Verbatim canon attached** — `skos:definition` / `cds:quote` may be attached **only on a verified
-   source**. Verbatim text is held locally for verification; NC-source text is not redistributed.
+3. **Definition referenced, not reproduced** — for the SEBoK glossary we record the term + a *verified
+   reference* to its source (the desk-reference model), **not** the definition text; repos built with `cds`
+   contain no SEBoK terminology as text. Verbatim text (`skos:definition` / `cds:quote`) is stored only for
+   our own gloss or reproduction-granting sources (e.g. GtWR). No-fabrication holds: reference the authority,
+   never invent.
 4. **Concept created + cites the record** — a `cds:Concept` makes a concise `cds:cites` to the local citation
    record (two-hop traceability: concept → citation → authority).
 5. **Concept grounded** — every concept carries ≥1 grounding edge (`rdfs:subClassOf` / a `skos:*Match`) to an

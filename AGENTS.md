@@ -20,6 +20,15 @@ When required canon is not yet secured (a blocked page, a paywalled standard, an
 Never guess; never invent; never cite a derivative (the `Incose-Extraction-*` / `SE-Primer` repos and
 `Terminology`'s curated text are **orientation only**, never an authority).
 
+**Reference, don't reproduce (the desk-reference model).** For reference canon like the SEBoK glossary we do
+**not** reproduce definition text at all — we record the term and a *verified reference* to its source,
+exactly as an engineer cites SEBoK or the Handbook at their desk. Repos built with `cds` contain no SEBoK
+terminology as text, which dissolves the NC-redistribution concern. The no-fabrication rule still holds:
+reference the authority, never invent a definition. Verbatim text (`skos:definition` / `cds:quote`) is stored
+only for our own synthesis gloss or sources that grant reproduction (e.g. the GtWR summary). "Verified" for a
+reference means a human (or a recorded machine-administered check) confirmed the term is genuinely defined at
+that source.
+
 ## Authorities, not derivatives
 
 Every definition **backtraces** to a primary authority — SEBoK or an INCOSE primary reference (SE Handbook,
