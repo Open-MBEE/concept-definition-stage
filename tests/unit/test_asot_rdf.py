@@ -22,7 +22,7 @@ from cds.core.asot.rdf import (
     verification_activity_iri,
 )
 from cds.core.controlled import controlled_concept, controlled_vocab_graph
-from cds.core.namespaces import CDS, PROV, SKOS
+from cds.core.namespaces import CDS, PROV, SKOS, SPDX
 
 _T = datetime(2026, 6, 27, 17, 22, tzinfo=UTC)
 
@@ -89,6 +89,20 @@ _VSRC = Source(
         Verification(method=VerificationMethod.CHECKSUM, verified_at=_T, note="sha256 match")
     ],
 )
+
+
+def test_source_license_is_emitted_as_an_spdx_iri() -> None:
+    # any externally-referenced asset can carry an SPDX license — tracked for audit, not enforced
+    src = Source(
+        id="https://w3id.org/cds/src/sebok-soi",
+        from_authority=_AUTH.id,
+        locator="https://sebokwiki.org/wiki/System-of-Interest_(glossary)",
+        source_type=SourceType.WEB_PAGE,
+        tier=CaptureTier.REFERENCE,
+        license="CC-BY-NC-SA-3.0",
+    )
+    g = to_graph(sources=[src])
+    assert (URIRef(src.id), CDS.license, SPDX["CC-BY-NC-SA-3.0"]) in g
 
 
 def test_verification_is_a_separate_activity_recording_method_and_note() -> None:

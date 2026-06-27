@@ -11,13 +11,8 @@ from __future__ import annotations
 
 from rdflib import RDF, RDFS, Literal, URIRef
 
-from cds.core.model.lifecycle import (
-    CodeLicense,
-    LifecycleModel,
-    TextLicense,
-    lifecycle_to_graph,
-    sebok_renderable,
-)
+from cds.core.licenses import CodeLicense, TextLicense, sebok_renderable
+from cds.core.model.lifecycle import LifecycleModel, lifecycle_to_graph
 from cds.core.namespaces import CDS, SPDX
 
 _ID = "https://w3id.org/cds/scheme/concept-definition"

@@ -105,6 +105,7 @@ class Source(BaseModel):
     tier: CaptureTier
     content_hash: str | None = None
     snapshot: str | None = None
+    license: str | None = None  # SPDX id of the referenced asset (tracked, not enforced)
     retrieved_at: datetime | None = None
     verifications: list[Verification] = []
     retrieval_status: RetrievalStatus = RetrievalStatus.PENDING

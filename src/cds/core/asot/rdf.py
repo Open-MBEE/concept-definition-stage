@@ -20,6 +20,7 @@ from collections.abc import Iterable
 from rdflib import RDF, RDFS, Graph, Literal, URIRef
 
 from cds.core.asot.models import Authority, Source
+from cds.core.licenses import license_iri
 from cds.core.namespaces import CDS, PROV
 
 
@@ -70,6 +71,8 @@ def to_graph(
             g.add((s, CDS.contentHash, Literal(src.content_hash)))
         if src.snapshot is not None:
             g.add((s, CDS.snapshot, Literal(src.snapshot)))
+        if src.license is not None:
+            g.add((s, CDS.license, license_iri(src.license)))
 
         # --- activity: the ACT of retrieving (capturing) it ---
         act = retrieval_activity_iri(src)
