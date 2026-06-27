@@ -1,0 +1,20 @@
+site_name: cds — Concept Definition Stage
+site_description: Docs-as-code RDF vocabulary + facilitation model for SEBoK Concept Definition
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Construction order: construction-order.md
+  - Retrieval queue: retrieval-queue.md
+  - API reference: api.md
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]

@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# cds build artifacts (regenerated deterministically)
+/build/
+site/                      # mkdocs output
+
+# Redistribution policy: verbatim NC-source canon is held locally for verification only,
+# NOT redistributed. Keep extracted verbatim text + NC snapshots out of the published repo.
+/sources/private/
+*.verbatim.txt
+
+# OS
+.DS_Store
