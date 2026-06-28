@@ -25,4 +25,33 @@
 #       prov:wasAttributedTo <https://w3id.org/cds/auth/operator> ;
 #       dcterms:date "2026-06-27"^^xsd:date .
 #
-# (No waivers for v0.1 — the seed graph is clean.)
+@prefix cds:     <https://w3id.org/cds#> .
+@prefix cdsw:    <https://w3id.org/cds/waiver/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# Goal / Objective / Solution Class are SEBoK article concepts with no glossary entry, so they ground
+# by relatedMatch to the nearest glossary concept (their MGO parent / Solution). That is the tightest
+# honest relation — there is no concept to exact/close-match — so the related-only warning is accepted.
+
+cdsw:0001 a cds:Waiver ;
+    cds:waivesRule "TermRelatedOnlyShape" ;
+    cds:waivesFocus <https://w3id.org/cds/term/goal> ;
+    cds:waiverReason "SEBoK has no Goal glossary concept; relatedMatch to Mission is the tightest honest grounding." ;
+    prov:wasAttributedTo <https://w3id.org/cds/auth/operator> ;
+    dcterms:date "2026-06-28"^^xsd:date .
+
+cdsw:0002 a cds:Waiver ;
+    cds:waivesRule "TermRelatedOnlyShape" ;
+    cds:waivesFocus <https://w3id.org/cds/term/objective> ;
+    cds:waiverReason "SEBoK has no Objective glossary concept; relatedMatch to Mission is the tightest honest grounding." ;
+    prov:wasAttributedTo <https://w3id.org/cds/auth/operator> ;
+    dcterms:date "2026-06-28"^^xsd:date .
+
+cdsw:0003 a cds:Waiver ;
+    cds:waivesRule "TermRelatedOnlyShape" ;
+    cds:waivesFocus <https://w3id.org/cds/term/solution-class> ;
+    cds:waiverReason "Solution Class has no glossary entry; relatedMatch to Solution is the tightest honest grounding." ;
+    prov:wasAttributedTo <https://w3id.org/cds/auth/operator> ;
+    dcterms:date "2026-06-28"^^xsd:date .

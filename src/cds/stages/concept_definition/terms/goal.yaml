@@ -1,0 +1,11 @@
+slug: goal
+pref_label: Goal
+# Verbatim SEBoK v2.14 (Business or Mission Analysis, SEBoK Original; confirmed in the held PDF). Part
+# of MGO (Mission/Goals/Objectives). No glossary entry; grounded by relatedMatch to Mission (its MGO
+# parent) — the tightest honest relation. Waived.
+definition: "Goals are elaborated from the mission statement to communicate what must be achieved to result in a successful mission. Goals allow the organization to divide the mission statement into manageable pieces and promote a shared understanding between the project team and the business operations level stakeholders of what needs to be done to achieve the mission."
+grounding:
+  - relation: related-match
+    target: https://sebokwiki.org/wiki/Mission_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

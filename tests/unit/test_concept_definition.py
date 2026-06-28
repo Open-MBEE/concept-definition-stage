@@ -103,6 +103,28 @@ def test_gtwr_c1_c15_companion_vocab_is_cited_but_not_terms() -> None:
     assert (CHARACTERISTICS_SCHEME, PROV.wasDerivedFrom, URIRef(GTWR_SOURCE.id)) in g
 
 
+def test_business_mission_analysis_concepts_are_grounded_and_sourced() -> None:
+    g = build_concept_definition_graph()
+    sebok = URIRef(SEBOK_SOURCE.id)
+    for slug in ("goal", "objective", "solution-class"):
+        assert (term_iri(slug), CDS.cites, sebok) in g  # verbatim verified against the held PDF
+        assert (term_iri(slug), SKOS.relatedMatch, None) in g  # grounded (related-only, waived)
+
+
+def test_related_only_warnings_are_waived_by_first_class_rdf_waivers() -> None:
+    from pathlib import Path
+
+    from rdflib import Graph
+
+    from cds.core.verify import verify, waivers_from_graph
+
+    waivers_ttl = Path(__file__).resolve().parents[2] / "ontology" / "waivers.ttl"
+    waiver_graph = Graph()
+    waiver_graph.parse(waivers_ttl, format="turtle")
+    result = verify(build_concept_definition_graph(), waivers=waivers_from_graph(waiver_graph))
+    assert not any(f.rule == "TermRelatedOnlyShape" for f in result.warnings)
+
+
 def test_sebok_source_is_a_verified_reference_tier_boundary_object() -> None:
     # public BY-NC-SA canon: hash + locator, verified, NOT vendored (no snapshot)
     assert SEBOK_SOURCE.tier is CaptureTier.REFERENCE

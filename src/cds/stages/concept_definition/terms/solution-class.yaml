@@ -1,0 +1,11 @@
+slug: solution-class
+pref_label: Solution Class
+# Verbatim SEBoK v2.14 (Business or Mission Analysis article, SEBoK Original; confirmed in the held
+# PDF). An article concept with no glossary entry, so grounded by relatedMatch to the SEBoK Solution
+# glossary concept — the tightest honest relation (no entry exists to exact/close-match). Waived.
+definition: "A solution class refers to the means of achieving a solution. Examples include development of a new system, modifying or upgrading an existing system, leveraging multiple existing systems, or generating operational changes."
+grounding:
+  - relation: related-match
+    target: https://sebokwiki.org/wiki/Solution_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

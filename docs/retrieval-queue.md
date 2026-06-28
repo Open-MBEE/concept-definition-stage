@@ -29,9 +29,19 @@ attribution (`cds:definitionSource`), a citation, and a grounding edge. Notes on
 - **Integrated Set of Needs** — *available* in the GtWR summary (defined there verbatim); a good
   candidate to encode next, sourced from GtWR rather than the SEBoK topic pages.
 
-## In-prose concepts — need the topic-page sources (capture pass, slice 10)
+## In-prose concepts (slice 10 capture pass)
 
-MGO (Mission/Goals/Objectives), Integrated Set of Needs, need-statement format, Stakeholder Register,
-Approving Authority, Driver, Constraint, Solution Class — these come from the **Business or Mission
-Analysis** and **Stakeholder Needs Definition** topic pages (wikitext), not the glossary; secure those
-sources before encoding.
+**From the Business or Mission Analysis page (provided by the operator; verbatim confirmed in the held
+PDF, cited to SEBOK_SOURCE):**
+- *Captured:* **Goal**, **Objective**, **Solution Class** — article concepts with no glossary entry,
+  grounded by `relatedMatch` (to Mission / Mission / Solution) and waived in `ontology/waivers.ttl`
+  (no tighter SEBoK target exists). MGO = Mission (glossary) + Goal + Objective.
+- *Held:* **Stakeholder Register** — SEBoK describes it mid-prose ("...captured in a stakeholder
+  register, noting each stakeholder and their involvement...") but gives no clean definition sentence;
+  encoding it would require paraphrase. Hold until a crisp source.
+- Also available here but already done elsewhere: Operational Concept, Measure of Effectiveness, Mission,
+  problem/threat/opportunity (glossary); as-is/to-be & green-/brown-field (v0.2 perspective primitives).
+
+**Still needed — the Stakeholder Needs Definition page** (for: Approving Authority, need-statement
+format, and to confirm Stakeholder Register / Driver / Constraint usage). Driver and Constraint also
+have glossary entries (encodable now). Provide that page to finish the capture pass.

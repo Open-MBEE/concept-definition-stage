@@ -57,6 +57,12 @@ Source: #link("https://sebokwiki.org/wiki/Functional_Architecture_(glossary)")
 
 SysML anchor: canon-only
 
+=== Goal
+
+#quote(block: true)[Goals are elaborated from the mission statement to communicate what must be achieved to result in a successful mission. Goals allow the organization to divide the mission statement into manageable pieces and promote a shared understanding between the project team and the business operations level stakeholders of what needs to be done to achieve the mission.]
+
+SysML anchor: canon-only
+
 === Integrated Set of Needs
 
 #quote(block: true)[A need set is a structured set of agreed-to need expressions for the entity (enterprise/business unit/system/subsystem/system element/process) and its external interfaces. Within the NRM, GtNR, GtVV, and this Guide this set of needs is referred to as an Integrated Set of Needs. This Integrated Set of Needs is well-formed, having the characteristics defined in this Guide, communicating the scope of effort to which the system of interest will be validated against.]
@@ -133,6 +139,12 @@ SysML anchor: canon-only
 
 SysML anchor: canon-only
 
+=== Objective
+
+#quote(block: true)[Objectives are elaborated from the goals to provide more details concerning what must be done that will result in the goals and mission to be achieved.]
+
+SysML anchor: canon-only
+
 === Operational Concept
 
 #quote(block: true)[verbal and graphic statement of an organization’s assumptions or intent in regard to an operation or series of operations of a system or a related set of systems.]
@@ -186,6 +198,12 @@ SysML anchor: canon-only
 SEBoK attribution: American Heritage Dictionary 2009
 
 Source: #link("https://sebokwiki.org/wiki/Solution_(glossary)")
+
+SysML anchor: canon-only
+
+=== Solution Class
+
+#quote(block: true)[A solution class refers to the means of achieving a solution. Examples include development of a new system, modifying or upgrading an existing system, leveraging multiple existing systems, or generating operational changes.]
 
 SysML anchor: canon-only
 

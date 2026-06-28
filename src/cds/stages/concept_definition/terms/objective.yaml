@@ -1,0 +1,10 @@
+slug: objective
+pref_label: Objective
+# Verbatim SEBoK v2.14 (Business or Mission Analysis, SEBoK Original; confirmed in the held PDF). Part
+# of MGO. No glossary entry; grounded by relatedMatch to Mission (its MGO parent). Waived.
+definition: "Objectives are elaborated from the goals to provide more details concerning what must be done that will result in the goals and mission to be achieved."
+grounding:
+  - relation: related-match
+    target: https://sebokwiki.org/wiki/Mission_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14
