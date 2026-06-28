@@ -1,0 +1,311 @@
+@prefix cds: <https://w3id.org/cds#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+<https://w3id.org/cds#AuthorityKind/consulted-stakeholder>
+    a skos:Concept ;
+    skos:inScheme cds:AuthorityKind ;
+    skos:prefLabel "consulted-stakeholder" .
+
+<https://w3id.org/cds#AuthorityKind/curated-canon>
+    a skos:Concept ;
+    skos:inScheme cds:AuthorityKind ;
+    skos:prefLabel "curated-canon" .
+
+<https://w3id.org/cds#AuthorityKind/domain-expert>
+    a skos:Concept ;
+    skos:inScheme cds:AuthorityKind ;
+    skos:prefLabel "domain-expert" .
+
+<https://w3id.org/cds#AuthorityKind/informal>
+    a skos:Concept ;
+    skos:inScheme cds:AuthorityKind ;
+    skos:prefLabel "informal" .
+
+<https://w3id.org/cds#AuthorityKind/regulatory>
+    a skos:Concept ;
+    skos:inScheme cds:AuthorityKind ;
+    skos:prefLabel "regulatory" .
+
+<https://w3id.org/cds#AuthorityKind/sponsor>
+    a skos:Concept ;
+    skos:inScheme cds:AuthorityKind ;
+    skos:prefLabel "sponsor" .
+
+<https://w3id.org/cds#AuthorityKind/standard>
+    a skos:Concept ;
+    skos:inScheme cds:AuthorityKind ;
+    skos:prefLabel "standard" .
+
+<https://w3id.org/cds#CaptureTier/reference>
+    a skos:Concept ;
+    skos:inScheme cds:CaptureTier ;
+    skos:prefLabel "reference" .
+
+<https://w3id.org/cds#CaptureTier/snapshot>
+    a skos:Concept ;
+    skos:inScheme cds:CaptureTier ;
+    skos:prefLabel "snapshot" .
+
+<https://w3id.org/cds#RetrievalStatus/pending>
+    a skos:Concept ;
+    skos:inScheme cds:RetrievalStatus ;
+    skos:prefLabel "pending" .
+
+<https://w3id.org/cds#RetrievalStatus/provided>
+    a skos:Concept ;
+    skos:inScheme cds:RetrievalStatus ;
+    skos:prefLabel "provided" .
+
+<https://w3id.org/cds#RetrievalStatus/verified>
+    a skos:Concept ;
+    skos:inScheme cds:RetrievalStatus ;
+    skos:prefLabel "verified" .
+
+<https://w3id.org/cds#SourceType/image>
+    a skos:Concept ;
+    skos:inScheme cds:SourceType ;
+    skos:prefLabel "image" .
+
+<https://w3id.org/cds#SourceType/notes>
+    a skos:Concept ;
+    skos:inScheme cds:SourceType ;
+    skos:prefLabel "notes" .
+
+<https://w3id.org/cds#SourceType/pdf>
+    a skos:Concept ;
+    skos:inScheme cds:SourceType ;
+    skos:prefLabel "pdf" .
+
+<https://w3id.org/cds#SourceType/transcript>
+    a skos:Concept ;
+    skos:inScheme cds:SourceType ;
+    skos:prefLabel "transcript" .
+
+<https://w3id.org/cds#SourceType/web-page>
+    a skos:Concept ;
+    skos:inScheme cds:SourceType ;
+    skos:prefLabel "web-page" .
+
+<https://w3id.org/cds#VerificationMethod/checksum>
+    a skos:Concept ;
+    skos:inScheme cds:VerificationMethod ;
+    skos:prefLabel "checksum" .
+
+<https://w3id.org/cds#VerificationMethod/machine-visual-inspection>
+    a skos:Concept ;
+    skos:inScheme cds:VerificationMethod ;
+    skos:prefLabel "machine-visual-inspection" .
+
+<https://w3id.org/cds#VerificationMethod/visual-inspection>
+    a skos:Concept ;
+    skos:inScheme cds:VerificationMethod ;
+    skos:prefLabel "visual-inspection" .
+
+<https://w3id.org/cds>
+    a owl:Ontology ;
+    owl:versionInfo "0.1.0" ;
+    rdfs:label "cds core vocabulary" .
+
+cds:Authority
+    a owl:Class,
+        rdfs:Class ;
+    rdfs:comment "An entity holding authoritative content (a source's holder)." ;
+    rdfs:label "Authority" ;
+    rdfs:subClassOf prov:Agent .
+
+cds:AuthorityKind
+    a skos:ConceptScheme .
+
+cds:CaptureTier
+    a skos:ConceptScheme .
+
+cds:LifecycleModel
+    a owl:Class,
+        rdfs:Class ;
+    rdfs:comment "A system modeled across its life cycle, from Concept Definition." ;
+    rdfs:label "LifecycleModel" .
+
+cds:RetrievalActivity
+    a owl:Class,
+        rdfs:Class ;
+    rdfs:comment "The act of retrieving (capturing) a source." ;
+    rdfs:label "RetrievalActivity" ;
+    rdfs:subClassOf prov:Activity .
+
+cds:RetrievalStatus
+    a skos:ConceptScheme .
+
+cds:Source
+    a owl:Class,
+        rdfs:Class ;
+    rdfs:comment "A boundary object: a specific artifact held by an authority." ;
+    rdfs:label "Source" ;
+    rdfs:subClassOf prov:Entity .
+
+cds:SourceType
+    a skos:ConceptScheme .
+
+cds:Term
+    a owl:Class,
+        rdfs:Class ;
+    rdfs:comment "A Concept Definition reference-vocabulary term." ;
+    rdfs:label "Term" ;
+    rdfs:subClassOf skos:Concept .
+
+cds:VerificationActivity
+    a owl:Class,
+        rdfs:Class ;
+    rdfs:comment "The act of verifying a source's content." ;
+    rdfs:label "VerificationActivity" ;
+    rdfs:subClassOf prov:Activity .
+
+cds:VerificationMethod
+    a skos:ConceptScheme .
+
+cds:Waiver
+    a owl:Class,
+        rdfs:Class ;
+    rdfs:comment "An append-only, conscious acceptance of a non-Violation verify finding." ;
+    rdfs:label "Waiver" .
+
+cds:authorityKind
+    a owl:ObjectProperty,
+        rdf:Property ;
+    rdfs:comment "The controlled kind of an authority." ;
+    rdfs:label "authorityKind" .
+
+cds:captureTier
+    a owl:ObjectProperty,
+        rdf:Property ;
+    rdfs:comment "How faithfully a source is captured (reference / snapshot)." ;
+    rdfs:label "captureTier" .
+
+cds:cites
+    a owl:ObjectProperty,
+        rdf:Property ;
+    rdfs:comment "Links a term to a boundary-object source it draws on." ;
+    rdfs:label "cites" .
+
+cds:codeLicense
+    a owl:ObjectProperty,
+        rdf:Property ;
+    rdfs:comment "The code license declared by a lifecycle model." ;
+    rdfs:label "codeLicense" .
+
+cds:contentHash
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    rdfs:comment "The content hash (e.g. sha256:...) of a captured source." ;
+    rdfs:label "contentHash" .
+
+cds:license
+    a owl:ObjectProperty,
+        rdf:Property ;
+    rdfs:comment "The tracked SPDX license of a referenced asset (tracked, not enforced)." ;
+    rdfs:label "license" .
+
+cds:licenseText
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    rdfs:comment "The verbatim terms of a custom license." ;
+    rdfs:label "licenseText" .
+
+cds:locator
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    rdfs:comment "The locator (URI or document number) of a source." ;
+    rdfs:label "locator" .
+
+cds:nrmCanon
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    rdfs:comment "An INCOSE NRM / GtWR grounding note on a term." ;
+    rdfs:label "nrmCanon" .
+
+cds:reproducible
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    rdfs:comment "Whether a custom license permits reproduction/redistribution." ;
+    rdfs:label "reproducible" .
+
+cds:retrievalIssue
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    rdfs:comment "The retrieval-escalation issue URL for a not-yet-secured source." ;
+    rdfs:label "retrievalIssue" .
+
+cds:retrievalStatus
+    a owl:ObjectProperty,
+        rdf:Property ;
+    rdfs:comment "The construction-order state of a retrieval (pending/provided/verified)." ;
+    rdfs:label "retrievalStatus" .
+
+cds:snapshot
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    rdfs:comment "The content-addressed local snapshot filename of a captured source." ;
+    rdfs:label "snapshot" .
+
+cds:sourceType
+    a owl:ObjectProperty,
+        rdf:Property ;
+    rdfs:comment "The controlled kind of artifact a source points at." ;
+    rdfs:label "sourceType" .
+
+cds:stage
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    rdfs:comment "The life-cycle stage label of a lifecycle model." ;
+    rdfs:label "stage" .
+
+cds:sysmlConstruct
+    a owl:ObjectProperty,
+        rdf:Property ;
+    rdfs:comment "The SysML v2 construct a term structurally anchors to." ;
+    rdfs:label "sysmlConstruct" .
+
+cds:textLicense
+    a owl:ObjectProperty,
+        rdf:Property ;
+    rdfs:comment "The text license of a lifecycle model (gates restricted-canon rendering)." ;
+    rdfs:label "textLicense" .
+
+cds:verificationMethod
+    a owl:ObjectProperty,
+        rdf:Property ;
+    rdfs:comment "How a source's content was confirmed (checksum/visual/machine)." ;
+    rdfs:label "verificationMethod" .
+
+cds:verificationNote
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    rdfs:comment "Prose note on how a verification was performed." ;
+    rdfs:label "verificationNote" .
+
+cds:waiverReason
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    rdfs:comment "Why a waiver was consciously accepted." ;
+    rdfs:label "waiverReason" .
+
+cds:waivesFocus
+    a owl:ObjectProperty,
+        rdf:Property ;
+    rdfs:comment "The specific focus node a waiver applies to." ;
+    rdfs:label "waivesFocus" .
+
+cds:waivesRule
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    rdfs:comment "The verify rule (check name) a waiver accepts." ;
+    rdfs:label "waivesRule" .
+
+cds:wasVerifiedBy
+    a owl:ObjectProperty,
+        rdf:Property ;
+    rdfs:comment "Links a source to a verification activity performed over it." ;
+    rdfs:label "wasVerifiedBy" .
