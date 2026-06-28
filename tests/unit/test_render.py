@@ -61,8 +61,9 @@ def test_typst_source_is_deterministic() -> None:
 
 def test_every_term_appears_in_the_view() -> None:
     view = _view("CC-BY-NC-SA-4.0")
-    # 25 glossary + GtWR (need/requirement/ISoN) + goal/objective/solution-class + driver/constraint
-    assert len(view.terms) == 33
+    # 25 glossary + 11 in-prose/GtWR concepts (need/requirement/ISoN, MGO, solution-class,
+    # driver/constraint, approving-authority, stakeholder-register, need-statement)
+    assert len(view.terms) == 36
 
 
 def test_committed_typ_is_the_default_license_generation() -> None:

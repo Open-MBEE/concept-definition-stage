@@ -207,6 +207,16 @@
     prov:wasAttributedTo <https://w3id.org/cds/auth/sebok> ;
     prov:wasGeneratedBy <https://w3id.org/cds/src/sebok-v2-14/retrieval> .
 
+cdsterm:approving-authority
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    skos:altLabel "Approving Authorities" ;
+    skos:definition "The approving authorities include stakeholders that are responsible for formally certifying, qualifying, and approving the system for use in its operational environment by its intended users." ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Approving Authority" ;
+    skos:relatedMatch <https://sebokwiki.org/wiki/Stakeholder_(glossary)> .
+
 cdsterm:capability
     a cds:Term,
         skos:Concept ;
@@ -368,6 +378,16 @@ cdsterm:need
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
     skos:prefLabel "Need" .
 
+cdsterm:need-statement
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "INCOSE GtWR 2023" ;
+    skos:definition "Needs are written in a structured, natural language from the perspective of what the stakeholders need the SoI to do. To help distinguish needs from the requirements, the needs statements do not include the word “shall” (or other word that depicts the statement is a requirement). It is recommended that need statements use a different format from requirements, such as: “The stakeholders need the system to”." ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Need Statement" ;
+    skos:relatedMatch <https://sebokwiki.org/wiki/Need_(glossary)> .
+
 cdsterm:objective
     a cds:Term,
         skos:Concept ;
@@ -468,6 +488,15 @@ cdsterm:stakeholder-needs-and-requirements
     skos:exactMatch <https://sebokwiki.org/wiki/Stakeholder_Needs_and_Requirements_(glossary)> ;
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
     skos:prefLabel "Stakeholder Needs and Requirements" .
+
+cdsterm:stakeholder-register
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    skos:definition "An approach for recording the list of stakeholders is to use a stakeholder register that includes key information for each stakeholder and how they are involved with the SoI." ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Stakeholder Register" ;
+    skos:relatedMatch <https://sebokwiki.org/wiki/Stakeholder_(glossary)> .
 
 cdsterm:system-boundary
     a cds:Term,

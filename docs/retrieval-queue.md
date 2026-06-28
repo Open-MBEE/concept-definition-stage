@@ -44,8 +44,10 @@ PDF, cited to SEBOK_SOURCE):**
 
 **Driver, Constraint** — *captured* from their SEBoK glossary entries (exact-match grounding).
 
-**From the Stakeholder Needs Definition page (partial — provided in batches):** the opening batch
-adds no clean new term (its "Stakeholder needs" framing overlaps the existing
-`stakeholder-needs-and-requirements`; Integrated Set of Needs already encoded from GtWR). Still
-awaiting the later sections for **Approving Authority** and the **need-statement format** ("The
-stakeholders need the system to…") — sections 3.4 (Elicitation) and 3.8 (Define and Baseline).
+**From the Stakeholder Needs Definition page (full, captured):** **Approving Authority**, **Stakeholder
+Register**, and **Need Statement** (the need-statement format — "The stakeholders need the system to",
+no "shall") — all verbatim-confirmed in the held PDF, cited to SEBOK_SOURCE, grounded by relatedMatch
+(to Stakeholder / Stakeholder / Need) and waived. Both Concept Definition topic pages are now captured.
+
+Deferred by design: SEBoK Table 2 example need statements (ID/Name/Need/Rationale/Source) = the v0.2
+conformance fixture; as-is/to-be & green-/brown-field = v0.2 perspective primitives.

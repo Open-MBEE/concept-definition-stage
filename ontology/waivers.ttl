@@ -55,3 +55,26 @@ cdsw:0003 a cds:Waiver ;
     cds:waiverReason "Solution Class has no glossary entry; relatedMatch to Solution is the tightest honest grounding." ;
     prov:wasAttributedTo <https://w3id.org/cds/auth/operator> ;
     dcterms:date "2026-06-28"^^xsd:date .
+
+# Stakeholder Needs Definition article concepts — no glossary entry, relatedMatch is the tightest fit.
+
+cdsw:0004 a cds:Waiver ;
+    cds:waivesRule "TermRelatedOnlyShape" ;
+    cds:waivesFocus <https://w3id.org/cds/term/approving-authority> ;
+    cds:waiverReason "Approving Authority has no glossary entry; it is a kind of stakeholder, so relatedMatch to Stakeholder is the tightest honest grounding." ;
+    prov:wasAttributedTo <https://w3id.org/cds/auth/operator> ;
+    dcterms:date "2026-06-28"^^xsd:date .
+
+cdsw:0005 a cds:Waiver ;
+    cds:waivesRule "TermRelatedOnlyShape" ;
+    cds:waivesFocus <https://w3id.org/cds/term/stakeholder-register> ;
+    cds:waiverReason "Stakeholder Register has no glossary entry; relatedMatch to Stakeholder is the tightest honest grounding." ;
+    prov:wasAttributedTo <https://w3id.org/cds/auth/operator> ;
+    dcterms:date "2026-06-28"^^xsd:date .
+
+cdsw:0006 a cds:Waiver ;
+    cds:waivesRule "TermRelatedOnlyShape" ;
+    cds:waivesFocus <https://w3id.org/cds/term/need-statement> ;
+    cds:waiverReason "Need Statement (the need-statement format) has no glossary entry; relatedMatch to Need is the tightest honest grounding." ;
+    prov:wasAttributedTo <https://w3id.org/cds/auth/operator> ;
+    dcterms:date "2026-06-28"^^xsd:date .

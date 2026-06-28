@@ -1,0 +1,10 @@
+slug: stakeholder-register
+pref_label: Stakeholder Register
+# Verbatim SEBoK v2.14 (Stakeholder Needs Definition, SEBoK Original; confirmed in the held PDF). No
+# glossary entry; grounded by relatedMatch to Stakeholder. Waived.
+definition: "An approach for recording the list of stakeholders is to use a stakeholder register that includes key information for each stakeholder and how they are involved with the SoI."
+grounding:
+  - relation: related-match
+    target: https://sebokwiki.org/wiki/Stakeholder_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

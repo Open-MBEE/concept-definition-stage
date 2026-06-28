@@ -1,0 +1,12 @@
+slug: need-statement
+pref_label: Need Statement
+# Verbatim SEBoK v2.14 (Stakeholder Needs Definition; confirmed in the held PDF). The need-statement
+# format — the load-bearing need-vs-requirement tell (no "shall"). No glossary entry; relatedMatch to
+# Need. Waived. The format example is attributed to INCOSE GtWR 2023.
+definition: "Needs are written in a structured, natural language from the perspective of what the stakeholders need the SoI to do. To help distinguish needs from the requirements, the needs statements do not include the word “shall” (or other word that depicts the statement is a requirement). It is recommended that need statements use a different format from requirements, such as: “The stakeholders need the system to”."
+definition_source: "INCOSE GtWR 2023"
+grounding:
+  - relation: related-match
+    target: https://sebokwiki.org/wiki/Need_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

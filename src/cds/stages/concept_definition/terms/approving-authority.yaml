@@ -1,0 +1,12 @@
+slug: approving-authority
+pref_label: Approving Authority
+alt_labels: [Approving Authorities]
+# Verbatim SEBoK v2.14 (Stakeholder Needs Definition, SEBoK Original; confirmed in the held PDF). Ties
+# to our Authority model + the downstream flexo-rtm approver. No glossary entry; grounded by
+# relatedMatch to Stakeholder (an approving authority is a kind of stakeholder). Waived.
+definition: "The approving authorities include stakeholders that are responsible for formally certifying, qualifying, and approving the system for use in its operational environment by its intended users."
+grounding:
+  - relation: related-match
+    target: https://sebokwiki.org/wiki/Stakeholder_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

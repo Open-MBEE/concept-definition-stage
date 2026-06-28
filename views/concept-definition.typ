@@ -7,6 +7,14 @@
 Text license: CC-BY-NC-SA-4.0. This report embeds verbatim SEBoK definitions; it therefore inherits SEBoK's text license (CC-BY-NC-SA-4.0, ShareAlike).
 
 
+=== Approving Authority
+
+_aka Approving Authorities_
+
+#quote(block: true)[The approving authorities include stakeholders that are responsible for formally certifying, qualifying, and approving the system for use in its operational environment by its intended users.]
+
+SysML anchor: canon-only
+
 === Capability
 
 #quote(block: true)[The ability to achieve a desired effect under specified (performance) standards and conditions through combinations of ways and means (activities and resources) to perform a set of activities.]
@@ -159,6 +167,14 @@ SysML anchor: canon-only
 
 SysML anchor: canon-only
 
+=== Need Statement
+
+#quote(block: true)[Needs are written in a structured, natural language from the perspective of what the stakeholders need the SoI to do. To help distinguish needs from the requirements, the needs statements do not include the word “shall” (or other word that depicts the statement is a requirement). It is recommended that need statements use a different format from requirements, such as: “The stakeholders need the system to”.]
+
+SEBoK attribution: INCOSE GtWR 2023
+
+SysML anchor: canon-only
+
 === Objective
 
 #quote(block: true)[Objectives are elaborated from the goals to provide more details concerning what must be done that will result in the goals and mission to be achieved.]
@@ -246,6 +262,12 @@ SEBoK attribution: ISO/IEC/IEEE 15288, 2023, Section 6.4.2
 Source: #link("https://sebokwiki.org/wiki/Stakeholder_Needs_and_Requirements_(glossary)")
 
 SysML anchor: https://www.omg.org/spec/SysML/2.0/RequirementDefinition
+
+=== Stakeholder Register
+
+#quote(block: true)[An approach for recording the list of stakeholders is to use a stakeholder register that includes key information for each stakeholder and how they are involved with the SoI.]
+
+SysML anchor: canon-only
 
 === System Boundary
 
