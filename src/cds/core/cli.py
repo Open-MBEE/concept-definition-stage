@@ -37,16 +37,19 @@ def verify(
     ] = None,
     waivers: Annotated[
         Path | None,
-        typer.Option(help="YAML waivers file; defaults to ontology/waivers.yaml if present."),
+        typer.Option(help="Turtle waivers graph (cds:Waiver); defaults to ontology/waivers.ttl."),
     ] = None,
 ) -> None:
     """Run the SHACL tri-severity + construction-order checks; non-zero exit on Tier-1."""
-    from cds.core.verify import SHAPES_DIR, Finding, load_waivers
+    from cds.core.verify import SHAPES_DIR, Finding
     from cds.core.verify import verify as run_verify
 
     data = _load_turtle(graph) if graph is not None else _seed_graph()
-    waivers_path = waivers if waivers is not None else SHAPES_DIR.parent / "waivers.yaml"
-    result = run_verify(data, waivers=load_waivers(waivers_path))
+    # waivers are first-class RDF — merge the operator's waiver graph into the data being verified
+    waivers_path = waivers if waivers is not None else SHAPES_DIR.parent / "waivers.ttl"
+    if waivers_path.exists():
+        data.parse(waivers_path, format="turtle")
+    result = run_verify(data)
 
     def _emit(f: Finding) -> None:
         colour = {"T1": typer.colors.RED, "T2": typer.colors.YELLOW, "T3": typer.colors.BLUE}

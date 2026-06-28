@@ -6,7 +6,7 @@ The graphs here are built from the ASoT + term emitters (well-formed cases) or h
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 
 from rdflib import RDF, Graph, Literal, URIRef
 from typer.testing import CliRunner
@@ -25,7 +25,7 @@ from cds.core.asot.rdf import to_graph
 from cds.core.cli import app
 from cds.core.model.term import Term, term_iri, term_to_graph
 from cds.core.namespaces import CDS, PROV
-from cds.core.verify import Severity, Waiver, verify
+from cds.core.verify import Severity, Waiver, verify, waiver_to_graph, waivers_from_graph
 
 _T = datetime(2026, 6, 27, tzinfo=UTC)
 _SCHEME = URIRef("https://w3id.org/cds/scheme/concept-definition")
@@ -95,7 +95,17 @@ def test_emitters_type_boundary_objects_and_terms_for_shacl_targeting() -> None:
 def test_well_formed_graph_passes_with_no_violations() -> None:
     result = verify(_well_formed_graph())
     assert result.passed
+    assert result.conforms  # passed IS SHACL conformance (the structural verdict)
     assert result.violations == ()
+
+
+def test_passed_is_identically_shacl_conformance() -> None:
+    # the gate is the tool's own verdict — not a re-derived policy. On any graph the two agree.
+    broken = to_graph(authorities=[_AUTH], sources=[_verified_source()])
+    broken += term_to_graph(_term(grounding=[]), scheme=_SCHEME)
+    for g in (_well_formed_graph(), broken):
+        result = verify(g)
+        assert result.passed is result.conforms
 
 
 # --- T1 boundary-object + construction-order preconditions ----------------------------------
@@ -133,7 +143,7 @@ def test_term_without_grounding_is_t1() -> None:
     g += term_to_graph(_term(grounding=[]), scheme=_SCHEME)
     result = verify(g)
     assert not result.passed
-    assert any(f.shape_name == "TermGroundedShape" for f in result.violations)
+    assert any(f.rule == "TermGroundedShape" for f in result.violations)
 
 
 def test_term_without_citation_is_t1() -> None:
@@ -154,7 +164,7 @@ def test_source_without_license_is_a_t2_warning_not_a_violation() -> None:
     g += term_to_graph(_term(definition="SYNTHETIC verified definition."), scheme=_SCHEME)
     result = verify(g)
     assert result.passed  # still passes — only a warning
-    assert any(f.severity is Severity.WARNING for f in result.warnings)
+    assert any(f.rule == "SourceLicense" for f in result.warnings)
 
 
 def test_related_match_only_grounding_is_a_t2_warning() -> None:
@@ -165,37 +175,84 @@ def test_related_match_only_grounding_is_a_t2_warning() -> None:
     )
     result = verify(g)
     assert result.passed
-    assert any(f.shape_name == "TermRelatedOnlyShape" for f in result.warnings)
+    assert any(f.rule == "TermRelatedOnlyShape" for f in result.warnings)
 
 
-# --- waivers (append-only; T1 never waivable) -----------------------------------------------
+# --- waivers (first-class RDF; append-only; T1 never waivable) -------------------------------
 
 
-def test_waiver_suppresses_a_warning() -> None:
+def _license_warning_graph() -> Graph:
     src = _verified_source()
     g = to_graph(authorities=[_AUTH], sources=[src])
     g.remove((URIRef(src.id), CDS.license, None))
     g += term_to_graph(_term(definition="SYNTHETIC verified definition."), scheme=_SCHEME)
-    waiver = Waiver(message="tracked cds:license", reason="referenced asset, license TBD")
+    return g
+
+
+def test_waiver_suppresses_a_warning() -> None:
+    g = _license_warning_graph()
+    waiver = Waiver(
+        id="https://w3id.org/cds/waiver/0001",
+        rule="SourceLicense",
+        reason="referenced asset, license TBD",
+    )
     result = verify(g, waivers=[waiver])
     assert result.passed
     assert result.warnings == ()
 
 
+def test_waivers_are_read_from_the_graph_as_first_class_data() -> None:
+    # no explicit waivers arg — the waiver travels IN the graph as cds:Waiver triples
+    g = _license_warning_graph()
+    g += waiver_to_graph(
+        Waiver(
+            id="https://w3id.org/cds/waiver/0001",
+            rule="SourceLicense",
+            reason="referenced asset, license TBD",
+            by="https://w3id.org/cds/auth/operator",
+            waived_on=date(2026, 6, 27),
+        )
+    )
+    result = verify(g)
+    assert result.passed
+    assert result.warnings == ()
+
+
+def test_waiver_rdf_round_trips() -> None:
+    w = Waiver(
+        id="https://w3id.org/cds/waiver/0001",
+        rule="SourceLicense",
+        reason="referenced asset, license TBD",
+        focus="https://w3id.org/cds/src/x",
+        by="https://w3id.org/cds/auth/operator",
+        waived_on=date(2026, 6, 27),
+    )
+    g = waiver_to_graph(w)
+    assert (URIRef(w.id), RDF.type, CDS.Waiver) in g
+    [back] = waivers_from_graph(g)
+    assert back == w
+
+
 def test_a_violation_is_never_waivable_even_when_targeted() -> None:
     g = to_graph(authorities=[_AUTH], sources=[_verified_source()])
     g += term_to_graph(_term(grounding=[]), scheme=_SCHEME)  # T1 missing grounding
-    waiver = Waiver(shape="TermGroundedShape", reason="trying (and failing) to waive a T1")
+    waiver = Waiver(
+        id="https://w3id.org/cds/waiver/0002",
+        rule="TermGroundedShape",
+        reason="trying (and failing) to waive a T1",
+    )
     result = verify(g, waivers=[waiver])
     assert not result.passed  # the T1 survives the waiver
-    assert any(f.shape_name == "TermGroundedShape" for f in result.violations)
+    assert not result.conforms  # and SHACL conformance is untouched by waivers
+    assert any(f.rule == "TermGroundedShape" for f in result.violations)
 
 
-def test_blanket_waiver_is_rejected() -> None:
+def test_a_waiver_requires_a_rule() -> None:
     import pytest
+    from pydantic import ValidationError
 
-    with pytest.raises(ValueError, match="select"):
-        Waiver(reason="no selector — should be rejected")
+    with pytest.raises(ValidationError):
+        Waiver(id="https://w3id.org/cds/waiver/0003", reason="no rule selector")  # type: ignore[call-arg]
 
 
 # --- CLI wiring -----------------------------------------------------------------------------

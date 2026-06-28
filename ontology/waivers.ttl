@@ -1,0 +1,28 @@
+# Append-only SHACL waivers for `cds verify` — FIRST-CLASS RDF DATA, not config.
+#
+# A waiver is a `cds:Waiver` resource recording that one non-Violation finding (a T2 Warning or T3
+# Info) has been reviewed and consciously accepted, and WHY. It is versioned with the rest of the
+# model so the audit trail of what was accepted lives in the graph, not a side-car file.
+#
+# Discipline:
+#   * Append-only — never edit or delete a waiver; a withdrawn one stays as history.
+#   * T1 (sh:Violation) is NEVER waivable — a waiver that selects a Violation has no effect on it.
+#
+# Each waiver: `cds:waivesRule` (the check's stable name = the shape's local name, e.g.
+# "SourceLicense", "TermRelatedOnlyShape") + `cds:waiverReason`, optionally `cds:waivesFocus` (a
+# specific focus node), `prov:wasAttributedTo` (who accepted it) and `dcterms:date` (when). Example:
+#
+#   @prefix cds:     <https://w3id.org/cds#> .
+#   @prefix cdsw:    <https://w3id.org/cds/waiver/> .
+#   @prefix prov:    <http://www.w3.org/ns/prov#> .
+#   @prefix dcterms: <http://purl.org/dc/terms/> .
+#   @prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+#
+#   cdsw:0001 a cds:Waiver ;
+#       cds:waivesRule "TermRelatedOnlyShape" ;
+#       cds:waivesFocus <https://w3id.org/cds/term/risk> ;
+#       cds:waiverReason "no tighter published relation exists yet; tracked for the v0.2 capture pass" ;
+#       prov:wasAttributedTo <https://w3id.org/cds/auth/operator> ;
+#       dcterms:date "2026-06-27"^^xsd:date .
+#
+# (No waivers for v0.1 — the seed graph is clean.)

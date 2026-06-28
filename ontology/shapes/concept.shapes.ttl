@@ -1,6 +1,10 @@
 # Term (vocabulary concept) shapes: the construction-order preconditions for a built term
 # (cites, grounded, admitted to a scheme) and the verbatim-in-M hallucination guard.
 # Targets cds:Term, so the control-vocab skos:Concepts are not swept in.
+#
+# Every check is a NAMED shape so each finding carries a stable rule (its local name).
+# NB: the scheme-level provenance shape (the scheme is a skos:ConceptScheme prov:wasDerivedFrom
+# its sources — construction order stage 6/7) lands in slice 6, when the scheme is first built.
 @prefix sh:   <http://www.w3.org/ns/shacl#> .
 @prefix cds:  <https://w3id.org/cds#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
@@ -9,29 +13,37 @@
 
 cdsh:TermShape a sh:NodeShape ;
     sh:targetClass cds:Term ;
-    sh:property [
-        sh:path skos:prefLabel ; sh:minCount 1 ;
-        sh:severity sh:Violation ;
-        sh:message "T1: a term must carry a skos:prefLabel." ] ;
-    sh:property [
-        sh:path skos:inScheme ; sh:minCount 1 ;
-        sh:severity sh:Violation ;
-        sh:message "T1: a term must be admitted to a scheme (skos:inScheme) — construction order stage 6." ] ;
-    sh:property [
-        sh:path cds:cites ; sh:minCount 1 ;
-        sh:severity sh:Violation ;
-        sh:message "T1: a term must cite at least one boundary-object source (cds:cites) — construction order stage 4." ] ;
-    # a soft nudge toward NRM/GtWR grounding prose
-    sh:property [
-        sh:path cds:nrmCanon ; sh:minCount 1 ;
-        sh:severity sh:Info ;
-        sh:message "T3: consider attaching an NRM/GtWR grounding note (cds:nrmCanon)." ] .
+    sh:property cdsh:TermPrefLabel ;
+    sh:property cdsh:TermInScheme ;
+    sh:property cdsh:TermCitation ;
+    sh:property cdsh:TermNrmNote .
+
+cdsh:TermPrefLabel a sh:PropertyShape ;
+    sh:path skos:prefLabel ; sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "a term must carry a skos:prefLabel." .
+
+cdsh:TermInScheme a sh:PropertyShape ;
+    sh:path skos:inScheme ; sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "a term must be admitted to a scheme (skos:inScheme) — construction order stage 6." .
+
+cdsh:TermCitation a sh:PropertyShape ;
+    sh:path cds:cites ; sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "a term must cite at least one boundary-object source (cds:cites) — construction order stage 4." .
+
+# a soft nudge toward NRM/GtWR grounding prose
+cdsh:TermNrmNote a sh:PropertyShape ;
+    sh:path cds:nrmCanon ; sh:minCount 1 ;
+    sh:severity sh:Info ;
+    sh:message "consider attaching an NRM/GtWR grounding note (cds:nrmCanon)." .
 
 # construction order stage 5: every term carries at least one grounding edge — no bare terms
 cdsh:TermGroundedShape a sh:NodeShape ;
     sh:targetClass cds:Term ;
     sh:severity sh:Violation ;
-    sh:message "T1: a term must carry at least one grounding edge (rdfs:subClassOf or a skos:*Match) — no bare terms (construction order stage 5)." ;
+    sh:message "a term must carry at least one grounding edge (rdfs:subClassOf or a skos:*Match) — no bare terms (construction order stage 5)." ;
     sh:or (
         [ sh:path rdfs:subClassOf ; sh:minCount 1 ]
         [ sh:path skos:exactMatch ; sh:minCount 1 ]
@@ -47,7 +59,7 @@ cdsh:TermVerbatimGuardShape a sh:NodeShape ;
     sh:targetClass cds:Term ;
     sh:severity sh:Violation ;
     sh:sparql [
-        sh:message "T1 (hallucination guard): a term with a skos:definition must cite a VERIFIED source — the verbatim must trace to a verified retrieval (construction order stage 3)." ;
+        sh:message "hallucination guard: a term with a skos:definition must cite a VERIFIED source — the verbatim must trace to a verified retrieval (construction order stage 3)." ;
         sh:prefixes cdsh:prefixes ;
         sh:select """
             SELECT $this WHERE {
@@ -65,7 +77,7 @@ cdsh:TermRelatedOnlyShape a sh:NodeShape ;
     sh:targetClass cds:Term ;
     sh:severity sh:Warning ;
     sh:sparql [
-        sh:message "T2: a term is grounded only by skos:relatedMatch (fuzzy) — tighten to a closer relation if one fits." ;
+        sh:message "a term is grounded only by skos:relatedMatch (fuzzy) — tighten to a closer relation if one fits." ;
         sh:prefixes cdsh:prefixes ;
         sh:select """
             SELECT $this WHERE {

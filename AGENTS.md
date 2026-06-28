@@ -69,9 +69,13 @@ git + deterministic RDF make each commit a diffable, auditable state.
 
 ## The verification gate (`cds verify`)
 
-`cds verify` validates the graph against `ontology/shapes/*.ttl` with a **tri-severity** ladder mapped to
-SHACL's native levels: **T1 = `sh:Violation`** (fails the build), **T2 = `sh:Warning`**, **T3 = `sh:Info`**.
-It **exits non-zero iff any unwaived T1 remains.** The shapes encode the construction order structurally:
+`cds verify` validates the graph against `ontology/shapes/*.ttl`. The **gate is SHACL conformance** — the
+construction is correct iff pyshacl reports `conforms` (with warnings/infos allowed, exactly "no Tier-1
+violation"). We surface the tool's own verdict rather than re-deriving it. On top of that verdict sits a
+**Pythonic** reporting layer: a **tri-severity** ladder mapped to SHACL's native levels — **T1 = `sh:Violation`**
+(fails the build), **T2 = `sh:Warning`**, **T3 = `sh:Info`** — exposed as plain `Finding`/`VerifyResult`
+objects (no pyshacl results graph or SHACL vocabulary leaks to callers). The shapes encode the construction
+order structurally (every check is a *named* shape, so each finding has a stable `rule`):
 
 - a `cds:Source` must attribute to a *registered* `cds:Authority` (stage 1 precedes stage 2);
 - the **verbatim-in-M hallucination guard** (stage 3): a `cds:Term` that materializes a `skos:definition`
@@ -80,12 +84,15 @@ It **exits non-zero iff any unwaived T1 remains.** The shapes encode the constru
 - a term must cite a source (stage 4), be grounded by ≥1 alignment edge — no bare terms (stage 5), and be
   admitted to a scheme (stage 6).
 
-**Waivers** live in `ontology/waivers.yaml`, are **append-only**, and can only ever suppress a T2/T3.
-**T1 is never waivable** — a waiver that selects a Violation has no effect on it.
+**Waivers are first-class RDF data** (`cds:Waiver`, carried in the graph — see `ontology/waivers.ttl`), not
+a config side-car: the record of what was consciously accepted is versioned with the model and selects a
+finding by its `rule`. They are **append-only** and can only ever suppress a T2/T3. **T1 is never waivable**
+— a waiver that selects a Violation has no effect on it, and waivers never touch `conforms`.
 
-**Definition of done (v0.1) — the gate:** `cds verify` is **T1-clean** on the seed + self-model fixture;
-every built term is grounded (no bare terms) and its verbatim traces to a verified source; warnings/lint
-are either resolved or carry an append-only waiver with a recorded reason.
+**Definition of done (v0.1) — the gate:** `cds verify` **conforms** (T1-clean) on the seed + self-model
+fixture; every built term is grounded (no bare terms) and its verbatim traces to a verified source;
+warnings/lint are either resolved or carry an append-only `cds:Waiver` with a recorded reason. (This
+restates the plan's v0.1 Definition of Done — keep the two in sync.)
 
 ## Determinism + redistribution
 
