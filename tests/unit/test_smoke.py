@@ -21,6 +21,6 @@ def test_cli_help() -> None:
 
 
 def test_unimplemented_commands_exit_nonzero() -> None:
-    for command in ("build", "verify", "render"):
+    for command in ("build", "render"):  # verify is implemented in slice 4
         result = runner.invoke(app, [command])
         assert result.exit_code == 1

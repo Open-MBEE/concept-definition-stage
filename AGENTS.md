@@ -67,6 +67,26 @@ git + deterministic RDF make each commit a diffable, auditable state.
 - **Pydantic** governs the *tool* — CLI input validation + **write-scope guardrails** (what the CLI may/may
   not write). The C (authoring) layer is tightly constrained; the V (output) layer is pluggable.
 
+## The verification gate (`cds verify`)
+
+`cds verify` validates the graph against `ontology/shapes/*.ttl` with a **tri-severity** ladder mapped to
+SHACL's native levels: **T1 = `sh:Violation`** (fails the build), **T2 = `sh:Warning`**, **T3 = `sh:Info`**.
+It **exits non-zero iff any unwaived T1 remains.** The shapes encode the construction order structurally:
+
+- a `cds:Source` must attribute to a *registered* `cds:Authority` (stage 1 precedes stage 2);
+- the **verbatim-in-M hallucination guard** (stage 3): a `cds:Term` that materializes a `skos:definition`
+  must `cds:cites` a source whose retrieval activity is **verified** — verbatim never enters the build
+  unless it traces to a verified retrieval;
+- a term must cite a source (stage 4), be grounded by ≥1 alignment edge — no bare terms (stage 5), and be
+  admitted to a scheme (stage 6).
+
+**Waivers** live in `ontology/waivers.yaml`, are **append-only**, and can only ever suppress a T2/T3.
+**T1 is never waivable** — a waiver that selects a Violation has no effect on it.
+
+**Definition of done (v0.1) — the gate:** `cds verify` is **T1-clean** on the seed + self-model fixture;
+every built term is grounded (no bare terms) and its verbatim traces to a verified source; warnings/lint
+are either resolved or carry an append-only waiver with a recorded reason.
+
 ## Determinism + redistribution
 
 - The canonical TTL build is **byte-deterministic**: URIs not blank nodes for reified records; sorted-Turtle

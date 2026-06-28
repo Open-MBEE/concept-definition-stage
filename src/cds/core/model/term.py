@@ -86,6 +86,7 @@ def term_to_graph(term: Term, *, scheme: URIRef) -> Graph:
     """Emit a term as a grounded ``skos:Concept`` in ``scheme``."""
     g = Graph()
     s = term_iri(term.slug)
+    g.add((s, RDF.type, CDS.Term))  # cds:Term rdfs:subClassOf skos:Concept (the SHACL target)
     g.add((s, RDF.type, SKOS.Concept))
     g.add((s, SKOS.inScheme, scheme))
     g.add((s, SKOS.prefLabel, Literal(term.pref_label)))

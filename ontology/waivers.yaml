@@ -1,0 +1,19 @@
+# Append-only SHACL waivers for `cds verify`.
+#
+# A waiver suppresses ONE non-Violation finding (a T2 Warning or T3 Info) that has been reviewed
+# and consciously accepted. It records *why*. Discipline:
+#
+#   * Append-only — never edit or delete a row; a withdrawn waiver stays as history.
+#   * T1 (sh:Violation) is NEVER waivable — a waiver that happens to select a Violation has no
+#     effect on it. Process integrity is not negotiable away.
+#
+# Each entry: `reason` (required) + at least one selector — `shape` (the shape's local name),
+# `focus` (the focus node IRI), and/or `message` (a substring of the finding message). All
+# provided selectors must match. Example:
+#
+#   - shape: TermRelatedOnlyShape
+#     focus: https://w3id.org/cds/term/risk
+#     reason: "no tighter published relation exists yet; tracked for the v0.2 capture pass"
+#
+# (Empty for v0.1 — the seed graph is clean.)
+[]

@@ -55,6 +55,7 @@ def to_graph(
 
     for a in authorities or []:
         s = URIRef(a.id)
+        g.add((s, RDF.type, CDS.Authority))  # cds:Authority rdfs:subClassOf prov:Agent
         g.add((s, RDF.type, PROV.Agent))
         g.add((s, RDFS.label, Literal(a.label)))
         g.add((s, CDS.authorityKind, controlled_concept(a.kind)))
@@ -62,6 +63,7 @@ def to_graph(
     for src in sources or []:
         s = URIRef(src.id)
         # --- entity: what the source IS ---
+        g.add((s, RDF.type, CDS.Source))  # cds:Source rdfs:subClassOf prov:Entity
         g.add((s, RDF.type, PROV.Entity))
         g.add((s, PROV.wasAttributedTo, URIRef(src.from_authority)))
         g.add((s, CDS.locator, Literal(src.locator)))
