@@ -86,12 +86,36 @@ that artifact** and shares the `core`/`stages` seam (no fork).
 `stages/system_requirements/` skeleton that loads `concept-definition.ttl` as input, and a SHACL
 precondition that the input is a conformed, baselined integrated set of needs.
 
-### T6 — Remote Flexo + hybrid RDF/git interop (`interop`, `integration-test`)
-**What:** extend `core/flexo.py` to exercise a **live Flexo MMS Layer-1** round-trip (the `FlexoHttpClient`
-path, currently creds-gated/skipped) and a **hybrid RDF + git** tracking model — the scheme versioned in
-git, branches/named-graphs in Flexo, reconciled (track Open-MBEE `flexo-conflict-resolution-policy-research`).
-**Acceptance:** CI integration job (skip-if-no-creds) that commits the scheme to a Flexo branch, reads it
-back isomorphic, and validates a git↔Flexo sync of the same graph; an ADR on the hybrid tracking model.
+### T6 — Remote Flexo (Layer-1) + hybrid RDF/git interop (`interop`, `integration-test`)
+**What:** exercise a **live Flexo MMS Layer-1** round-trip (the `FlexoHttpClient` path, currently
+creds-gated/skipped) against the **Starforge** remote (`https://try-layer1.starforge.app`, `FLEXO_URL` /
+`FLEXO_TOKEN` — the same deployment flexo-rtm's `@pytest.mark.live` tests use), plus a **hybrid RDF + git**
+tracking model: the scheme versioned in git, branches/named-graphs in Flexo, reconciled (track Open-MBEE
+`flexo-conflict-resolution-policy-research`).
+**Acceptance:** CI integration job (skip-if-no-creds) that commits the scheme to a Starforge Layer-1 branch,
+reads it back isomorphic, and validates a git↔Flexo sync of the same graph; an ADR on the hybrid model.
+
+### T9 — cds ↔ SysML v2 models via the Flexo **SysML v2 service** (`interop`, `integration-test`, `sysml`)
+**What:** test what happens when the cds scheme is **discussed alongside real SysML v2 models** stored in
+Flexo through the **SysML v2 service** (the OMG SysML v2 API & Services / `omg-sysml:` RDF form) — *not* the
+generic Layer-1 SPARQL service. This is the real validation of the SysML anchoring's purpose: do cds's
+equivalence axioms actually connect cds terms to live SysML v2 model elements?
+**Why / finding:** the alias target was **corrected to `https://www.omg.org/spec/SysML/20240801/SysML#`**
+(flexo-rtm + the Flexo SysML v2 service namespace) — it was previously the older ADCS-demo `…/20240501/`,
+which would *not* have matched any real SysML v2 model. This track is how that alignment gets proven.
+**Acceptance:**
+- A fixture corpus of real SysML v2 RDF (model flexo-rtm's `examples/sysmlv2/` — `omg-sysml:RequirementUsage`
+  / `PartUsage` with `elementId`/`qualifiedName`/`owner`), loaded into a Flexo SysML v2-service branch.
+- An integration test (skip-if-no-creds, against Starforge) that loads cds's scheme + the SysML v2 models
+  into the same store and runs SPARQL that traverses cds-term → `owl:equivalentClass`/`equivalentProperty`
+  → `omg-sysml:*` → an actual SysML v2 element — proving the anchor "lands."
+- Resolve the **Definition vs Usage layer** explicitly: cds anchors to `*Definition` (it's a *vocabulary*),
+  while SysML v2 models instantiate `*Usage`. Document/encode how a cds `RequirementDefinition` anchor
+  relates to a model's `RequirementUsage` (e.g. via the SysML v2 definition↔usage typing), so queries that
+  join cds canon to a model resolve correctly. Reuse flexo-rtm's `sysmlv2-anchored.shacl.ttl` profile as a
+  conformance reference.
+**Notes:** depends on T6 (Starforge creds) and the corrected namespace (done). Surfaces whether reasoning
+over the equivalence axioms is needed (OWL-RL) for the join to hold without materialization.
 
 ### T7 — Worked-example / educational repo (`education`, `new-repo`)
 **What:** a **separate** public repo: a complete worked example (a real SoI's concept definition built with
@@ -130,8 +154,10 @@ provenance-audit view** (civic SPARQL→JSON→view); the **multi-party conflict
 OML-OWL export** interfaces.
 
 ### X3 — `omg-sysml` namespace verification (`namespace`)
-Verify `http://www.omg.org/spec/SysML/20240501/` against the actual OMG SysML v2 OWL release IRIs (the
-equivalence-axiom targets), and that the five anchored constructs exist there. Optional OML/OWL export.
+The alias target is now `https://www.omg.org/spec/SysML/20240801/SysML#` (aligned to flexo-rtm / the Flexo
+SysML v2 service). Remaining: verify the five anchored construct local-names (`RequirementDefinition`,
+`PartDefinition`, `PartUsage`, `UseCaseDefinition`, `AttributeUsage`) exist verbatim in that OMG release and
+match the Flexo SysML v2 service's element types (validated end-to-end by T9). Optional OML/OWL export.
 
 ### X4 — Parsimony materialization, once a real cache exists (`parsimony`)
 When OSLC (T4) or PROV-O/SKOS are added as cached external sources, wire `build_extracts` materialization +

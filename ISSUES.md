@@ -9,9 +9,11 @@ These are tracked here until the public remote is provisioned; then each becomes
 - **`sysml` namespace alignment + vendoring (slice 7).** Adopted the established DSG pattern (from
   ADCS-lifecycle-demo): **no openCAESAR/JVM, no vendored SysML OWL cache.** `sysml:` =
   `https://www.omg.org/spec/SysML/2.0/` (local terms) aliased to `omg-sysml:` =
-  `http://www.omg.org/spec/SysML/20240501/` (the OMG OWL rendering) via `owl:equivalentClass` /
+  `https://www.omg.org/spec/SysML/20240801/SysML#` (the OMG OWL rendering) via `owl:equivalentClass` /
   `owl:equivalentProperty` axioms generated for the invoked constructs only (+ minimal OMG-side stubs).
   Pure-Python, parsimonious; replaces the plan's "generate via openCAESAR, vendor a static cache".
+  **NB:** the alias target was corrected from the older ADCS-demo `http://…/20240501/` to flexo-rtm's
+  `https://…/20240801/SysML#` so cds anchors align with real SysML v2 models in the Flexo SysML v2 service.
 
 - **URI scheme** — hash (`cds#`) for vocabulary/classes, slash (`cds/term/`, `cds/src/`) for
   individuals. Confirmed.
