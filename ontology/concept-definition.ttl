@@ -25,6 +25,7 @@
 <https://w3id.org/cds/characteristic/C10>
     a skos:Concept ;
     cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The set of needs and set of requirements for an entity should stand alone such that it sufficiently describes the necessary capabilities, characteristics, functionality, performance, drivers, constraints, conditions, interactions, standards, regulations, safety, security, resilience, and quality factors without requiring other sets of needs or sets of requirements at the appropriate level of abstraction." ;
     skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
     skos:notation "C10" ;
     skos:prefLabel "Complete" .
@@ -39,6 +40,7 @@
 <https://w3id.org/cds/characteristic/C12>
     a skos:Concept ;
     cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "A set of needs and a set of requirements is feasible if it can be realized within entity constraints (such as cost, schedule, technical) with acceptable risk." ;
     skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
     skos:notation "C12" ;
     skos:prefLabel "Feasible" .
@@ -46,6 +48,7 @@
 <https://w3id.org/cds/characteristic/C13>
     a skos:Concept ;
     cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The set of needs and the set of resulting requirements must each be written such that it is clear as to what is expected of the entity and its relation to the macro system of which it is a part." ;
     skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
     skos:notation "C13" ;
     skos:prefLabel "Comprehensible" .
@@ -53,6 +56,7 @@
 <https://w3id.org/cds/characteristic/C14>
     a skos:Concept ;
     cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "It must be possible to validate that the set of needs will lead to the achievement of the product goals and objectives, stakeholder expectations, risks, and lifecycle concepts within the constraints (such as cost, schedule, technical, legal and regulatory compliance) with acceptable risk. It must be possible to validate that the set of requirements will lead to the achievement of the set of needs and higher-level requirements within the constraints (such as cost, schedule, technical, and regulatory compliance) with acceptable risk." ;
     skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
     skos:notation "C14" ;
     skos:prefLabel "Able to be validated" .
@@ -60,6 +64,7 @@
 <https://w3id.org/cds/characteristic/C15>
     a skos:Concept ;
     cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The set of needs must be an accurate representation of the lifecycle concepts or sources from which it was transformed. The set of requirements must be an accurate representation of the needs, sources, or higher-level requirements from which it was transformed." ;
     skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
     skos:notation "C15" ;
     skos:prefLabel "Correct" .
@@ -368,8 +373,8 @@ cdsterm:risk
     a cds:Term,
         skos:Concept ;
     cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
-    cds:definitionSource "Conrow 2008" ;
-    skos:definition "A risk has a probability of occurrence that is greater than zero but less than one, a consequence of occurrence greater than zero, and a time-frame in the future." ;
+    cds:definitionSource "DAU 2003; Conrow 2008" ;
+    skos:definition "Risk is a measure of the potential inability to achieve overall program objectives within defined cost, schedule, and technical constraints and has two components: The probability (or likelihood) of failing to achieve a particular outcome and The consequences (or impact) of failing to achieve that outcome. A risk has a probability of occurrence that is greater than zero but less than one, a consequence of occurrence greater than zero, and a time-frame in the future." ;
     skos:exactMatch <https://sebokwiki.org/wiki/Risk_(glossary)> ;
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
     skos:prefLabel "Risk" .

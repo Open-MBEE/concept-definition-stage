@@ -165,9 +165,9 @@ SysML anchor: canon-only
 
 === Risk
 
-#quote(block: true)[A risk has a probability of occurrence that is greater than zero but less than one, a consequence of occurrence greater than zero, and a time-frame in the future.]
+#quote(block: true)[Risk is a measure of the potential inability to achieve overall program objectives within defined cost, schedule, and technical constraints and has two components: The probability (or likelihood) of failing to achieve a particular outcome and The consequences (or impact) of failing to achieve that outcome. A risk has a probability of occurrence that is greater than zero but less than one, a consequence of occurrence greater than zero, and a time-frame in the future.]
 
-SEBoK attribution: Conrow 2008
+SEBoK attribution: DAU 2003; Conrow 2008
 
 Source: #link("https://sebokwiki.org/wiki/Risk_(glossary)")
 

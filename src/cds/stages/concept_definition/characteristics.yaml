@@ -1,8 +1,8 @@
 # GtWR C1–C15 well-formedness characteristics (companion vocab, cited to GtWR — reproduction-with-
-# attribution licensed). Verbatim recovered from the summary sheet by word-position de-columning.
-# C1–C9 (per individual need/requirement statement) are captured verbatim. C10–C15 (set-level) are
-# HELD names-only: the set-characteristics column has PDF text-layer drops (missing function words)
-# that cannot be faithfully transcribed — see docs/retrieval-queue.md.
+# attribution licensed). Verbatim recovered from the summary sheet via pymupdf. C1–C9 (per individual
+# need/requirement statement) and C10, C12–C15 (set-level) are captured verbatim. Only C11 is HELD
+# names-only: the PDF text layer genuinely drops one word ("...is consistent if [it] contains..."),
+# which cannot be faithfully supplied — see docs/retrieval-queue.md.
 - notation: C1
   name: Necessary
   definition: "The need requirement statement defines capability, characteristic, constraint, or quality factor needed or required to satisfy a lifecycle concept, need, source, or higher-level requirement."
@@ -32,13 +32,19 @@
   definition: "Statements and expressions of individual needs and requirements should conform to an approved standard pattern and style guide or standard for writing and managing needs and requirements."
 - notation: C10
   name: Complete
+  definition: "The set of needs and set of requirements for an entity should stand alone such that it sufficiently describes the necessary capabilities, characteristics, functionality, performance, drivers, constraints, conditions, interactions, standards, regulations, safety, security, resilience, and quality factors without requiring other sets of needs or sets of requirements at the appropriate level of abstraction."
 - notation: C11
   name: Consistent
+  # HELD: the PDF drops one word ("...is consistent if [it] contains..."); not faithfully transcribable.
 - notation: C12
   name: Feasible
+  definition: "A set of needs and a set of requirements is feasible if it can be realized within entity constraints (such as cost, schedule, technical) with acceptable risk."
 - notation: C13
   name: Comprehensible
+  definition: "The set of needs and the set of resulting requirements must each be written such that it is clear as to what is expected of the entity and its relation to the macro system of which it is a part."
 - notation: C14
   name: Able to be validated
+  definition: "It must be possible to validate that the set of needs will lead to the achievement of the product goals and objectives, stakeholder expectations, risks, and lifecycle concepts within the constraints (such as cost, schedule, technical, legal and regulatory compliance) with acceptable risk. It must be possible to validate that the set of requirements will lead to the achievement of the set of needs and higher-level requirements within the constraints (such as cost, schedule, technical, and regulatory compliance) with acceptable risk."
 - notation: C15
   name: Correct
+  definition: "The set of needs must be an accurate representation of the lifecycle concepts or sources from which it was transformed. The set of requirements must be an accurate representation of the needs, sources, or higher-level requirements from which it was transformed."

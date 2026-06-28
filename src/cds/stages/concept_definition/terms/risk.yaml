@@ -1,10 +1,11 @@
 slug: risk
 pref_label: Risk
-# SEBoK glossary definition (1), the clean Conrow-2008 sentence (it parallels Problem/Threat/
-# Opportunity). The DAU-2003 measure sentence of def (1) is omitted — pdftotext corrupted its
-# bulleted layout (merged tokens), so it is not faithfully transcribable from the PDF.
-definition: "A risk has a probability of occurrence that is greater than zero but less than one, a consequence of occurrence greater than zero, and a time-frame in the future."
-definition_source: "Conrow 2008"
+# SEBoK glossary definition (1), recovered in full via pymupdf (two pdftotext space-drops at obvious
+# word boundaries fixed: "outcome andThe" -> "outcome and The", "2003)A risk" -> "2003) A risk"; all
+# words present and verbatim). def (1) combines the DAU-2003 measure sentence and the Conrow-2008
+# sentence; inline source attributions are lifted to definition_source.
+definition: "Risk is a measure of the potential inability to achieve overall program objectives within defined cost, schedule, and technical constraints and has two components: The probability (or likelihood) of failing to achieve a particular outcome and The consequences (or impact) of failing to achieve that outcome. A risk has a probability of occurrence that is greater than zero but less than one, a consequence of occurrence greater than zero, and a time-frame in the future."
+definition_source: "DAU 2003; Conrow 2008"
 grounding:
   - relation: exact-match
     target: https://sebokwiki.org/wiki/Risk_(glossary)
