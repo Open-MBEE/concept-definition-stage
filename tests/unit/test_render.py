@@ -61,7 +61,8 @@ def test_typst_source_is_deterministic() -> None:
 
 def test_every_term_appears_in_the_view() -> None:
     view = _view("CC-BY-NC-SA-4.0")
-    assert len(view.terms) == 27  # 25 SEBoK glossary terms + GtWR need/requirement
+    # 25 SEBoK glossary terms + GtWR need/requirement/integrated-set-of-needs
+    assert len(view.terms) == 28
 
 
 def test_committed_typ_is_the_default_license_generation() -> None:

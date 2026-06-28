@@ -57,6 +57,12 @@ Source: #link("https://sebokwiki.org/wiki/Functional_Architecture_(glossary)")
 
 SysML anchor: canon-only
 
+=== Integrated Set of Needs
+
+#quote(block: true)[A need set is a structured set of agreed-to need expressions for the entity (enterprise/business unit/system/subsystem/system element/process) and its external interfaces. Within the NRM, GtNR, GtVV, and this Guide this set of needs is referred to as an Integrated Set of Needs. This Integrated Set of Needs is well-formed, having the characteristics defined in this Guide, communicating the scope of effort to which the system of interest will be validated against.]
+
+SysML anchor: canon-only
+
 === Life Cycle
 
 #quote(block: true)[The organized collection of activities, relationships and contracts which apply to a system-of-interest during its life.]

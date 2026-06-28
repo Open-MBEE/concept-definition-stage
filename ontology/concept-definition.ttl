@@ -258,6 +258,15 @@ cdsterm:functional-architecture
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
     skos:prefLabel "Functional Architecture" .
 
+cdsterm:integrated-set-of-needs
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:broadMatch <https://sebokwiki.org/wiki/Stakeholder_Needs_and_Requirements_(glossary)> ;
+    skos:definition "A need set is a structured set of agreed-to need expressions for the entity (enterprise/business unit/system/subsystem/system element/process) and its external interfaces. Within the NRM, GtNR, GtVV, and this Guide this set of needs is referred to as an Integrated Set of Needs. This Integrated Set of Needs is well-formed, having the characteristics defined in this Guide, communicating the scope of effort to which the system of interest will be validated against." ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Integrated Set of Needs" .
+
 cdsterm:life-cycle
     a cds:Term,
         skos:Concept ;
