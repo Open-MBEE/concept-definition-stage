@@ -1,0 +1,155 @@
+@prefix cds: <https://w3id.org/cds#> .
+@prefix cdsterm: <https://w3id.org/cds/term/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix spdx: <https://spdx.org/licenses/> .
+
+<https://w3id.org/cds/auth/incose>
+    a cds:Authority,
+        prov:Agent ;
+    cds:authorityKind <https://w3id.org/cds#AuthorityKind/standard> ;
+    rdfs:label "INCOSE (International Council on Systems Engineering)" .
+
+<https://w3id.org/cds/auth/sebok>
+    a cds:Authority,
+        prov:Agent ;
+    cds:authorityKind <https://w3id.org/cds#AuthorityKind/curated-canon> ;
+    rdfs:label "SEBoK (Guide to the Systems Engineering Body of Knowledge)" .
+
+<https://w3id.org/cds/scheme/concept-definition>
+    a skos:ConceptScheme ;
+    dcterms:title "SEBoK Concept Definition reference vocabulary" ;
+    owl:versionInfo "0.1.0" ;
+    prov:wasDerivedFrom <https://w3id.org/cds/src/incose-gtwr-v4-summary>,
+        <https://w3id.org/cds/src/sebok-v2-14> ;
+    rdfs:label "Concept Definition Vocabulary" .
+
+<https://w3id.org/cds/src/incose-gtwr-v4-summary/retrieval>
+    a cds:RetrievalActivity,
+        prov:Activity ;
+    cds:retrievalStatus <https://w3id.org/cds#RetrievalStatus/verified> ;
+    prov:endedAtTime "2026-06-27T00:00:00+00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+
+<https://w3id.org/cds/src/incose-gtwr-v4-summary/verification/0>
+    a cds:VerificationActivity,
+        prov:Activity ;
+    cds:verificationMethod <https://w3id.org/cds#VerificationMethod/checksum> ;
+    cds:verificationNote "content-addressed snapshot; sha256 matches the held file" ;
+    prov:endedAtTime "2026-06-27T00:00:00+00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+    prov:used <https://w3id.org/cds/src/incose-gtwr-v4-summary> .
+
+<https://w3id.org/cds/src/incose-gtwr-v4-summary>
+    a cds:Source,
+        prov:Entity ;
+    cds:captureTier <https://w3id.org/cds#CaptureTier/snapshot> ;
+    cds:contentHash "sha256:0bf5918db034757fb63fb81a677263ebe36323eee95e51fbd0197aecdd574176" ;
+    cds:license <https://w3id.org/cds/license/LicenseRef-INCOSE-GtWR-Summary> ;
+    cds:locator "INCOSE-TP-2010-006-04" ;
+    cds:snapshot "0bf5918db034757fb63fb81a677263ebe36323eee95e51fbd0197aecdd574176.pdf" ;
+    cds:sourceType <https://w3id.org/cds#SourceType/pdf> ;
+    cds:wasVerifiedBy <https://w3id.org/cds/src/incose-gtwr-v4-summary/verification/0> ;
+    prov:wasAttributedTo <https://w3id.org/cds/auth/incose> ;
+    prov:wasGeneratedBy <https://w3id.org/cds/src/incose-gtwr-v4-summary/retrieval> .
+
+<https://w3id.org/cds/src/sebok-v2-14/retrieval>
+    a cds:RetrievalActivity,
+        prov:Activity ;
+    cds:retrievalStatus <https://w3id.org/cds#RetrievalStatus/verified> ;
+    prov:endedAtTime "2026-06-27T00:00:00+00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+
+<https://w3id.org/cds/src/sebok-v2-14/verification/0>
+    a cds:VerificationActivity,
+        prov:Activity ;
+    cds:verificationMethod <https://w3id.org/cds#VerificationMethod/checksum> ;
+    cds:verificationNote "sha256 of the operator-held SEBoK v2.14 PDF; reference tier, not vendored" ;
+    prov:endedAtTime "2026-06-27T00:00:00+00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+    prov:used <https://w3id.org/cds/src/sebok-v2-14> .
+
+<https://w3id.org/cds/src/sebok-v2-14>
+    a cds:Source,
+        prov:Entity ;
+    cds:captureTier <https://w3id.org/cds#CaptureTier/reference> ;
+    cds:contentHash "sha256:251668f0ed4eca5a7c36755c6c56a07d663ef8a2bd66addd41e595eabcf0dce2" ;
+    cds:license spdx:CC-BY-NC-SA-3.0 ;
+    cds:locator "https://sebokwiki.org/wiki/Guide_to_the_Systems_Engineering_Body_of_Knowledge_(SEBoK)" ;
+    cds:sourceType <https://w3id.org/cds#SourceType/pdf> ;
+    cds:wasVerifiedBy <https://w3id.org/cds/src/sebok-v2-14/verification/0> ;
+    prov:wasAttributedTo <https://w3id.org/cds/auth/sebok> ;
+    prov:wasGeneratedBy <https://w3id.org/cds/src/sebok-v2-14/retrieval> .
+
+cdsterm:engineered-system
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    skos:definition "An open, concrete system of technical or socio-technical elements which is the focus of a SE Life Cycle. Its characteristics include being created by and for people, having a purpose and satisfying key stakeholders’ value propositions when considered as part of a broader System Context." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Engineered_System_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Engineered System" .
+
+cdsterm:life-cycle
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    skos:definition "The organized collection of activities, relationships and contracts which apply to a system-of-interest during its life." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Life_Cycle_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Life Cycle" .
+
+cdsterm:opportunity
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    skos:definition "an appropriate or favorable time or occasion; a situation or condition favorable for attainment of a goal; a good position, chance, or prospect, as for advancement or success." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Opportunity_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Opportunity" .
+
+cdsterm:problem
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    skos:definition "A concern that has a probability of occurrence equal to one, a consequence of occurrence greater than zero, and a time-frame that is current. A problem is an event that has occurred and has a negative impact to the project." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Problem_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Problem" .
+
+cdsterm:stakeholder
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    skos:definition "Individual or organization having a right, share, claim, or interest in a system or in its possession of characteristics that meet their needs and expectations" ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Stakeholder_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Stakeholder" .
+
+cdsterm:system-context
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    skos:definition "Describes the system relationships and environment, resolved around a selected system-of-interest." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/System_Context_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "System Context" .
+
+cdsterm:system-of-interest
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    skos:altLabel "SoI" ;
+    skos:definition "The system whose life cycle is under consideration." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/System-of-Interest_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "System-of-Interest" .
+
+cdsterm:threat
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    skos:definition "State of the system or system environment which can lead to adverse effects." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Threat_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Threat" .

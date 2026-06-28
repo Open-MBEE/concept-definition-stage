@@ -72,6 +72,22 @@ cdsh:TermVerbatimGuardShape a sh:NodeShape ;
             }
         """ ] .
 
+# construction order stage 6/7: a vocabulary scheme (one that actually has cds:Term members) must be
+# provenance-tracked to its sources. Fires only on member-bearing schemes, so the control-vocab
+# skos:ConceptSchemes (no cds:Term members) are untouched.
+cdsh:SchemeProvenanceShape a sh:NodeShape ;
+    sh:targetClass skos:ConceptScheme ;
+    sh:severity sh:Violation ;
+    sh:sparql [
+        sh:message "a vocabulary scheme with cds:Term members must be provenance-tracked (prov:wasDerivedFrom a source) — construction order stage 6/7." ;
+        sh:prefixes cdsh:prefixes ;
+        sh:select """
+            SELECT $this WHERE {
+                ?t a cds:Term ; skos:inScheme $this .
+                FILTER NOT EXISTS { $this prov:wasDerivedFrom ?src }
+            }
+        """ ] .
+
 # a term grounded ONLY by the fuzzy skos:relatedMatch — flag to tighten if a closer relation fits
 cdsh:TermRelatedOnlyShape a sh:NodeShape ;
     sh:targetClass cds:Term ;

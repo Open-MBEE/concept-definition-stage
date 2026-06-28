@@ -20,6 +20,18 @@ These are tracked here until the public remote is provisioned; then each becomes
 
 ## Open audit-flagged questions (not yet resolved)
 
+- **SEBoK source = REFERENCE tier (slice 6 decision — diverges from the plan's "snapshot tier").**
+  The plan's implementability notes say the SEBoK v2.14 PDF is "held (snapshot tier)", but it was
+  registered **REFERENCE-tier** instead: (a) the tiering rule keeps public curated canon to
+  hash + locator, not vendored; (b) it is 14.7 MB; (c) SEBoK is BY-NC-**SA**, so vendoring the whole
+  work into a public repo is redistribution. The content hash pins the version; the verbatim
+  *definitions* (a small excerpt) still live in committed M (Delta D2). The operator holds the PDF.
+  Contrast GtWR, which IS snapshot-tier (small + reproduction-with-attribution). **Confirm.**
+- **Engineered System glossary-artifact transcription.** The SEBoK PDF renders two inline wiki-links
+  inside the Engineered System definition as "SE Life Cycle (glossary)" / "System Context (glossary)".
+  The `(glossary)` link artifacts were **omitted** so the definition reads as authored. This is the one
+  seeded definition not byte-identical to pdftotext output. **Confirm** the artifact-stripping is the
+  right faithful-transcription call (the alternative: keep them verbatim, artifacts and all).
 - **Authorship / copyright identity.** `pyproject` names "Michael Zargham" while `LICENSE`
   says "cds contributors" — reconcile for an Open-MBEE community Apache repo.
 - **`sources/private/` convention.** Reserved for genuinely-confidential source snapshots

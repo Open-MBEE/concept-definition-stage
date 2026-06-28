@@ -1,0 +1,9 @@
+slug: life-cycle
+pref_label: Life Cycle
+# Verbatim SEBoK v2.14 glossary definition (1) (Pyster 2009, 73).
+definition: "The organized collection of activities, relationships and contracts which apply to a system-of-interest during its life."
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/Life_Cycle_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

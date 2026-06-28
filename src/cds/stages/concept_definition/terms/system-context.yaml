@@ -1,0 +1,8 @@
+slug: system-context
+pref_label: System Context
+definition: "Describes the system relationships and environment, resolved around a selected system-of-interest."
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/System_Context_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

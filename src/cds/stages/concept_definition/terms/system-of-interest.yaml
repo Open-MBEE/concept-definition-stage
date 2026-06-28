@@ -1,0 +1,10 @@
+slug: system-of-interest
+pref_label: System-of-Interest
+alt_labels: [SoI]
+# Verbatim SEBoK v2.14 glossary definition (1); cited to the held PDF, grounded to the SEBoK concept.
+definition: "The system whose life cycle is under consideration."
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/System-of-Interest_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

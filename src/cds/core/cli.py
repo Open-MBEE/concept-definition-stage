@@ -15,6 +15,8 @@ import typer
 if TYPE_CHECKING:
     from rdflib import Graph
 
+    from cds.core.verify import VerifyResult
+
 app = typer.Typer(
     name="cds",
     help="Concept Definition Stage — commit SEBoK/INCOSE Concept Definition canon to RDF.",
@@ -26,7 +28,16 @@ app = typer.Typer(
 @app.command()
 def build() -> None:
     """Compile YAML term sources into the canonical ``concept-definition.ttl`` (deterministic)."""
-    raise typer.Exit(_not_yet("build", "slice 6"))
+    from cds.core.verify import verify as run_verify
+    from cds.stages.concept_definition.build import (
+        build_concept_definition_graph,
+        write_concept_definition_ttl,
+    )
+
+    graph = build_concept_definition_graph()
+    out = write_concept_definition_ttl(graph)
+    typer.secho(f"built {out} ({len(graph)} triples)", fg=typer.colors.GREEN)
+    _report_and_exit(run_verify(graph))
 
 
 @app.command()
@@ -41,7 +52,7 @@ def verify(
     ] = None,
 ) -> None:
     """Run the SHACL tri-severity + construction-order checks; non-zero exit on Tier-1."""
-    from cds.core.verify import SHAPES_DIR, Finding
+    from cds.core.verify import SHAPES_DIR
     from cds.core.verify import verify as run_verify
 
     data = _load_turtle(graph) if graph is not None else _seed_graph()
@@ -49,14 +60,14 @@ def verify(
     waivers_path = waivers if waivers is not None else SHAPES_DIR.parent / "waivers.ttl"
     if waivers_path.exists():
         data.parse(waivers_path, format="turtle")
-    result = run_verify(data)
+    _report_and_exit(run_verify(data))
 
-    def _emit(f: Finding) -> None:
-        colour = {"T1": typer.colors.RED, "T2": typer.colors.YELLOW, "T3": typer.colors.BLUE}
+
+def _report_and_exit(result: VerifyResult) -> None:
+    """Print tri-severity findings and exit non-zero iff the gate failed (any unwaived T1)."""
+    colour = {"T1": typer.colors.RED, "T2": typer.colors.YELLOW, "T3": typer.colors.BLUE}
+    for f in result.findings:
         typer.secho(f"  [{f.tier}] {f.focus} — {f.message}", fg=colour[f.tier], err=True)
-
-    for finding in result.findings:
-        _emit(finding)
     if result.passed:
         typer.secho(
             f"verify OK — {len(result.warnings)} warning(s), {len(result.infos)} lint.",
