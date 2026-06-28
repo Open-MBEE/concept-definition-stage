@@ -1,0 +1,44 @@
+# GtWR C1–C15 well-formedness characteristics (companion vocab, cited to GtWR — reproduction-with-
+# attribution licensed). Verbatim recovered from the summary sheet by word-position de-columning.
+# C1–C9 (per individual need/requirement statement) are captured verbatim. C10–C15 (set-level) are
+# HELD names-only: the set-characteristics column has PDF text-layer drops (missing function words)
+# that cannot be faithfully transcribed — see docs/retrieval-queue.md.
+- notation: C1
+  name: Necessary
+  definition: "The need requirement statement defines capability, characteristic, constraint, or quality factor needed or required to satisfy a lifecycle concept, need, source, or higher-level requirement."
+- notation: C2
+  name: Appropriate
+  definition: "The specific intent and amount of detail of the need or requirement statement is appropriate to the level (the level of abstraction, organization, or system architecture) of the entity to which it refers."
+- notation: C3
+  name: Unambiguous
+  definition: "Need and requirement statements must be stated such that their intent is clear and can be interpreted in only one way by all intended audiences."
+- notation: C4
+  name: Complete
+  definition: "The need statement sufficiently describes the necessary capability, characteristic, constraint, conditions, or quality factor to meet the lifecycle concept or source from which it was transformed. The requirement statement sufficiently describes the necessary capability, characteristic, constraint, conditions, or quality factor to meet the need, source, or higher-level requirement from which it was transformed."
+- notation: C5
+  name: Singular
+  definition: "The need or requirement statement should state a single capability, characteristic, constraint, or quality factor."
+- notation: C6
+  name: Feasible
+  definition: "The need or requirement can be realized within entity constraints (for example: cost, schedule, technical, legal, ethical, safety) with acceptable risk."
+- notation: C7
+  name: Verifiable
+  definition: "The need statement is structured and worded such that its realization can be validated to the approving authority’s satisfaction. The requirement statement is structured and worded such that its realization can be verified to the approving authority’s satisfaction."
+- notation: C8
+  name: Correct
+  definition: "The need statement must be an accurate representation of the lifecycle concept or source from which it was transformed. The requirement statement must be an accurate representation of the need, source, or higher-level requirement from which it was transformed."
+- notation: C9
+  name: Conforming
+  definition: "Statements and expressions of individual needs and requirements should conform to an approved standard pattern and style guide or standard for writing and managing needs and requirements."
+- notation: C10
+  name: Complete
+- notation: C11
+  name: Consistent
+- notation: C12
+  name: Feasible
+- notation: C13
+  name: Comprehensible
+- notation: C14
+  name: Able to be validated
+- notation: C15
+  name: Correct

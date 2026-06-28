@@ -20,10 +20,11 @@ attribution (`cds:definitionSource`), a citation, and a grounding edge. Notes on
 
 ## GtWR canon — partial holds
 
-- **C1–C15 full statements** — `held — needs clean source`. The C1–C15 *names* are encoded (companion
-  vocab `need-characteristics`, cited to GtWR), but the full verbatim characteristic statements are
-  corrupted by the summary sheet's 2-column layout under `pdftotext` (e.g. "for an the set have been
-  derived:" — two columns merged). Needs a clean source-grab to add `skos:definition` to each.
+- **C1–C9** — *captured verbatim* (recovered from the summary sheet by word-position de-columning with
+  pymupdf; cited to GtWR, reproduction-licensed). **C10–C15** — `held — needs clean source`: the
+  set-level characteristics column has PDF text-layer drops (missing function words, e.g.
+  "requirements for entity", "requirements consistent if contains") that cannot be faithfully
+  transcribed. Names are encoded; the `skos:definition`s await a clean source-grab.
 - **Integrated Set of Needs** — *available* in the GtWR summary (defined there verbatim); a good
   candidate to encode next, sourced from GtWR rather than the SEBoK topic pages.
 

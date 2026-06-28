@@ -67,6 +67,7 @@
 <https://w3id.org/cds/characteristic/C1>
     a skos:Concept ;
     cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The need requirement statement defines capability, characteristic, constraint, or quality factor needed or required to satisfy a lifecycle concept, need, source, or higher-level requirement." ;
     skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
     skos:notation "C1" ;
     skos:prefLabel "Necessary" .
@@ -74,6 +75,7 @@
 <https://w3id.org/cds/characteristic/C2>
     a skos:Concept ;
     cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The specific intent and amount of detail of the need or requirement statement is appropriate to the level (the level of abstraction, organization, or system architecture) of the entity to which it refers." ;
     skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
     skos:notation "C2" ;
     skos:prefLabel "Appropriate" .
@@ -81,6 +83,7 @@
 <https://w3id.org/cds/characteristic/C3>
     a skos:Concept ;
     cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "Need and requirement statements must be stated such that their intent is clear and can be interpreted in only one way by all intended audiences." ;
     skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
     skos:notation "C3" ;
     skos:prefLabel "Unambiguous" .
@@ -88,6 +91,7 @@
 <https://w3id.org/cds/characteristic/C4>
     a skos:Concept ;
     cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The need statement sufficiently describes the necessary capability, characteristic, constraint, conditions, or quality factor to meet the lifecycle concept or source from which it was transformed. The requirement statement sufficiently describes the necessary capability, characteristic, constraint, conditions, or quality factor to meet the need, source, or higher-level requirement from which it was transformed." ;
     skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
     skos:notation "C4" ;
     skos:prefLabel "Complete" .
@@ -95,6 +99,7 @@
 <https://w3id.org/cds/characteristic/C5>
     a skos:Concept ;
     cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The need or requirement statement should state a single capability, characteristic, constraint, or quality factor." ;
     skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
     skos:notation "C5" ;
     skos:prefLabel "Singular" .
@@ -102,6 +107,7 @@
 <https://w3id.org/cds/characteristic/C6>
     a skos:Concept ;
     cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The need or requirement can be realized within entity constraints (for example: cost, schedule, technical, legal, ethical, safety) with acceptable risk." ;
     skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
     skos:notation "C6" ;
     skos:prefLabel "Feasible" .
@@ -109,6 +115,7 @@
 <https://w3id.org/cds/characteristic/C7>
     a skos:Concept ;
     cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The need statement is structured and worded such that its realization can be validated to the approving authority’s satisfaction. The requirement statement is structured and worded such that its realization can be verified to the approving authority’s satisfaction." ;
     skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
     skos:notation "C7" ;
     skos:prefLabel "Verifiable" .
@@ -116,6 +123,7 @@
 <https://w3id.org/cds/characteristic/C8>
     a skos:Concept ;
     cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The need statement must be an accurate representation of the lifecycle concept or source from which it was transformed. The requirement statement must be an accurate representation of the need, source, or higher-level requirement from which it was transformed." ;
     skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
     skos:notation "C8" ;
     skos:prefLabel "Correct" .
@@ -123,6 +131,7 @@
 <https://w3id.org/cds/characteristic/C9>
     a skos:Concept ;
     cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "Statements and expressions of individual needs and requirements should conform to an approved standard pattern and style guide or standard for writing and managing needs and requirements." ;
     skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
     skos:notation "C9" ;
     skos:prefLabel "Conforming" .

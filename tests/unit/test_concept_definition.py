@@ -47,7 +47,8 @@ def test_every_term_materializes_verbatim_traced_to_a_verified_source() -> None:
     # (SEBoK for the glossary terms, GtWR for the need/requirement terms)
     g = build_concept_definition_graph()
     verified = {URIRef(SEBOK_SOURCE.id), URIRef(GTWR_SOURCE.id)}
-    defined = set(g.subjects(SKOS.definition, None))
+    terms = set(g.subjects(RDF.type, CDS.Term))
+    defined = {t for t in terms if (t, SKOS.definition, None) in g}
     assert len(defined) == len(load_terms())  # every seeded term materializes a verbatim definition
     for term in defined:
         assert set(g.objects(term, CDS.cites)) & verified, f"{term} not cited to a verified source"

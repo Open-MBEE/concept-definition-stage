@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import yaml
 from rdflib import OWL, RDF, RDFS, Graph, Literal, URIRef
 
 from cds import __version__
@@ -30,27 +31,7 @@ CHARACTERISTICS_SCHEME = URIRef("https://w3id.org/cds/scheme/need-characteristic
 TERMS_DIR = Path(__file__).resolve().parent / "terms"
 OUTPUT_TTL = Path(__file__).resolve().parents[4] / "ontology" / "concept-definition.ttl"
 
-# The GtWR C1–C15 well-formedness characteristics. Names extracted cleanly from the summary sheet;
-# the full verbatim statements are HELD (the summary's 2-column layout corrupts them in pdftotext,
-# see docs/retrieval-queue.md), so these carry the name + citation, not a fabricated definition.
-# C1–C9 govern an individual need/requirement statement; C10–C15 govern the set.
-_CHARACTERISTICS: tuple[tuple[str, str], ...] = (
-    ("C1", "Necessary"),
-    ("C2", "Appropriate"),
-    ("C3", "Unambiguous"),
-    ("C4", "Complete"),
-    ("C5", "Singular"),
-    ("C6", "Feasible"),
-    ("C7", "Verifiable"),
-    ("C8", "Correct"),
-    ("C9", "Conforming"),
-    ("C10", "Complete"),
-    ("C11", "Consistent"),
-    ("C12", "Feasible"),
-    ("C13", "Comprehensible"),
-    ("C14", "Able to be validated"),
-    ("C15", "Correct"),
-)
+CHARACTERISTICS_FILE = Path(__file__).resolve().parent / "characteristics.yaml"
 
 _PREFIXES: dict[str, str] = {
     "cds": str(CDS),
@@ -87,19 +68,21 @@ def scheme_graph(sources: list[Source]) -> Graph:
 
 
 def characteristics_graph() -> Graph:
-    """The GtWR C1–C15 companion vocabulary (a SKOS scheme cited to GtWR; names only, see above)."""
+    """The GtWR C1–C15 companion vocab (SKOS scheme cited to GtWR); C1–C9 verbatim, C10–C15 held."""
     g = Graph()
     gtwr = URIRef(GTWR_SOURCE.id)
     label = Literal("GtWR well-formedness characteristics (C1-C15)")
     g.add((CHARACTERISTICS_SCHEME, RDF.type, SKOS.ConceptScheme))
     g.add((CHARACTERISTICS_SCHEME, RDFS.label, label))
     g.add((CHARACTERISTICS_SCHEME, PROV.wasDerivedFrom, gtwr))
-    for notation, name in _CHARACTERISTICS:
-        s = URIRef(f"https://w3id.org/cds/characteristic/{notation}")
+    for entry in yaml.safe_load(CHARACTERISTICS_FILE.read_text()):
+        s = URIRef(f"https://w3id.org/cds/characteristic/{entry['notation']}")
         g.add((s, RDF.type, SKOS.Concept))
         g.add((s, SKOS.inScheme, CHARACTERISTICS_SCHEME))
-        g.add((s, SKOS.notation, Literal(notation)))
-        g.add((s, SKOS.prefLabel, Literal(name)))
+        g.add((s, SKOS.notation, Literal(entry["notation"])))
+        g.add((s, SKOS.prefLabel, Literal(entry["name"])))
+        if entry.get("definition") is not None:  # C1–C9 verbatim; C10–C15 held (names only)
+            g.add((s, SKOS.definition, Literal(entry["definition"])))
         g.add((s, CDS.cites, gtwr))
     return g
 
