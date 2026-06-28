@@ -4,6 +4,7 @@ alt_labels: [SoI]
 # Verbatim SEBoK v2.14 glossary definition (1); cited to the held PDF, grounded to the SEBoK concept.
 definition: "The system whose life cycle is under consideration."
 definition_source: "ISO/IEC/IEEE 2015"  # SEBoK's attribution for definition (1)
+sysml_construct: https://www.omg.org/spec/SysML/2.0/PartDefinition
 grounding:
   - relation: exact-match
     target: https://sebokwiki.org/wiki/System-of-Interest_(glossary)

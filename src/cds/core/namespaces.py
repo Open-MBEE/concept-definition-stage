@@ -17,6 +17,7 @@ SEBOK = Namespace("https://sebokwiki.org/wiki/")
 SPDX = Namespace("https://spdx.org/licenses/")  # ground licenses to the SPDX registry
 CDS_LICENSE = Namespace("https://w3id.org/cds/license/")  # custom (SPDX LicenseRef-) licenses
 CDS_WAIVER = Namespace("https://w3id.org/cds/waiver/")  # first-class SHACL waivers (audit data)
-# Bound as ``sysml``. The exact authoritative URI is a TODO — see ISSUES.md
-# (namespace alignment), resolved when the openCAESAR SysML v2 OWL cache is generated.
-SYSML = Namespace("https://www.omg.org/spec/SysML/#")
+# SysML v2: a local namespace for the constructs we use, aliased to the OMG SysML v2 OWL rendering
+# via owl:equivalentClass/Property axioms (no vendored OWL cache; the established DSG pattern).
+SYSML = Namespace("https://www.omg.org/spec/SysML/2.0/")  # local terms
+OMG_SYSML = Namespace("http://www.omg.org/spec/SysML/20240501/")  # OMG OWL rendering (alias target)

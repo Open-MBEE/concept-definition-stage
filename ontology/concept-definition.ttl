@@ -1,12 +1,14 @@
 @prefix cds: <https://w3id.org/cds#> .
 @prefix cdsterm: <https://w3id.org/cds/term/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix omg-sysml: <http://www.omg.org/spec/SysML/20240501/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix spdx: <https://spdx.org/licenses/> .
+@prefix sysml: <https://www.omg.org/spec/SysML/2.0/> .
 
 <https://w3id.org/cds/auth/incose>
     a cds:Authority,
@@ -86,6 +88,7 @@ cdsterm:capability
         skos:Concept ;
     cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
     cds:definitionSource "DoD 2009" ;
+    cds:sysmlConstruct sysml:UseCaseDefinition ;
     skos:definition "The ability to achieve a desired effect under specified (performance) standards and conditions through combinations of ways and means (activities and resources) to perform a set of activities." ;
     skos:exactMatch <https://sebokwiki.org/wiki/Capability_(glossary)> ;
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
@@ -178,6 +181,7 @@ cdsterm:mission
         skos:Concept ;
     cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
     cds:definitionSource "Created for SEBoK" ;
+    cds:sysmlConstruct sysml:UseCaseDefinition ;
     skos:definition "The mission of a system is the top-level function of the system; the one that synthesizes all transformation of all inputs and solicitations into outputs and reactions." ;
     skos:exactMatch <https://sebokwiki.org/wiki/Mission_(glossary)> ;
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
@@ -258,6 +262,7 @@ cdsterm:stakeholder-needs-and-requirements
         skos:Concept ;
     cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
     cds:definitionSource "ISO/IEC/IEEE 15288, 2023, Section 6.4.2" ;
+    cds:sysmlConstruct sysml:RequirementDefinition ;
     skos:definition "Stakeholder needs include elicitation of needs, wants, desires, expectations and perceived constraints of identified stakeholders. Needs concentrate on system purpose and behavior, and are described in the context of the operational environment and conditions." ;
     skos:exactMatch <https://sebokwiki.org/wiki/Stakeholder_Needs_and_Requirements_(glossary)> ;
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
@@ -298,6 +303,7 @@ cdsterm:system-of-interest
         skos:Concept ;
     cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
     cds:definitionSource "ISO/IEC/IEEE 2015" ;
+    cds:sysmlConstruct sysml:PartDefinition ;
     skos:altLabel "SoI" ;
     skos:definition "The system whose life cycle is under consideration." ;
     skos:exactMatch <https://sebokwiki.org/wiki/System-of-Interest_(glossary)> ;
@@ -309,6 +315,7 @@ cdsterm:system-requirement
         skos:Concept ;
     cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
     cds:definitionSource "ISO/IEC/IEEE, 2015, section 6.4.2" ;
+    cds:sysmlConstruct sysml:RequirementDefinition ;
     skos:definition "A statement that transforms the stakeholder, user-oriented view of desired capabilities into a technical view, of a solution that meets the operational needs of the user." ;
     skos:exactMatch <https://sebokwiki.org/wiki/System_Requirement_(glossary)> ;
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
@@ -333,3 +340,24 @@ cdsterm:traceability
     skos:exactMatch <https://sebokwiki.org/wiki/Traceability_(glossary)> ;
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
     skos:prefLabel "Traceability" .
+
+omg-sysml:PartDefinition
+    a owl:Class .
+
+omg-sysml:RequirementDefinition
+    a owl:Class .
+
+omg-sysml:UseCaseDefinition
+    a owl:Class .
+
+sysml:PartDefinition
+    a owl:Class ;
+    owl:equivalentClass omg-sysml:PartDefinition .
+
+sysml:RequirementDefinition
+    a owl:Class ;
+    owl:equivalentClass omg-sysml:RequirementDefinition .
+
+sysml:UseCaseDefinition
+    a owl:Class ;
+    owl:equivalentClass omg-sysml:UseCaseDefinition .

@@ -10,16 +10,11 @@ engine runs against a small fixture source, and with no source an invoked IRI st
 
 from __future__ import annotations
 
-from pathlib import Path
-
-import pytest
 from rdflib import RDFS, Graph, Literal, URIRef
 
 from cds.core.model.term import Term, term_to_graph
 from cds.core.namespaces import SKOS
 from cds.core.parsimony import build_extracts, invoked_external_iris, mireot_slice
-
-_SYSML_NS = "https://www.omg.org/spec/SysML/#"
 
 _SCHEME = URIRef("https://w3id.org/cds/scheme/concept-definition")
 _EXT = "https://ext.example/onto#"
@@ -91,17 +86,3 @@ def test_parsimony_budget_overflow_is_flagged() -> None:
     )
     assert _EXT in report.over_budget
     assert not report.within_budget
-
-
-@pytest.mark.xfail(reason="real SysML v2 OWL cache is populated in slice 7", strict=False)
-def test_sysml_construct_materializes_from_the_real_cache() -> None:
-    # EXPECTED FAILURE until slice 7: the cache dir exists but is empty, so the invoked SysML
-    # construct stays reference-only. Populating ontology/cache/sysml-v2/ flips this green.
-    cache_dir = Path(__file__).resolve().parents[2] / "ontology" / "cache" / "sysml-v2"
-    source = Graph()
-    for ttl in sorted(cache_dir.glob("*.ttl")):
-        source.parse(ttl)
-    _extracts, report = build_extracts(
-        _term_graph(), sources={_SYSML_NS: source}, budgets={_SYSML_NS: 50}
-    )
-    assert _SYSML in report.materialized_iris

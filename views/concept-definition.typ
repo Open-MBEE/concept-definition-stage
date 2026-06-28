@@ -15,7 +15,7 @@ SEBoK attribution: DoD 2009
 
 Source: #link("https://sebokwiki.org/wiki/Capability_(glossary)")
 
-SysML anchor: canon-only
+SysML anchor: https://www.omg.org/spec/SysML/2.0/UseCaseDefinition
 
 === Concept Definition
 
@@ -109,7 +109,7 @@ SEBoK attribution: Created for SEBoK
 
 Source: #link("https://sebokwiki.org/wiki/Mission_(glossary)")
 
-SysML anchor: canon-only
+SysML anchor: https://www.omg.org/spec/SysML/2.0/UseCaseDefinition
 
 === Mission Analysis
 
@@ -189,7 +189,7 @@ SEBoK attribution: ISO/IEC/IEEE 15288, 2023, Section 6.4.2
 
 Source: #link("https://sebokwiki.org/wiki/Stakeholder_Needs_and_Requirements_(glossary)")
 
-SysML anchor: canon-only
+SysML anchor: https://www.omg.org/spec/SysML/2.0/RequirementDefinition
 
 === System Boundary
 
@@ -231,7 +231,7 @@ SEBoK attribution: ISO/IEC/IEEE 2015
 
 Source: #link("https://sebokwiki.org/wiki/System-of-Interest_(glossary)")
 
-SysML anchor: canon-only
+SysML anchor: https://www.omg.org/spec/SysML/2.0/PartDefinition
 
 === System Requirement
 
@@ -241,7 +241,7 @@ SEBoK attribution: ISO/IEC/IEEE, 2015, section 6.4.2
 
 Source: #link("https://sebokwiki.org/wiki/System_Requirement_(glossary)")
 
-SysML anchor: canon-only
+SysML anchor: https://www.omg.org/spec/SysML/2.0/RequirementDefinition
 
 === Threat
 

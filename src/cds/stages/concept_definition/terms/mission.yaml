@@ -2,6 +2,7 @@ slug: mission
 pref_label: Mission
 definition: "The mission of a system is the top-level function of the system; the one that synthesizes all transformation of all inputs and solicitations into outputs and reactions."
 definition_source: "Created for SEBoK"
+sysml_construct: https://www.omg.org/spec/SysML/2.0/UseCaseDefinition
 grounding:
   - relation: exact-match
     target: https://sebokwiki.org/wiki/Mission_(glossary)

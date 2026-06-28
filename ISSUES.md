@@ -4,11 +4,14 @@ These are tracked here until the public remote is provisioned; then each becomes
 
 - **w3id registration.** Register `https://w3id.org/cds#` via a PR to the w3id.org community
   repo so the namespace resolves. (Non-blocking; the IRI is used as-is until then.)
-- **`sysml` namespace alignment.** The `sysml:` prefix currently maps to a placeholder URI
-  (`https://www.omg.org/spec/SysML/#`). Align it to the authoritative OMG SysML v2 / openCAESAR
-  OML namespace when the SysML v2 OWL cache is generated (slice 7). Kept simply `sysml` for now.
-
 ## Resolved
+
+- **`sysml` namespace alignment + vendoring (slice 7).** Adopted the established DSG pattern (from
+  ADCS-lifecycle-demo): **no openCAESAR/JVM, no vendored SysML OWL cache.** `sysml:` =
+  `https://www.omg.org/spec/SysML/2.0/` (local terms) aliased to `omg-sysml:` =
+  `http://www.omg.org/spec/SysML/20240501/` (the OMG OWL rendering) via `owl:equivalentClass` /
+  `owl:equivalentProperty` axioms generated for the invoked constructs only (+ minimal OMG-side stubs).
+  Pure-Python, parsimonious; replaces the plan's "generate via openCAESAR, vendor a static cache".
 
 - **URI scheme** — hash (`cds#`) for vocabulary/classes, slash (`cds/term/`, `cds/src/`) for
   individuals. Confirmed.

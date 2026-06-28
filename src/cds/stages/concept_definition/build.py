@@ -17,10 +17,11 @@ from pathlib import Path
 from rdflib import OWL, RDF, RDFS, Graph, Literal, URIRef
 
 from cds import __version__
+from cds.core.anchors.sysml import sysml_anchor_graph
 from cds.core.asot.models import Source
 from cds.core.asot.rdf import to_graph as asot_to_graph
 from cds.core.model.term import Term, load_term, term_to_graph
-from cds.core.namespaces import CDS, CDS_TERM, DCTERMS, PROV, SKOS, SPDX
+from cds.core.namespaces import CDS, CDS_TERM, DCTERMS, OMG_SYSML, PROV, SKOS, SPDX, SYSML
 from cds.core.serialize import canonical_turtle
 from cds.stages.concept_definition.seed import seed_authorities, seed_sources
 
@@ -34,10 +35,12 @@ _PREFIXES: dict[str, str] = {
     "dcterms": str(DCTERMS),
     "owl": str(OWL),
     "prov": str(PROV),
+    "omg-sysml": str(OMG_SYSML),
     "rdf": str(RDF),
     "rdfs": str(RDFS),
     "skos": str(SKOS),
     "spdx": str(SPDX),
+    "sysml": str(SYSML),
     # NB: no `sebok` prefix — the glossary URLs contain "(glossary)", which is not a parse-safe
     # Turtle local name, so they are emitted as full IRIs by the serializer.
 }
@@ -68,6 +71,7 @@ def build_concept_definition_graph() -> Graph:
     g += scheme_graph(sources)
     for term in load_terms():
         g += term_to_graph(term, scheme=SCHEME)
+    g += sysml_anchor_graph(g)  # equivalence axioms for the invoked SysML constructs
     return g
 
 

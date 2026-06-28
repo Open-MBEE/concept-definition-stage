@@ -3,6 +3,7 @@ pref_label: Capability
 # SEBoK glossary definition (1).
 definition: "The ability to achieve a desired effect under specified (performance) standards and conditions through combinations of ways and means (activities and resources) to perform a set of activities."
 definition_source: "DoD 2009"
+sysml_construct: https://www.omg.org/spec/SysML/2.0/UseCaseDefinition
 grounding:
   - relation: exact-match
     target: https://sebokwiki.org/wiki/Capability_(glossary)

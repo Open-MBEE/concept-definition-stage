@@ -4,6 +4,7 @@ pref_label: Stakeholder Needs and Requirements
 # The requirements half (1b, ISO/IEC/IEEE 29148) is the next stage's concern and is not encoded here.
 definition: "Stakeholder needs include elicitation of needs, wants, desires, expectations and perceived constraints of identified stakeholders. Needs concentrate on system purpose and behavior, and are described in the context of the operational environment and conditions."
 definition_source: "ISO/IEC/IEEE 15288, 2023, Section 6.4.2"
+sysml_construct: https://www.omg.org/spec/SysML/2.0/RequirementDefinition
 grounding:
   - relation: exact-match
     target: https://sebokwiki.org/wiki/Stakeholder_Needs_and_Requirements_(glossary)
