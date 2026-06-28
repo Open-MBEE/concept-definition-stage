@@ -1,0 +1,12 @@
+slug: risk
+pref_label: Risk
+# SEBoK glossary definition (1), the clean Conrow-2008 sentence (it parallels Problem/Threat/
+# Opportunity). The DAU-2003 measure sentence of def (1) is omitted — pdftotext corrupted its
+# bulleted layout (merged tokens), so it is not faithfully transcribable from the PDF.
+definition: "A risk has a probability of occurrence that is greater than zero but less than one, a consequence of occurrence greater than zero, and a time-frame in the future."
+definition_source: "Conrow 2008"
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/Risk_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

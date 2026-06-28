@@ -1,0 +1,12 @@
+slug: mbse
+pref_label: Model-Based Systems Engineering
+alt_labels: [MBSE]
+# SEBoK glossary definition (SEBoK curating INCOSE's SE Vision 2020 definition). A more authoritative
+# primary source (INCOSE directly) may be sought later; for v0.1 the SEBoK glossary is the boundary object.
+definition: "The formalized application of modeling to support system requirements, design, analysis, verification and validation activities beginning in the conceptual design phase and continuing throughout development and later life cycle phases."
+definition_source: "INCOSE 2007"
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/Model-Based_Systems_Engineering_(MBSE)_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

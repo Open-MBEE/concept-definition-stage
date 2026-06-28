@@ -9,20 +9,14 @@ of the build** until the artifact is provided and verified.
 
 **Status:** `pending` → `provided` → `verified`. A term builds only when `verified`.
 
-**Built (verified, in `concept-definition.ttl`) — 23 terms:** System-of-Interest, Engineered System,
-System Context, Stakeholder, Problem, Threat, Opportunity, Life Cycle, Concept Definition, Mission
-Analysis, Stakeholder Needs and Requirements, System Requirement, Mission, Capability, Solution,
-Measure of Effectiveness, Traceability, Operational Concept, Logical Architecture, Functional
-Architecture, System Boundary, Function, System Definition. Each carries a verbatim SEBoK v2.14
-glossary definition (spot-checked byte-identical to the held PDF), its upstream attribution
-(`cds:definitionSource`), a citation, and a grounding edge.
+**Built (verified, in `concept-definition.ttl`) — all 25 glossary terms.** Each carries a verbatim
+SEBoK v2.14 glossary definition (several spot-checked byte-identical to the held PDF), its upstream
+attribution (`cds:definitionSource`), a citation, and a grounding edge. Notes on two:
 
-## Held — genuinely blocked, NOT fabricated
-
-| Term | Authority | Status | Reason |
-|---|---|---|---|
-| Risk | SEBoK | held — needs clean source | `pdftotext` corrupted the bulleted definition (1) (DAU 2003): merged tokens ("andThe", "2003)A risk") make a faithful transcription impossible. Needs a wiki source-grab. |
-| MBSE | SEBoK | held — no glossary entry | "Model-Based Systems Engineering" has **no `(glossary)` entry** in SEBoK v2.14 (it is an article, not a glossary term). No verbatim definition to extract; decide whether to source it elsewhere or drop from the seed set. |
+- **Risk** — encoded the clean Conrow-2008 sentence of def (1) (it parallels Problem/Threat/
+  Opportunity); the DAU-2003 measure sentence is omitted (pdftotext-corrupted, not transcribable).
+- **MBSE** — SEBoK's glossary curates INCOSE's SE Vision 2020 definition (`INCOSE 2007`). A more
+  authoritative primary source (INCOSE directly) may be sought later; SEBoK is the v0.1 boundary object.
 
 ## In-prose concepts — need the topic-page sources (capture pass, slice 10)
 

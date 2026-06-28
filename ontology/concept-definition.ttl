@@ -151,6 +151,17 @@ cdsterm:logical-architecture
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
     skos:prefLabel "Logical Architecture" .
 
+cdsterm:mbse
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "INCOSE 2007" ;
+    skos:altLabel "MBSE" ;
+    skos:definition "The formalized application of modeling to support system requirements, design, analysis, verification and validation activities beginning in the conceptual design phase and continuing throughout development and later life cycle phases." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Model-Based_Systems_Engineering_(MBSE)_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Model-Based Systems Engineering" .
+
 cdsterm:measure-of-effectiveness
     a cds:Term,
         skos:Concept ;
@@ -211,6 +222,16 @@ cdsterm:problem
     skos:exactMatch <https://sebokwiki.org/wiki/Problem_(glossary)> ;
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
     skos:prefLabel "Problem" .
+
+cdsterm:risk
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Conrow 2008" ;
+    skos:definition "A risk has a probability of occurrence that is greater than zero but less than one, a consequence of occurrence greater than zero, and a time-frame in the future." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Risk_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Risk" .
 
 cdsterm:solution
     a cds:Term,
