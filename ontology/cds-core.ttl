@@ -1,9 +1,11 @@
 @prefix cds: <https://w3id.org/cds#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <https://w3id.org/cds#AuthorityKind/consulted-stakeholder>
     a skos:Concept ;
@@ -113,6 +115,7 @@
 cds:Authority
     a owl:Class,
         rdfs:Class ;
+    cds:frameworkRole cds:Required ;
     rdfs:comment "An entity holding authoritative content (a source's holder)." ;
     rdfs:label "Authority" ;
     rdfs:subClassOf prov:Agent .
@@ -120,18 +123,33 @@ cds:Authority
 cds:AuthorityKind
     a skos:ConceptScheme .
 
+cds:Available
+    a skos:Concept ;
+    skos:inScheme cds:FrameworkRole ;
+    skos:prefLabel "available" .
+
 cds:CaptureTier
+    a skos:ConceptScheme .
+
+cds:FrameworkRole
     a skos:ConceptScheme .
 
 cds:LifecycleModel
     a owl:Class,
         rdfs:Class ;
+    cds:frameworkRole cds:Available ;
     rdfs:comment "A system modeled across its life cycle, from Concept Definition." ;
     rdfs:label "LifecycleModel" .
+
+cds:Required
+    a skos:Concept ;
+    skos:inScheme cds:FrameworkRole ;
+    skos:prefLabel "required" .
 
 cds:RetrievalActivity
     a owl:Class,
         rdfs:Class ;
+    cds:frameworkRole cds:Required ;
     rdfs:comment "The act of retrieving (capturing) a source." ;
     rdfs:label "RetrievalActivity" ;
     rdfs:subClassOf prov:Activity .
@@ -142,6 +160,7 @@ cds:RetrievalStatus
 cds:Source
     a owl:Class,
         rdfs:Class ;
+    cds:frameworkRole cds:Required ;
     rdfs:comment "A boundary object: a specific artifact held by an authority." ;
     rdfs:label "Source" ;
     rdfs:subClassOf prov:Entity .
@@ -152,6 +171,7 @@ cds:SourceType
 cds:Term
     a owl:Class,
         rdfs:Class ;
+    cds:frameworkRole cds:Required ;
     rdfs:comment "A Concept Definition reference-vocabulary term." ;
     rdfs:label "Term" ;
     rdfs:subClassOf skos:Concept .
@@ -159,6 +179,7 @@ cds:Term
 cds:VerificationActivity
     a owl:Class,
         rdfs:Class ;
+    cds:frameworkRole cds:Required ;
     rdfs:comment "The act of verifying a source's content." ;
     rdfs:label "VerificationActivity" ;
     rdfs:subClassOf prov:Activity .
@@ -169,143 +190,217 @@ cds:VerificationMethod
 cds:Waiver
     a owl:Class,
         rdfs:Class ;
+    cds:frameworkRole cds:Available ;
     rdfs:comment "An append-only, conscious acceptance of a non-Violation verify finding." ;
     rdfs:label "Waiver" .
 
 cds:authorityKind
     a owl:ObjectProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Required ;
     rdfs:comment "The controlled kind of an authority." ;
-    rdfs:label "authorityKind" .
+    rdfs:domain cds:Authority ;
+    rdfs:label "authorityKind" ;
+    rdfs:range skos:Concept .
 
 cds:captureTier
     a owl:ObjectProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Required ;
     rdfs:comment "How faithfully a source is captured (reference / snapshot)." ;
-    rdfs:label "captureTier" .
+    rdfs:domain cds:Source ;
+    rdfs:label "captureTier" ;
+    rdfs:range skos:Concept .
 
 cds:cites
     a owl:ObjectProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Required ;
     rdfs:comment "Links a term to a boundary-object source it draws on." ;
-    rdfs:label "cites" .
+    rdfs:domain cds:Term ;
+    rdfs:label "cites" ;
+    rdfs:range cds:Source .
 
 cds:codeLicense
     a owl:ObjectProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Available ;
     rdfs:comment "The code license declared by a lifecycle model." ;
-    rdfs:label "codeLicense" .
+    rdfs:domain cds:LifecycleModel ;
+    rdfs:label "codeLicense" ;
+    rdfs:range dcterms:LicenseDocument .
 
 cds:contentHash
     a owl:DatatypeProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Required ;
     rdfs:comment "The content hash (e.g. sha256:...) of a captured source." ;
-    rdfs:label "contentHash" .
+    rdfs:domain cds:Source ;
+    rdfs:label "contentHash" ;
+    rdfs:range xsd:string .
+
+cds:frameworkRole
+    a owl:AnnotationProperty,
+        rdf:Property ;
+    rdfs:comment "Whether a term is Required for compliance or Available (optional)." ;
+    rdfs:label "frameworkRole" .
 
 cds:license
     a owl:ObjectProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Available ;
     rdfs:comment "The tracked SPDX license of a referenced asset (tracked, not enforced)." ;
-    rdfs:label "license" .
+    rdfs:domain cds:Source ;
+    rdfs:label "license" ;
+    rdfs:range dcterms:LicenseDocument .
 
 cds:licenseText
     a owl:DatatypeProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Available ;
     rdfs:comment "The verbatim terms of a custom license." ;
-    rdfs:label "licenseText" .
+    rdfs:domain dcterms:LicenseDocument ;
+    rdfs:label "licenseText" ;
+    rdfs:range xsd:string .
 
 cds:locator
     a owl:DatatypeProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Required ;
     rdfs:comment "The locator (URI or document number) of a source." ;
-    rdfs:label "locator" .
+    rdfs:domain cds:Source ;
+    rdfs:label "locator" ;
+    rdfs:range xsd:string .
 
 cds:nrmCanon
     a owl:DatatypeProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Available ;
     rdfs:comment "An INCOSE NRM / GtWR grounding note on a term." ;
-    rdfs:label "nrmCanon" .
+    rdfs:domain cds:Term ;
+    rdfs:label "nrmCanon" ;
+    rdfs:range xsd:string .
 
 cds:reproducible
     a owl:DatatypeProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Available ;
     rdfs:comment "Whether a custom license permits reproduction/redistribution." ;
-    rdfs:label "reproducible" .
+    rdfs:domain dcterms:LicenseDocument ;
+    rdfs:label "reproducible" ;
+    rdfs:range xsd:boolean .
 
 cds:retrievalIssue
     a owl:DatatypeProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Available ;
     rdfs:comment "The retrieval-escalation issue URL for a not-yet-secured source." ;
-    rdfs:label "retrievalIssue" .
+    rdfs:domain cds:RetrievalActivity ;
+    rdfs:label "retrievalIssue" ;
+    rdfs:range xsd:string .
 
 cds:retrievalStatus
     a owl:ObjectProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Required ;
     rdfs:comment "The construction-order state of a retrieval (pending/provided/verified)." ;
-    rdfs:label "retrievalStatus" .
+    rdfs:domain cds:RetrievalActivity ;
+    rdfs:label "retrievalStatus" ;
+    rdfs:range skos:Concept .
 
 cds:snapshot
     a owl:DatatypeProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Available ;
     rdfs:comment "The content-addressed local snapshot filename of a captured source." ;
-    rdfs:label "snapshot" .
+    rdfs:domain cds:Source ;
+    rdfs:label "snapshot" ;
+    rdfs:range xsd:string .
 
 cds:sourceType
     a owl:ObjectProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Required ;
     rdfs:comment "The controlled kind of artifact a source points at." ;
-    rdfs:label "sourceType" .
+    rdfs:domain cds:Source ;
+    rdfs:label "sourceType" ;
+    rdfs:range skos:Concept .
 
 cds:stage
     a owl:DatatypeProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Available ;
     rdfs:comment "The life-cycle stage label of a lifecycle model." ;
-    rdfs:label "stage" .
+    rdfs:domain cds:LifecycleModel ;
+    rdfs:label "stage" ;
+    rdfs:range xsd:string .
 
 cds:sysmlConstruct
     a owl:ObjectProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Available ;
     rdfs:comment "The SysML v2 construct a term structurally anchors to." ;
+    rdfs:domain cds:Term ;
     rdfs:label "sysmlConstruct" .
 
 cds:textLicense
     a owl:ObjectProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Available ;
     rdfs:comment "The text license of a lifecycle model (gates restricted-canon rendering)." ;
-    rdfs:label "textLicense" .
+    rdfs:domain cds:LifecycleModel ;
+    rdfs:label "textLicense" ;
+    rdfs:range dcterms:LicenseDocument .
 
 cds:verificationMethod
     a owl:ObjectProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Required ;
     rdfs:comment "How a source's content was confirmed (checksum/visual/machine)." ;
-    rdfs:label "verificationMethod" .
+    rdfs:domain cds:VerificationActivity ;
+    rdfs:label "verificationMethod" ;
+    rdfs:range skos:Concept .
 
 cds:verificationNote
     a owl:DatatypeProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Available ;
     rdfs:comment "Prose note on how a verification was performed." ;
-    rdfs:label "verificationNote" .
+    rdfs:domain cds:VerificationActivity ;
+    rdfs:label "verificationNote" ;
+    rdfs:range xsd:string .
 
 cds:waiverReason
     a owl:DatatypeProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Available ;
     rdfs:comment "Why a waiver was consciously accepted." ;
-    rdfs:label "waiverReason" .
+    rdfs:domain cds:Waiver ;
+    rdfs:label "waiverReason" ;
+    rdfs:range xsd:string .
 
 cds:waivesFocus
     a owl:ObjectProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Available ;
     rdfs:comment "The specific focus node a waiver applies to." ;
+    rdfs:domain cds:Waiver ;
     rdfs:label "waivesFocus" .
 
 cds:waivesRule
     a owl:DatatypeProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Available ;
     rdfs:comment "The verify rule (check name) a waiver accepts." ;
-    rdfs:label "waivesRule" .
+    rdfs:domain cds:Waiver ;
+    rdfs:label "waivesRule" ;
+    rdfs:range xsd:string .
 
 cds:wasVerifiedBy
     a owl:ObjectProperty,
         rdf:Property ;
+    cds:frameworkRole cds:Required ;
     rdfs:comment "Links a source to a verification activity performed over it." ;
-    rdfs:label "wasVerifiedBy" .
+    rdfs:domain cds:Source ;
+    rdfs:label "wasVerifiedBy" ;
+    rdfs:range cds:VerificationActivity .

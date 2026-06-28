@@ -121,10 +121,11 @@ def build_extracts(
 
     for iri in sorted(invoked_external_iris(graph), key=str):
         key = _source_key_for(iri, sources)
-        if key is None:
+        slice_ = mireot_slice(iri, sources[key], depth=depth) if key is not None else Graph()
+        if key is None or len(slice_) == 0:
+            # no source, or the source's namespace matched but it doesn't actually describe the IRI
             referenced_only.append(str(iri))
             continue
-        slice_ = mireot_slice(iri, sources[key], depth=depth)
         extracts += slice_
         triples_per_source[key] += len(slice_)
         materialized.append(str(iri))

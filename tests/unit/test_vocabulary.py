@@ -11,7 +11,7 @@ from __future__ import annotations
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-from rdflib import RDF, RDFS, URIRef
+from rdflib import OWL, RDF, RDFS, XSD, URIRef
 
 from cds.core.asot.models import (
     Authority,
@@ -31,7 +31,12 @@ from cds.core.model.term import Term, term_to_graph
 from cds.core.namespaces import CDS, PROV, SKOS
 from cds.core.serialize import canonical_turtle
 from cds.core.verify import Waiver, waiver_to_graph
-from cds.core.vocabulary import CORE_PREFIXES, CORE_TTL_PATH, core_vocab_graph
+from cds.core.vocabulary import (
+    CORE_PREFIXES,
+    CORE_TTL_PATH,
+    core_vocab_graph,
+    required_terms,
+)
 
 _T = datetime(2026, 6, 27, tzinfo=UTC)
 _SCHEME = URIRef("https://w3id.org/cds/scheme/concept-definition")
@@ -126,6 +131,41 @@ def _emitted_cds_terms() -> set[URIRef]:
 
 
 def test_no_emitted_cds_term_is_undeclared_in_core() -> None:
+    # availability: nothing the emitters produce may be undeclared in the core vocabulary
     declared = {s for s in core_vocab_graph().subjects() if isinstance(s, URIRef)}
     missing = _emitted_cds_terms() - declared
     assert missing == set(), f"cds: terms used by emitters but undeclared in core: {missing}"
+
+
+def test_required_terms_are_actually_emitted_by_the_framework() -> None:
+    # compliance: the necessary terms are not dead — a maximal model exercises every one of them.
+    # (Distinct from availability: AVAILABLE terms may legitimately be absent from a given model.)
+    missing = required_terms() - _emitted_cds_terms()
+    assert missing == set(), f"cds:Required terms never emitted by any emitter: {missing}"
+
+
+def test_every_property_declares_a_domain_and_data_props_a_range() -> None:
+    g = core_vocab_graph()
+    object_props = set(g.subjects(RDF.type, OWL.ObjectProperty))
+    data_props = set(g.subjects(RDF.type, OWL.DatatypeProperty))
+    for p in object_props | data_props:
+        assert (p, RDFS.domain, None) in g, f"{p} has no rdfs:domain"
+    for p in data_props:
+        assert (p, RDFS.range, None) in g, f"{p} has no rdfs:range"
+    # a spot check of the discipline
+    assert (CDS.cites, RDFS.domain, CDS.Term) in g
+    assert (CDS.cites, RDFS.range, CDS.Source) in g
+    assert (CDS.locator, RDFS.range, XSD.string) in g
+
+
+def test_every_class_and_property_carries_a_framework_role() -> None:
+    g = core_vocab_graph()
+    typed = (
+        set(g.subjects(RDF.type, OWL.Class))
+        | set(g.subjects(RDF.type, OWL.ObjectProperty))
+        | set(g.subjects(RDF.type, OWL.DatatypeProperty))
+    )
+    for t in typed:
+        assert (t, CDS.frameworkRole, None) in g, f"{t} has no cds:frameworkRole"
+    # the role itself is a typed SKOS distinction, not a bare literal
+    assert (CDS.Required, RDF.type, SKOS.Concept) in g
