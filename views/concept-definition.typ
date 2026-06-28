@@ -121,6 +121,12 @@ Source: #link("https://sebokwiki.org/wiki/Mission_Analysis_(glossary)")
 
 SysML anchor: canon-only
 
+=== Need
+
+#quote(block: true)[A need statement is the result of a formal transformation of one or more sources or lifecycle concepts into an agreed-to expectation for an entity to perform some function or possess some quality within specified constraints with acceptable risk.]
+
+SysML anchor: canon-only
+
 === Operational Concept
 
 #quote(block: true)[verbal and graphic statement of an organization’s assumptions or intent in regard to an operation or series of operations of a system or a related set of systems.]
@@ -148,6 +154,12 @@ SysML anchor: canon-only
 SEBoK attribution: Conrow 2008
 
 Source: #link("https://sebokwiki.org/wiki/Problem_(glossary)")
+
+SysML anchor: canon-only
+
+=== Requirement
+
+#quote(block: true)[A requirement statement is the result of a formal transformation of one or more sources, needs, or higher-level requirements into an agreed-to obligation for an entity to perform some function or possess some quality within specified constraints with acceptable risk.]
 
 SysML anchor: canon-only
 

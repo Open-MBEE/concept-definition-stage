@@ -194,6 +194,15 @@ cds:Waiver
     rdfs:comment "An append-only, conscious acceptance of a non-Violation verify finding." ;
     rdfs:label "Waiver" .
 
+cds:addresses
+    a owl:ObjectProperty,
+        rdf:Property ;
+    cds:frameworkRole cds:Available ;
+    rdfs:comment "A concept addresses the problem / threat / opportunity it is defined for (GtWR)." ;
+    rdfs:domain cds:Term ;
+    rdfs:label "addresses" ;
+    rdfs:range cds:Term .
+
 cds:authorityKind
     a owl:ObjectProperty,
         rdf:Property ;

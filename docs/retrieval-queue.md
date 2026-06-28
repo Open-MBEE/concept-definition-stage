@@ -18,6 +18,15 @@ attribution (`cds:definitionSource`), a citation, and a grounding edge. Notes on
 - **MBSE** — SEBoK's glossary curates INCOSE's SE Vision 2020 definition (`INCOSE 2007`). A more
   authoritative primary source (INCOSE directly) may be sought later; SEBoK is the v0.1 boundary object.
 
+## GtWR canon — partial holds
+
+- **C1–C15 full statements** — `held — needs clean source`. The C1–C15 *names* are encoded (companion
+  vocab `need-characteristics`, cited to GtWR), but the full verbatim characteristic statements are
+  corrupted by the summary sheet's 2-column layout under `pdftotext` (e.g. "for an the set have been
+  derived:" — two columns merged). Needs a clean source-grab to add `skos:definition` to each.
+- **Integrated Set of Needs** — *available* in the GtWR summary (defined there verbatim); a good
+  candidate to encode next, sourced from GtWR rather than the SEBoK topic pages.
+
 ## In-prose concepts — need the topic-page sources (capture pass, slice 10)
 
 MGO (Mission/Goals/Objectives), Integrated Set of Needs, need-statement format, Stakeholder Register,

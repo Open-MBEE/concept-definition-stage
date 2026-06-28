@@ -1,0 +1,10 @@
+slug: requirement
+pref_label: Requirement
+# Verbatim INCOSE GtWR v4 (summary sheet). A requirement is an agreed-to OBLIGATION (contrast a need =
+# an agreed-to expectation) — the load-bearing need vs requirement distinction.
+definition: "A requirement statement is the result of a formal transformation of one or more sources, needs, or higher-level requirements into an agreed-to obligation for an entity to perform some function or possess some quality within specified constraints with acceptable risk."
+grounding:
+  - relation: close-match
+    target: https://sebokwiki.org/wiki/Requirement_(glossary)
+cites:
+  - https://w3id.org/cds/src/incose-gtwr-v4-summary

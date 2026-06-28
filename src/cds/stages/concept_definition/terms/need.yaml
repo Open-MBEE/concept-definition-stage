@@ -1,0 +1,10 @@
+slug: need
+pref_label: Need
+# Verbatim INCOSE GtWR v4 (summary sheet, reproduction-with-attribution). The load-bearing NRM
+# distinction: a need is an agreed-to EXPECTATION (contrast a requirement = an agreed-to OBLIGATION).
+definition: "A need statement is the result of a formal transformation of one or more sources or lifecycle concepts into an agreed-to expectation for an entity to perform some function or possess some quality within specified constraints with acceptable risk."
+grounding:
+  - relation: close-match
+    target: https://sebokwiki.org/wiki/Need_(glossary)
+cites:
+  - https://w3id.org/cds/src/incose-gtwr-v4-summary

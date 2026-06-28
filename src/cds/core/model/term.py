@@ -71,6 +71,7 @@ class Term(BaseModel):
     grounding: list[Grounding] = []
     cites: list[str] = []
     broader: list[str] = []
+    addresses: list[str] = []  # slugs of problem/threat/opportunity this concept addresses (GtWR)
     sysml_construct: str | None = None
     nrm_note: str | None = None
 
@@ -106,6 +107,8 @@ def term_to_graph(term: Term, *, scheme: URIRef) -> Graph:
         g.add((s, CDS.cites, URIRef(cite)))
     for broader in term.broader:
         g.add((s, SKOS.broader, term_iri(broader)))
+    for addressed in term.addresses:
+        g.add((s, CDS.addresses, term_iri(addressed)))
     if term.sysml_construct is not None:
         g.add((s, CDS.sysmlConstruct, URIRef(term.sysml_construct)))
     if term.nrm_note is not None:

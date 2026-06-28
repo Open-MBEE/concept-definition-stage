@@ -22,6 +22,111 @@
     cds:authorityKind <https://w3id.org/cds#AuthorityKind/curated-canon> ;
     rdfs:label "SEBoK (Guide to the Systems Engineering Body of Knowledge)" .
 
+<https://w3id.org/cds/characteristic/C10>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C10" ;
+    skos:prefLabel "Complete" .
+
+<https://w3id.org/cds/characteristic/C11>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C11" ;
+    skos:prefLabel "Consistent" .
+
+<https://w3id.org/cds/characteristic/C12>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C12" ;
+    skos:prefLabel "Feasible" .
+
+<https://w3id.org/cds/characteristic/C13>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C13" ;
+    skos:prefLabel "Comprehensible" .
+
+<https://w3id.org/cds/characteristic/C14>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C14" ;
+    skos:prefLabel "Able to be validated" .
+
+<https://w3id.org/cds/characteristic/C15>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C15" ;
+    skos:prefLabel "Correct" .
+
+<https://w3id.org/cds/characteristic/C1>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C1" ;
+    skos:prefLabel "Necessary" .
+
+<https://w3id.org/cds/characteristic/C2>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C2" ;
+    skos:prefLabel "Appropriate" .
+
+<https://w3id.org/cds/characteristic/C3>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C3" ;
+    skos:prefLabel "Unambiguous" .
+
+<https://w3id.org/cds/characteristic/C4>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C4" ;
+    skos:prefLabel "Complete" .
+
+<https://w3id.org/cds/characteristic/C5>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C5" ;
+    skos:prefLabel "Singular" .
+
+<https://w3id.org/cds/characteristic/C6>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C6" ;
+    skos:prefLabel "Feasible" .
+
+<https://w3id.org/cds/characteristic/C7>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C7" ;
+    skos:prefLabel "Verifiable" .
+
+<https://w3id.org/cds/characteristic/C8>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C8" ;
+    skos:prefLabel "Correct" .
+
+<https://w3id.org/cds/characteristic/C9>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C9" ;
+    skos:prefLabel "Conforming" .
+
 <https://w3id.org/cds/scheme/concept-definition>
     a skos:ConceptScheme ;
     dcterms:title "SEBoK Concept Definition reference vocabulary" ;
@@ -29,6 +134,11 @@
     prov:wasDerivedFrom <https://w3id.org/cds/src/incose-gtwr-v4-summary>,
         <https://w3id.org/cds/src/sebok-v2-14> ;
     rdfs:label "Concept Definition Vocabulary" .
+
+<https://w3id.org/cds/scheme/need-characteristics>
+    a skos:ConceptScheme ;
+    prov:wasDerivedFrom <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    rdfs:label "GtWR well-formedness characteristics (C1-C15)" .
 
 <https://w3id.org/cds/src/incose-gtwr-v4-summary/retrieval>
     a cds:RetrievalActivity,
@@ -197,6 +307,15 @@ cdsterm:mission-analysis
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
     skos:prefLabel "Mission Analysis" .
 
+cdsterm:need
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:closeMatch <https://sebokwiki.org/wiki/Need_(glossary)> ;
+    skos:definition "A need statement is the result of a formal transformation of one or more sources or lifecycle concepts into an agreed-to expectation for an entity to perform some function or possess some quality within specified constraints with acceptable risk." ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Need" .
+
 cdsterm:operational-concept
     a cds:Term,
         skos:Concept ;
@@ -227,6 +346,15 @@ cdsterm:problem
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
     skos:prefLabel "Problem" .
 
+cdsterm:requirement
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:closeMatch <https://sebokwiki.org/wiki/Requirement_(glossary)> ;
+    skos:definition "A requirement statement is the result of a formal transformation of one or more sources, needs, or higher-level requirements into an agreed-to obligation for an entity to perform some function or possess some quality within specified constraints with acceptable risk." ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Requirement" .
+
 cdsterm:risk
     a cds:Term,
         skos:Concept ;
@@ -240,6 +368,9 @@ cdsterm:risk
 cdsterm:solution
     a cds:Term,
         skos:Concept ;
+    cds:addresses cdsterm:opportunity,
+        cdsterm:problem,
+        cdsterm:threat ;
     cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
     cds:definitionSource "American Heritage Dictionary 2009" ;
     skos:definition "A means of solving a problem or dealing with a difficult situation." ;

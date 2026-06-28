@@ -95,6 +95,7 @@ def _emitted_cds_terms() -> set[URIRef]:
         grounding=[],
         cites=["https://w3id.org/cds/src/v"],
         broader=[],
+        addresses=["t"],
         sysml_construct="https://www.omg.org/spec/SysML/#PartDefinition",
         nrm_note="note",
     )
