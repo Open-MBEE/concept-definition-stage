@@ -228,6 +228,26 @@ cdsterm:concept-definition
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
     skos:prefLabel "Concept Definition" .
 
+cdsterm:constraint
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "ANSI/EIA 1998" ;
+    skos:definition "A restriction, limit, or regulation imposed on a product, project, or process." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Constraint_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Constraint" .
+
+cdsterm:driver
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Specking et al. 2018" ;
+    skos:definition "Fundamental design decisions that define the platform characteristics that enable current and future missions, e.g. airframe and engine for a UAV and structure and engine for a car." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Driver_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Driver" .
+
 cdsterm:engineered-system
     a cds:Term,
         skos:Concept ;

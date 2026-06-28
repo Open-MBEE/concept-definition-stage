@@ -1,0 +1,11 @@
+slug: constraint
+pref_label: Constraint
+# Verbatim SEBoK v2.14 glossary definition (1) (ANSI/EIA 1998). Def (2) — "A type of requirement or
+# design feature that cannot be traded off." — is the requirement-side framing, deferred.
+definition: "A restriction, limit, or regulation imposed on a product, project, or process."
+definition_source: "ANSI/EIA 1998"
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/Constraint_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

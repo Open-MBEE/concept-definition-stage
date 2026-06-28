@@ -27,6 +27,26 @@ Source: #link("https://sebokwiki.org/wiki/Concept_Definition_(glossary)")
 
 SysML anchor: canon-only
 
+=== Constraint
+
+#quote(block: true)[A restriction, limit, or regulation imposed on a product, project, or process.]
+
+SEBoK attribution: ANSI/EIA 1998
+
+Source: #link("https://sebokwiki.org/wiki/Constraint_(glossary)")
+
+SysML anchor: canon-only
+
+=== Driver
+
+#quote(block: true)[Fundamental design decisions that define the platform characteristics that enable current and future missions, e.g. airframe and engine for a UAV and structure and engine for a car.]
+
+SEBoK attribution: Specking et al. 2018
+
+Source: #link("https://sebokwiki.org/wiki/Driver_(glossary)")
+
+SysML anchor: canon-only
+
 === Engineered System
 
 #quote(block: true)[An open, concrete system of technical or socio-technical elements which is the focus of a SE Life Cycle. Its characteristics include being created by and for people, having a purpose and satisfying key stakeholders’ value propositions when considered as part of a broader System Context.]
