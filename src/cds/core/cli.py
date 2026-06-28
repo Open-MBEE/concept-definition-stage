@@ -37,6 +37,19 @@ def build() -> None:
     graph = build_concept_definition_graph()
     out = write_concept_definition_ttl(graph)
     typer.secho(f"built {out} ({len(graph)} triples)", fg=typer.colors.GREEN)
+
+    # parsimony accounting (reference-vs-materialize). No external caches are configured (SysML is
+    # anchored by equivalence axioms, not MIREOT-sliced), so every invoked external IRI is
+    # reference-only; the budget/report wiring stays live for a future PROV-O/SKOS cache.
+    from cds.core.parsimony import build_extracts
+
+    _extracts, report = build_extracts(graph, sources={}, budgets={})
+    budget = "within budget" if report.within_budget else "OVER BUDGET"
+    typer.secho(
+        f"parsimony: {len(report.referenced_only)} external IRIs referenced, "
+        f"{len(report.materialized_iris)} materialized ({budget}).",
+        fg=typer.colors.BLUE,
+    )
     _report_and_exit(run_verify(graph))
 
 
