@@ -125,6 +125,38 @@ def test_related_only_warnings_are_waived_by_first_class_rdf_waivers() -> None:
     assert not any(f.rule == "TermRelatedOnlyShape" for f in result.warnings)
 
 
+def test_no_restricted_sebok_canon_leaks_under_a_permissive_license() -> None:
+    # the redistribution control, as an ALL-TERMS property: under a non-SEBoK-compatible license, NO
+    # restricted SEBoK verbatim appears anywhere in the rendered output (not just one spot-check)
+    from cds.core.render.typst import typst_document
+    from cds.core.render.view import scheme_view
+
+    g = build_concept_definition_graph()
+    permissive = typst_document(scheme_view(g, title="x", text_license="CC-BY-4.0"))
+    sebok = URIRef(SEBOK_SOURCE.id)
+    sebok_terms = [t for t in g.subjects(CDS.cites, sebok) if (t, SKOS.definition, None) in g]
+    assert len(sebok_terms) >= 25  # the glossary + in-prose SEBoK-sourced terms
+    for term in sebok_terms:
+        definition = str(g.value(term, SKOS.definition))
+        assert definition not in permissive, f"restricted SEBoK verbatim leaked for {term}"
+
+
+def test_provenance_integrity_every_citation_resolves_to_a_verified_source() -> None:
+    # the faithful-capture audit the sponsor relies on: every cited source is a registered, verified
+    # boundary object attributed to a registered authority
+    g = build_concept_definition_graph()
+    sources = set(g.subjects(RDF.type, CDS.Source))
+    authorities = set(g.subjects(RDF.type, CDS.Authority))
+    verified = CDS["RetrievalStatus/verified"]
+    cited = {o for _s, _p, o in g.triples((None, CDS.cites, None))}
+    assert cited, "no citations found"
+    for source in cited:
+        assert source in sources, f"cites an unregistered source: {source}"
+        assert g.value(source, PROV.wasAttributedTo) in authorities, f"{source}: bad authority"
+        retrieval = URIRef(f"{source}/retrieval")
+        assert (retrieval, CDS.retrievalStatus, verified) in g, f"{source}: not verified"
+
+
 def test_sebok_source_is_a_verified_reference_tier_boundary_object() -> None:
     # public BY-NC-SA canon: hash + locator, verified, NOT vendored (no snapshot)
     assert SEBOK_SOURCE.tier is CaptureTier.REFERENCE

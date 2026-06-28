@@ -22,5 +22,10 @@ site/
 # sources/private/ is reserved for genuinely-confidential source snapshots (e.g. sponsor docs, v0.2).
 /sources/private/
 
+# Secrets / local config — never commit (see .env.example for the variable names)
+.env
+.env.*
+!.env.example
+
 # OS
 .DS_Store

@@ -114,8 +114,16 @@ which would *not* have matched any real SysML v2 model. This track is how that a
   relates to a model's `RequirementUsage` (e.g. via the SysML v2 definition↔usage typing), so queries that
   join cds canon to a model resolve correctly. Reuse flexo-rtm's `sysmlv2-anchored.shacl.ttl` profile as a
   conformance reference.
-**Notes:** depends on T6 (Starforge creds) and the corrected namespace (done). Surfaces whether reasoning
-over the equivalence axioms is needed (OWL-RL) for the join to hold without materialization.
+**Wired up (env ready):** the OpenMBEE Flexo **SysML v2 service** is live at
+`https://experimental.starforge.app/`, accessed via the Open-MBEE **`sysmlv2-python-client`**
+(`SysMLV2Client(base_url, bearer_token)` → `get_projects()`). Creds are in the gitignored `.env`
+(`FLEXO_SYSMLV2_URL` / `FLEXO_SYSMLV2_TOKEN`); `tests/interop/test_flexo_sysmlv2.py` is the connectivity
+scaffold (auto-skips until the client is installed). Run with
+`uv run --env-file .env pytest tests/interop/test_flexo_sysmlv2.py`.
+**Done offline already (`tests/unit/test_sysml_join.py`):** the Definition-level anchor join resolves via
+an explicit `owl:equivalentClass` SPARQL path — **no OWL-RL needed** — and the Definition-vs-Usage gap is
+demonstrated, so T9's remaining work is the live service + the typing bridge, not the reasoning question.
+**Notes:** depends on T6 (Starforge creds) and the corrected namespace (done).
 
 ### T7 — Worked-example / educational repo (`education`, `new-repo`)
 **What:** a **separate** public repo: a complete worked example (a real SoI's concept definition built with
@@ -166,3 +174,21 @@ per-source triple budgets into `cds build` (the report wiring is already live; o
 ### X5 — Perspectives & in-prose v0.2 captures (`canon`, `v0.2`)
 Encode the as-is/to-be & green-/brown-field & push/pull **perspective primitives** and the SEBoK **Table 2
 example need statements** (the v0.2 conformance fixture) when the claims/perspective machinery (X2) lands.
+
+### X6 — Test hardening (`testing-hardening`)
+From the pre-push test review. **Done now:** all-terms license-leak property, provenance-integrity audit,
+machine-verified faithfulness (GtWR always-on + SEBoK PDF-gated), and the offline SysML-anchor join.
+**Remaining:** (a) **build idempotence** — `cds build` twice yields zero git diff (docs-as-code, no commit
+churn); (b) **malformed-authoring rejection** — a bad term YAML (missing `pref_label`, invalid grounding
+relation, duplicate slug) is rejected by the C layer with a clear error; (c) **author-a-new-term UAT** —
+the analyst's full loop (write YAML → build → verify → render) end-to-end; (d) **break-a-term UAT** — the
+plan's own check: drop a citation / corrupt a `content_hash` → non-zero exit with an actionable T1 message.
+
+### X7 — Incremental build vs all-or-nothing — **decision needed** (`design`, `discipline`)
+The plan promised *incremental, not all-or-nothing*: held/unverified terms are excluded and the rest still
+builds. As implemented, a term citing an unverified source **fails `cds verify` (T1) → the whole build
+fails**; incrementality is currently *manual discipline* (only author verified terms; held ones live in
+`docs/retrieval-queue.md`), not an automated held-out mechanism. **Decide:** is manual incrementality fine
+for v0.1, or should the build read a per-term `retrieval_status`, **hold** pending terms (T2 + a build-report
+line), and build the verified remainder? This matters most for T7 (worked example) and T8 (LLM-driven
+authoring), where automated held-out is what keeps an LLM from forcing a fabricated definition through.
