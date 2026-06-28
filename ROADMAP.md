@@ -10,6 +10,18 @@ additionally identified.
 
 ---
 
+## Immediate next actions (next session)
+
+1. **Install the SysML v2 client and run the live T9 tests** (`interop`, `next`). Install the Open-MBEE
+   `sysmlv2-python-client`, point at the wired Flexo SysML v2 service (`.env` →
+   `https://experimental.starforge.app/`), and run `uv run --env-file .env pytest tests/interop/`. Confirm
+   the connectivity smoke (`get_projects`) passes, then build out T9 (load a SysML v2 corpus, join it to the
+   cds scheme, resolve the Definition-vs-Usage bridge). **The offline join already proved no OWL-RL is needed.**
+2. **Decide X7** (incremental build vs all-or-nothing) — it shapes T7/T8.
+3. **Stand up CI (P1)** so the suite is green-by-construction before the public push.
+
+---
+
 ## Pre-push readiness (do before/at the public push)
 
 ### P1 — CI workflow (`ci`, `blocker`)
