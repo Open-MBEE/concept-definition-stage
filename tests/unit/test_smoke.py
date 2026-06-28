@@ -20,7 +20,8 @@ def test_cli_help() -> None:
     assert "Concept Definition Stage" in result.output
 
 
-def test_unimplemented_commands_exit_nonzero() -> None:
-    for command in ("render",):  # verify (slice 4) and build (slice 6) are implemented
-        result = runner.invoke(app, [command])
-        assert result.exit_code == 1
+def test_core_commands_are_registered() -> None:
+    # build (slice 6), verify (slice 4), render (slice 8) are all implemented now
+    help_output = runner.invoke(app, ["--help"]).output
+    for command in ("build", "verify", "render"):
+        assert command in help_output

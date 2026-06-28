@@ -12,7 +12,10 @@ build/
 
 # cds build artifacts (regenerated deterministically)
 /build/
-site/                      # mkdocs output
+# mkdocs output
+site/
+# rendered View PDFs (binary, non-deterministic); the deterministic .typ is committed
+/views/*.pdf
 
 # Verbatim canon text is materialized in the committed RDF (the M layer) — see AGENTS.md;
 # non-distribution is enforced at the View layer, not by gitignore.

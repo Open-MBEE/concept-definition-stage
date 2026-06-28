@@ -97,9 +97,29 @@ def _seed_graph() -> Graph:
 
 
 @app.command()
-def render() -> None:
-    """Render the synthesis to a deterministic Typst -> PDF reference document."""
-    raise typer.Exit(_not_yet("render", "slice 8"))
+def render(
+    text_license: Annotated[
+        str,
+        typer.Option(help="Report text license; non-SEBoK-compatible -> cite-only (no verbatim)."),
+    ] = "CC-BY-NC-SA-4.0",
+) -> None:
+    """Render the scheme to a deterministic Typst -> PDF reference document (license-keyed View)."""
+    from cds.core.render.typst import render_pdf, typst_document
+    from cds.core.render.view import scheme_view
+    from cds.stages.concept_definition.build import build_concept_definition_graph
+
+    view = scheme_view(
+        build_concept_definition_graph(),
+        title="Concept Definition Vocabulary",
+        text_license=text_license,
+    )
+    views_dir = Path(__file__).resolve().parents[3] / "views"
+    views_dir.mkdir(exist_ok=True)
+    typ = views_dir / "concept-definition.typ"
+    typ.write_text(typst_document(view))
+    pdf = render_pdf(view, views_dir / "concept-definition.pdf")
+    mode = "verbatim canon" if view.renders_restricted_canon else "cite-only"
+    typer.secho(f"rendered {pdf} ({mode}; text license {view.text_license})", fg=typer.colors.GREEN)
 
 
 def _not_yet(command: str, slice_: str) -> int:
