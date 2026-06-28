@@ -1,0 +1,9 @@
+slug: system-boundary
+pref_label: System Boundary
+definition: "A distinction made by an observer which marks the difference between an entity he takes to be a system and its environment."
+definition_source: "Checkland 1999, 312"
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/System_Boundary_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

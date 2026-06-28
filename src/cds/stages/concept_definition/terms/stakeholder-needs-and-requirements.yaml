@@ -1,0 +1,11 @@
+slug: stakeholder-needs-and-requirements
+pref_label: Stakeholder Needs and Requirements
+# SEBoK glossary definition (1a) — the stakeholder-NEEDS half, the Concept Definition stage's focus.
+# The requirements half (1b, ISO/IEC/IEEE 29148) is the next stage's concern and is not encoded here.
+definition: "Stakeholder needs include elicitation of needs, wants, desires, expectations and perceived constraints of identified stakeholders. Needs concentrate on system purpose and behavior, and are described in the context of the operational environment and conditions."
+definition_source: "ISO/IEC/IEEE 15288, 2023, Section 6.4.2"
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/Stakeholder_Needs_and_Requirements_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

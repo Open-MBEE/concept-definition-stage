@@ -1,0 +1,10 @@
+slug: measure-of-effectiveness
+pref_label: Measure of Effectiveness
+alt_labels: [MoE]
+definition: "The metrics by which an acquirer will measure satisfaction with products produced by the technical effort."
+definition_source: "IEEE 2005"
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/Measure_of_Effectiveness_(MoE)_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

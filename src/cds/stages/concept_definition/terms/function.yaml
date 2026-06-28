@@ -1,0 +1,10 @@
+slug: function
+pref_label: Function
+# SEBoK glossary definition (1); transcribed verbatim ("A system outcomes ..." is as in the source).
+definition: "A system outcomes which contribute to goals or objectives. To have a function, a system must be able to provide the outcome through two or more different combinations of elemental behavior."
+definition_source: "Ackoff 1971"
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/Function_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

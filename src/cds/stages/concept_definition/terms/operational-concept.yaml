@@ -1,0 +1,11 @@
+slug: operational-concept
+pref_label: Operational Concept
+# The leading "Operational Concept:" label is dropped; the definition proper is transcribed verbatim
+# (curly apostrophe preserved).
+definition: "verbal and graphic statement of an organization’s assumptions or intent in regard to an operation or series of operations of a system or a related set of systems."
+definition_source: "ANSI/AIAA G-043-199"
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/Operational_Concept_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

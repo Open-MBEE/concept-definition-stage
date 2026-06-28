@@ -1,0 +1,9 @@
+slug: logical-architecture
+pref_label: Logical Architecture
+definition: "The logical architecture of a system is composed of a set of related technical concepts and principles that support the logical operation of the system. It includes a functional architecture, a behavioral architecture, and a temporal architecture."
+definition_source: "Created for SEBoK"
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/Logical_Architecture_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

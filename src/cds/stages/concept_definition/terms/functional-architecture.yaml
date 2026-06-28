@@ -1,0 +1,10 @@
+slug: functional-architecture
+pref_label: Functional Architecture
+# SEBoK glossary definition (1).
+definition: "A functional architecture is a set of functions and their sub-functions that defines the transformations of input flows into output flows performed by the system to achieve its mission."
+definition_source: "Created for SEBoK"
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/Functional_Architecture_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

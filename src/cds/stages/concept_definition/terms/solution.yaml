@@ -1,0 +1,10 @@
+slug: solution
+pref_label: Solution
+# Another public-content definition curated by SEBoK (American Heritage Dictionary).
+definition: "A means of solving a problem or dealing with a difficult situation."
+definition_source: "American Heritage Dictionary 2009"
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/Solution_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

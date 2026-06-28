@@ -81,6 +81,26 @@
     prov:wasAttributedTo <https://w3id.org/cds/auth/sebok> ;
     prov:wasGeneratedBy <https://w3id.org/cds/src/sebok-v2-14/retrieval> .
 
+cdsterm:capability
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "DoD 2009" ;
+    skos:definition "The ability to achieve a desired effect under specified (performance) standards and conditions through combinations of ways and means (activities and resources) to perform a set of activities." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Capability_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Capability" .
+
+cdsterm:concept-definition
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Created for SEBoK" ;
+    skos:definition "A set of core technical activities of systems engineering in which the problem space and the needs of the stakeholders are closely examined. This consists of analysis of the problem space and definition of stakeholder needs for required services within it." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Concept_Definition_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Concept Definition" .
+
 cdsterm:engineered-system
     a cds:Term,
         skos:Concept ;
@@ -91,6 +111,26 @@ cdsterm:engineered-system
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
     skos:prefLabel "Engineered System" .
 
+cdsterm:function
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Ackoff 1971" ;
+    skos:definition "A system outcomes which contribute to goals or objectives. To have a function, a system must be able to provide the outcome through two or more different combinations of elemental behavior." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Function_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Function" .
+
+cdsterm:functional-architecture
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Created for SEBoK" ;
+    skos:definition "A functional architecture is a set of functions and their sub-functions that defines the transformations of input flows into output flows performed by the system to achieve its mission." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Functional_Architecture_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Functional Architecture" .
+
 cdsterm:life-cycle
     a cds:Term,
         skos:Concept ;
@@ -100,6 +140,57 @@ cdsterm:life-cycle
     skos:exactMatch <https://sebokwiki.org/wiki/Life_Cycle_(glossary)> ;
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
     skos:prefLabel "Life Cycle" .
+
+cdsterm:logical-architecture
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Created for SEBoK" ;
+    skos:definition "The logical architecture of a system is composed of a set of related technical concepts and principles that support the logical operation of the system. It includes a functional architecture, a behavioral architecture, and a temporal architecture." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Logical_Architecture_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Logical Architecture" .
+
+cdsterm:measure-of-effectiveness
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "IEEE 2005" ;
+    skos:altLabel "MoE" ;
+    skos:definition "The metrics by which an acquirer will measure satisfaction with products produced by the technical effort." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Measure_of_Effectiveness_(MoE)_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Measure of Effectiveness" .
+
+cdsterm:mission
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Created for SEBoK" ;
+    skos:definition "The mission of a system is the top-level function of the system; the one that synthesizes all transformation of all inputs and solicitations into outputs and reactions." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Mission_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Mission" .
+
+cdsterm:mission-analysis
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "modified from Blanchard and Fabryky 2011" ;
+    skos:definition "Examination and definition of the primary and secondary purposes of a system." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Mission_Analysis_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Mission Analysis" .
+
+cdsterm:operational-concept
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "ANSI/AIAA G-043-199" ;
+    skos:definition "verbal and graphic statement of an organization’s assumptions or intent in regard to an operation or series of operations of a system or a related set of systems." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Operational_Concept_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Operational Concept" .
 
 cdsterm:opportunity
     a cds:Term,
@@ -121,6 +212,16 @@ cdsterm:problem
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
     skos:prefLabel "Problem" .
 
+cdsterm:solution
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "American Heritage Dictionary 2009" ;
+    skos:definition "A means of solving a problem or dealing with a difficult situation." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Solution_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Solution" .
+
 cdsterm:stakeholder
     a cds:Term,
         skos:Concept ;
@@ -131,6 +232,26 @@ cdsterm:stakeholder
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
     skos:prefLabel "Stakeholder" .
 
+cdsterm:stakeholder-needs-and-requirements
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "ISO/IEC/IEEE 15288, 2023, Section 6.4.2" ;
+    skos:definition "Stakeholder needs include elicitation of needs, wants, desires, expectations and perceived constraints of identified stakeholders. Needs concentrate on system purpose and behavior, and are described in the context of the operational environment and conditions." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Stakeholder_Needs_and_Requirements_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Stakeholder Needs and Requirements" .
+
+cdsterm:system-boundary
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Checkland 1999, 312" ;
+    skos:definition "A distinction made by an observer which marks the difference between an entity he takes to be a system and its environment." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/System_Boundary_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "System Boundary" .
+
 cdsterm:system-context
     a cds:Term,
         skos:Concept ;
@@ -140,6 +261,16 @@ cdsterm:system-context
     skos:exactMatch <https://sebokwiki.org/wiki/System_Context_(glossary)> ;
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
     skos:prefLabel "System Context" .
+
+cdsterm:system-definition
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Created for SEBoK" ;
+    skos:definition "A set of core technical activities of systems engineering, including the activities that are completed primarily in the front-end portion of the system design. This consists of the definition of system requirements, the design of one or more logical and physical architectures, and analysis and selection between possible solution options." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/System_Definition_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "System Definition" .
 
 cdsterm:system-of-interest
     a cds:Term,
@@ -152,6 +283,16 @@ cdsterm:system-of-interest
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
     skos:prefLabel "System-of-Interest" .
 
+cdsterm:system-requirement
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "ISO/IEC/IEEE, 2015, section 6.4.2" ;
+    skos:definition "A statement that transforms the stakeholder, user-oriented view of desired capabilities into a technical view, of a solution that meets the operational needs of the user." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/System_Requirement_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "System Requirement" .
+
 cdsterm:threat
     a cds:Term,
         skos:Concept ;
@@ -161,3 +302,13 @@ cdsterm:threat
     skos:exactMatch <https://sebokwiki.org/wiki/Threat_(glossary)> ;
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
     skos:prefLabel "Threat" .
+
+cdsterm:traceability
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "IEEE 1233-1998 (R2002), 3.1.9" ;
+    skos:definition "The degree to which a relationship can be established between two or more products of the development process, especially products having a predecessor-successor or master-subordinate relationship to one another" ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Traceability_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Traceability" .

@@ -1,0 +1,9 @@
+slug: mission-analysis
+pref_label: Mission Analysis
+definition: "Examination and definition of the primary and secondary purposes of a system."
+definition_source: "modified from Blanchard and Fabryky 2011"
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/Mission_Analysis_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

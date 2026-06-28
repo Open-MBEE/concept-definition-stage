@@ -1,0 +1,10 @@
+slug: system-requirement
+pref_label: System Requirement
+# SEBoK glossary definition (1a).
+definition: "A statement that transforms the stakeholder, user-oriented view of desired capabilities into a technical view, of a solution that meets the operational needs of the user."
+definition_source: "ISO/IEC/IEEE, 2015, section 6.4.2"
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/System_Requirement_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

@@ -1,0 +1,9 @@
+slug: traceability
+pref_label: Traceability
+definition: "The degree to which a relationship can be established between two or more products of the development process, especially products having a predecessor-successor or master-subordinate relationship to one another"
+definition_source: "IEEE 1233-1998 (R2002), 3.1.9"
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/Traceability_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

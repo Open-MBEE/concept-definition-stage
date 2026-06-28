@@ -1,0 +1,9 @@
+slug: system-definition
+pref_label: System Definition
+definition: "A set of core technical activities of systems engineering, including the activities that are completed primarily in the front-end portion of the system design. This consists of the definition of system requirements, the design of one or more logical and physical architectures, and analysis and selection between possible solution options."
+definition_source: "Created for SEBoK"
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/System_Definition_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

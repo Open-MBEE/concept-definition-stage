@@ -9,35 +9,20 @@ of the build** until the artifact is provided and verified.
 
 **Status:** `pending` → `provided` → `verified`. A term builds only when `verified`.
 
-**Built (verified, in `concept-definition.ttl`) — 8 terms:** System-of-Interest, Engineered System,
-System Context, Stakeholder, Problem, Threat, Opportunity, Life Cycle (includes the load-bearing
-problem/threat/opportunity trio).
+**Built (verified, in `concept-definition.ttl`) — 23 terms:** System-of-Interest, Engineered System,
+System Context, Stakeholder, Problem, Threat, Opportunity, Life Cycle, Concept Definition, Mission
+Analysis, Stakeholder Needs and Requirements, System Requirement, Mission, Capability, Solution,
+Measure of Effectiveness, Traceability, Operational Concept, Logical Architecture, Functional
+Architecture, System Boundary, Function, System Definition. Each carries a verbatim SEBoK v2.14
+glossary definition (spot-checked byte-identical to the held PDF), its upstream attribution
+(`cds:definitionSource`), a citation, and a grounding edge.
 
-## Glossary terms still to extract from the held SEBoK v2.14 PDF
+## Held — genuinely blocked, NOT fabricated
 
-The verbatim text is in hand (`cds:src/sebok-v2-14`); each `pending-extraction` term needs its
-definition (1) extracted, spot-checked, and encoded as a YAML term (definition + citation +
-grounding), then it builds. (Not blocked — just not yet extracted.)
-
-| Term | Authority | Source URL | Artifact | Status |
-|---|---|---|---|---|
-| Concept Definition | SEBoK | sebokwiki.org/wiki/Concept_Definition_(glossary) | text | pending-extraction |
-| Mission Analysis | SEBoK | sebokwiki.org/wiki/Mission_Analysis_(glossary) | text | pending-extraction |
-| Stakeholder Needs and Requirements | SEBoK | sebokwiki.org/wiki/Stakeholder_Needs_and_Requirements_(glossary) | text | pending-extraction |
-| System Requirement | SEBoK | sebokwiki.org/wiki/System_Requirement_(glossary) | text | pending-extraction |
-| Mission | SEBoK | sebokwiki.org/wiki/Mission_(glossary) | text | pending-extraction |
-| Capability | SEBoK | sebokwiki.org/wiki/Capability_(glossary) | text | pending-extraction |
-| Solution | SEBoK | sebokwiki.org/wiki/Solution_(glossary) | text | pending-extraction |
-| Measure of Effectiveness (MoE) | SEBoK | sebokwiki.org/wiki/Measure_of_Effectiveness_(glossary) | text | pending-extraction |
-| Traceability | SEBoK | sebokwiki.org/wiki/Traceability_(glossary) | text | pending-extraction |
-| Operational Concept | SEBoK | sebokwiki.org/wiki/Operational_Concept_(glossary) | text | pending-extraction |
-| MBSE | SEBoK | sebokwiki.org/wiki/Model-Based_Systems_Engineering_(glossary) | text | pending-extraction |
-| Risk | SEBoK | sebokwiki.org/wiki/Risk_(glossary) | text | pending-extraction |
-| Logical Architecture | SEBoK | sebokwiki.org/wiki/Logical_Architecture_(glossary) | text | pending-extraction |
-| Functional Architecture | SEBoK | sebokwiki.org/wiki/Functional_Architecture_(glossary) | text | pending-extraction |
-| System Boundary | SEBoK | sebokwiki.org/wiki/System_Boundary_(glossary) | text | pending-extraction |
-| Function | SEBoK | sebokwiki.org/wiki/Function_(glossary) | text | pending-extraction |
-| System Definition | SEBoK | sebokwiki.org/wiki/System_Definition_(glossary) | text | pending-extraction |
+| Term | Authority | Status | Reason |
+|---|---|---|---|
+| Risk | SEBoK | held — needs clean source | `pdftotext` corrupted the bulleted definition (1) (DAU 2003): merged tokens ("andThe", "2003)A risk") make a faithful transcription impossible. Needs a wiki source-grab. |
+| MBSE | SEBoK | held — no glossary entry | "Model-Based Systems Engineering" has **no `(glossary)` entry** in SEBoK v2.14 (it is an article, not a glossary term). No verbatim definition to extract; decide whether to source it elsewhere or drop from the seed set. |
 
 ## In-prose concepts — need the topic-page sources (capture pass, slice 10)
 

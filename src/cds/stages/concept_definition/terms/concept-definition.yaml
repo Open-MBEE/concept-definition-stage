@@ -1,0 +1,9 @@
+slug: concept-definition
+pref_label: Concept Definition
+definition: "A set of core technical activities of systems engineering in which the problem space and the needs of the stakeholders are closely examined. This consists of analysis of the problem space and definition of stakeholder needs for required services within it."
+definition_source: "Created for SEBoK"
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/Concept_Definition_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14

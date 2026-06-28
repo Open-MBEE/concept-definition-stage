@@ -1,0 +1,9 @@
+slug: mission
+pref_label: Mission
+definition: "The mission of a system is the top-level function of the system; the one that synthesizes all transformation of all inputs and solicitations into outputs and reactions."
+definition_source: "Created for SEBoK"
+grounding:
+  - relation: exact-match
+    target: https://sebokwiki.org/wiki/Mission_(glossary)
+cites:
+  - https://w3id.org/cds/src/sebok-v2-14
