@@ -13,10 +13,13 @@ its full lifecycle.
 
 ## Status
 
-**v0.1 — a reference vocabulary, exercised with precision.** ~25 SEBoK Concept Definition glossary terms
+**v0.1 — a reference vocabulary, exercised with precision.** 36 Concept Definition terms — the ~25 SEBoK
+glossary terms plus in-prose article concepts (MGO, Solution Class, Driver/Constraint, Approving Authority,
+Stakeholder Register, the need-statement format) and the GtWR need/requirement/Integrated-Set-of-Needs —
 committed to a SKOS+PROV RDF scheme, dual-anchored to SysML v2 (construction correctness) and INCOSE NRM/GtWR
-(prose canon), with full provenance (the ASoT / boundary-object model) and a deterministic Typst→PDF view.
-Full multi-stakeholder needs elicitation is v0.2.
+(prose canon, incl. the C1–C15 well-formedness characteristics), with full provenance (the ASoT /
+boundary-object model), a license-keyed deterministic Typst→PDF view, and a Flexo MMS round-trip. Full
+multi-stakeholder needs elicitation is v0.2.
 
 ## Architecture (MVC)
 
@@ -35,5 +38,8 @@ provenance-tracked boundary object; missing canon is escalated to a human, not g
 
 ## License
 
-**Apache-2.0** for the code/structure (see [`LICENSE`](LICENSE)). Reproduced canon text retains its source
-license (SEBoK is **CC BY-NC-SA**); published outputs cite + link rather than redistribute NC text.
+**Apache-2.0** for the code/structure (see [`LICENSE`](LICENSE)). Verbatim canon text is materialized in the
+committed RDF (the M layer) as the hallucination guard; the **View** is license-keyed — it embeds restricted
+canon (SEBoK is **CC BY-NC-SA**) only when the operator's `text_license` is compatible, otherwise it cites the
+authoritative source instead of reproducing the text. Licenses are tracked, not enforced — the operator
+judges compliance.

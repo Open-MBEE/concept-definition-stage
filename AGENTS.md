@@ -105,5 +105,7 @@ restates the plan's v0.1 Definition of Done — keep the two in sync.)
 ## Don't
 
 - Don't hand-edit the canonical `.ttl` (YAML term sources are the ergonomic surface; the CLI compiles).
-- Don't import the full SysML v2 library (demand-driven MIREOT slices only; reference ≠ materialize).
+- Don't import the full SysML v2 library or vendor a SysML OWL cache. Anchor by declaring each *invoked*
+  construct in `sysml:` and aliasing it to `omg-sysml:` via `owl:equivalentClass`/`owl:equivalentProperty`
+  (the DSG equivalence-axiom pattern — pure Python, no openCAESAR/JVM). Reference ≠ materialize.
 - Don't take `ant-rdf` as a code dependency (adapt-and-vendor its infra; cite it as a research reference).
