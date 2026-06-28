@@ -64,6 +64,10 @@ class Term(BaseModel):
     pref_label: str
     alt_labels: list[str] = []
     definition: str | None = None
+    # the upstream attribution SEBoK records for this definition (e.g. "ISO/IEC/IEEE 2015",
+    # "Dictionary.com 2012"). Keeping it shows we leverage SEBoK's *curation of already-public
+    # content* — not appropriate proprietary text. (A free-text citation for v0.1; linkable later.)
+    definition_source: str | None = None
     grounding: list[Grounding] = []
     cites: list[str] = []
     broader: list[str] = []
@@ -94,6 +98,8 @@ def term_to_graph(term: Term, *, scheme: URIRef) -> Graph:
         g.add((s, SKOS.altLabel, Literal(alt)))
     if term.definition is not None:
         g.add((s, SKOS.definition, Literal(term.definition)))
+    if term.definition_source is not None:
+        g.add((s, CDS.definitionSource, Literal(term.definition_source)))
     for grounding in term.grounding:
         g.add((s, _GROUNDING_PREDICATE[grounding.relation], URIRef(grounding.target)))
     for cite in term.cites:

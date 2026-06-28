@@ -3,6 +3,7 @@ pref_label: Opportunity
 # Verbatim SEBoK v2.14 glossary definition (1) (Dictionary.com 2012). A load-bearing term — grounded,
 # not bare. NB the SEBoK glossary's primary definition here is a general-dictionary one.
 definition: "an appropriate or favorable time or occasion; a situation or condition favorable for attainment of a goal; a good position, chance, or prospect, as for advancement or success."
+definition_source: "Dictionary.com 2012"  # SEBoK's attribution for definition (1) — public content, curated
 grounding:
   - relation: exact-match
     target: https://sebokwiki.org/wiki/Opportunity_(glossary)

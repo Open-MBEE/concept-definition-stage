@@ -91,6 +91,7 @@ def _emitted_cds_terms() -> set[URIRef]:
         pref_label="T",
         alt_labels=["t"],
         definition="D",
+        definition_source="Some Standard 2020",
         grounding=[],
         cites=["https://w3id.org/cds/src/v"],
         broader=[],

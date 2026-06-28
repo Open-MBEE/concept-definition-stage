@@ -2,6 +2,7 @@ slug: threat
 pref_label: Threat
 # Verbatim SEBoK v2.14 glossary definition (ISO/IEC/IEEE 2011). A load-bearing term — grounded, not bare.
 definition: "State of the system or system environment which can lead to adverse effects."
+definition_source: "ISO/IEC/IEEE 2011"  # SEBoK's attribution for this definition
 grounding:
   - relation: exact-match
     target: https://sebokwiki.org/wiki/Threat_(glossary)

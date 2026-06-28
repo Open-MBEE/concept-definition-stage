@@ -1,6 +1,7 @@
 slug: system-context
 pref_label: System Context
 definition: "Describes the system relationships and environment, resolved around a selected system-of-interest."
+definition_source: "Flood and Carson 1993"  # SEBoK's attribution for definition (1)
 grounding:
   - relation: exact-match
     target: https://sebokwiki.org/wiki/System_Context_(glossary)

@@ -52,6 +52,18 @@ def test_every_term_materializes_verbatim_traced_to_the_verified_sebok_source() 
         assert (term, CDS.cites, sebok) in g  # cited to the verified boundary object
 
 
+def test_definitions_keep_sebok_s_upstream_attribution() -> None:
+    # provenance that reinforces we leverage SEBoK's CURATION of already-public content, not
+    # proprietary appropriation: every seeded definition records SEBoK's own source attribution.
+    from rdflib import Literal
+
+    g = build_concept_definition_graph()
+    assert (term_iri("opportunity"), CDS.definitionSource, Literal("Dictionary.com 2012")) in g
+    assert (term_iri("system-of-interest"), CDS.definitionSource, Literal("ISO/IEC/IEEE 2015")) in g
+    # every defined term carries one
+    assert len(set(g.subjects(CDS.definitionSource, None))) == len(load_terms())
+
+
 def test_scheme_is_a_provenance_tracked_conceptscheme() -> None:
     g = build_concept_definition_graph()
     assert (SCHEME, RDF.type, SKOS.ConceptScheme) in g

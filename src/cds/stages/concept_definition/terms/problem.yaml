@@ -2,6 +2,7 @@ slug: problem
 pref_label: Problem
 # Verbatim SEBoK v2.14 glossary definition (Conrow 2008). A load-bearing term — grounded, not bare.
 definition: "A concern that has a probability of occurrence equal to one, a consequence of occurrence greater than zero, and a time-frame that is current. A problem is an event that has occurred and has a negative impact to the project."
+definition_source: "Conrow 2008"  # SEBoK's attribution for this definition
 grounding:
   - relation: exact-match
     target: https://sebokwiki.org/wiki/Problem_(glossary)

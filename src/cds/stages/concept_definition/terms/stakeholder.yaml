@@ -3,6 +3,7 @@ pref_label: Stakeholder
 # Verbatim SEBoK v2.14 glossary definition (1) (ISO/IEC/IEEE 2015); transcribed without a trailing
 # period, as it appears in the source.
 definition: "Individual or organization having a right, share, claim, or interest in a system or in its possession of characteristics that meet their needs and expectations"
+definition_source: "ISO/IEC/IEEE 2015"  # SEBoK's attribution for definition (1)
 grounding:
   - relation: exact-match
     target: https://sebokwiki.org/wiki/Stakeholder_(glossary)

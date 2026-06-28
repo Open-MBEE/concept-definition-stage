@@ -239,6 +239,15 @@ cds:contentHash
     rdfs:label "contentHash" ;
     rdfs:range xsd:string .
 
+cds:definitionSource
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    cds:frameworkRole cds:Available ;
+    rdfs:comment "The upstream attribution SEBoK records for a term's definition." ;
+    rdfs:domain cds:Term ;
+    rdfs:label "definitionSource" ;
+    rdfs:range xsd:string .
+
 cds:frameworkRole
     a owl:AnnotationProperty,
         rdf:Property ;

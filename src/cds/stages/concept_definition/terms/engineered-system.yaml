@@ -4,6 +4,7 @@ pref_label: Engineered System
 # "SE Life Cycle (glossary)" and "System Context (glossary)"; the "(glossary)" link artifacts are
 # omitted here so the definition reads as authored. FLAGGED for operator confirmation.
 definition: "An open, concrete system of technical or socio-technical elements which is the focus of a SE Life Cycle. Its characteristics include being created by and for people, having a purpose and satisfying key stakeholders’ value propositions when considered as part of a broader System Context."
+definition_source: "Created for SEBoK"  # SEBoK's attribution for definition (1)
 grounding:
   - relation: exact-match
     target: https://sebokwiki.org/wiki/Engineered_System_(glossary)

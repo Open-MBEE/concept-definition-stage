@@ -12,6 +12,19 @@ These are tracked here until the public remote is provisioned; then each becomes
 
 - **URI scheme** — hash (`cds#`) for vocabulary/classes, slash (`cds/term/`, `cds/src/`) for
   individuals. Confirmed.
+- **SEBoK source = REFERENCE tier; vendor at the term level, not the PDF** (Zargham confirmed).
+  The 14.7 MB BY-NC-SA PDF is **not** in the repo — registered as a REFERENCE-tier source (content
+  hash + locator + checksum verification; operator holds the PDF). What we vendor is **term-level**:
+  each term's verbatim definition + its ASoT provenance (citation to the source, grounding edge, and
+  `cds:definitionSource` recording SEBoK's own upstream attribution, e.g. Dictionary.com 2012,
+  ISO/IEC/IEEE 2015). The **ASoT provenance data is our primary contribution** — and capturing SEBoK's
+  upstream attributions makes explicit that we leverage SEBoK's *curation of already-public content*,
+  not proprietary text. (Contrast GtWR: small + reproduction-with-attribution → snapshot tier.)
+- **Engineered System transcription — verified faithful.** Re-checked character-by-character: the
+  encoded definition is identical to the held PDF once the two inline `(glossary)` wiki-link render
+  artifacts are removed (it is the one term not byte-identical to raw `pdftotext`, by that deliberate
+  artifact-stripping only — no transcription error). The `(Created for SEBoK)` attribution is captured
+  in `cds:definitionSource`.
 - **SEBoK definition handling** — *text in the model, citation in the view*: verbatim canon is
   **materialized in the committed RDF (M)** so the software can enforce standards + guard against
   hallucination; the **View layer** excludes the text and cites the authoritative source. Engineering
@@ -20,18 +33,6 @@ These are tracked here until the public remote is provisioned; then each becomes
 
 ## Open audit-flagged questions (not yet resolved)
 
-- **SEBoK source = REFERENCE tier (slice 6 decision — diverges from the plan's "snapshot tier").**
-  The plan's implementability notes say the SEBoK v2.14 PDF is "held (snapshot tier)", but it was
-  registered **REFERENCE-tier** instead: (a) the tiering rule keeps public curated canon to
-  hash + locator, not vendored; (b) it is 14.7 MB; (c) SEBoK is BY-NC-**SA**, so vendoring the whole
-  work into a public repo is redistribution. The content hash pins the version; the verbatim
-  *definitions* (a small excerpt) still live in committed M (Delta D2). The operator holds the PDF.
-  Contrast GtWR, which IS snapshot-tier (small + reproduction-with-attribution). **Confirm.**
-- **Engineered System glossary-artifact transcription.** The SEBoK PDF renders two inline wiki-links
-  inside the Engineered System definition as "SE Life Cycle (glossary)" / "System Context (glossary)".
-  The `(glossary)` link artifacts were **omitted** so the definition reads as authored. This is the one
-  seeded definition not byte-identical to pdftotext output. **Confirm** the artifact-stripping is the
-  right faithful-transcription call (the alternative: keep them verbatim, artifacts and all).
 - **Authorship / copyright identity.** `pyproject` names "Michael Zargham" while `LICENSE`
   says "cds contributors" — reconcile for an Open-MBEE community Apache repo.
 - **`sources/private/` convention.** Reserved for genuinely-confidential source snapshots

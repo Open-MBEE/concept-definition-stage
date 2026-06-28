@@ -85,6 +85,7 @@ cdsterm:engineered-system
     a cds:Term,
         skos:Concept ;
     cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Created for SEBoK" ;
     skos:definition "An open, concrete system of technical or socio-technical elements which is the focus of a SE Life Cycle. Its characteristics include being created by and for people, having a purpose and satisfying key stakeholders’ value propositions when considered as part of a broader System Context." ;
     skos:exactMatch <https://sebokwiki.org/wiki/Engineered_System_(glossary)> ;
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
@@ -94,6 +95,7 @@ cdsterm:life-cycle
     a cds:Term,
         skos:Concept ;
     cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Pyster 2009, 73" ;
     skos:definition "The organized collection of activities, relationships and contracts which apply to a system-of-interest during its life." ;
     skos:exactMatch <https://sebokwiki.org/wiki/Life_Cycle_(glossary)> ;
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
@@ -103,6 +105,7 @@ cdsterm:opportunity
     a cds:Term,
         skos:Concept ;
     cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Dictionary.com 2012" ;
     skos:definition "an appropriate or favorable time or occasion; a situation or condition favorable for attainment of a goal; a good position, chance, or prospect, as for advancement or success." ;
     skos:exactMatch <https://sebokwiki.org/wiki/Opportunity_(glossary)> ;
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
@@ -112,6 +115,7 @@ cdsterm:problem
     a cds:Term,
         skos:Concept ;
     cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Conrow 2008" ;
     skos:definition "A concern that has a probability of occurrence equal to one, a consequence of occurrence greater than zero, and a time-frame that is current. A problem is an event that has occurred and has a negative impact to the project." ;
     skos:exactMatch <https://sebokwiki.org/wiki/Problem_(glossary)> ;
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
@@ -121,6 +125,7 @@ cdsterm:stakeholder
     a cds:Term,
         skos:Concept ;
     cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "ISO/IEC/IEEE 2015" ;
     skos:definition "Individual or organization having a right, share, claim, or interest in a system or in its possession of characteristics that meet their needs and expectations" ;
     skos:exactMatch <https://sebokwiki.org/wiki/Stakeholder_(glossary)> ;
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
@@ -130,6 +135,7 @@ cdsterm:system-context
     a cds:Term,
         skos:Concept ;
     cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Flood and Carson 1993" ;
     skos:definition "Describes the system relationships and environment, resolved around a selected system-of-interest." ;
     skos:exactMatch <https://sebokwiki.org/wiki/System_Context_(glossary)> ;
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
@@ -139,6 +145,7 @@ cdsterm:system-of-interest
     a cds:Term,
         skos:Concept ;
     cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "ISO/IEC/IEEE 2015" ;
     skos:altLabel "SoI" ;
     skos:definition "The system whose life cycle is under consideration." ;
     skos:exactMatch <https://sebokwiki.org/wiki/System-of-Interest_(glossary)> ;
@@ -149,6 +156,7 @@ cdsterm:threat
     a cds:Term,
         skos:Concept ;
     cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "ISO/IEC/IEEE 2011" ;
     skos:definition "State of the system or system environment which can lead to adverse effects." ;
     skos:exactMatch <https://sebokwiki.org/wiki/Threat_(glossary)> ;
     skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
