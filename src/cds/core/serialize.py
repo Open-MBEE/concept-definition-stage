@@ -12,11 +12,17 @@ escaping are handled correctly. Timestamps in the graph are stable inputs, never
 
 from __future__ import annotations
 
+import re
 from collections import defaultdict
 
-from rdflib import RDF, Graph
+from rdflib import RDF, Graph, URIRef
 from rdflib.namespace import NamespaceManager
 from rdflib.term import Node
+
+# A prefixed name's local part is only emitted when it is parse-safe (a conservative subset of
+# Turtle's PN_LOCAL): otherwise rdflib will happily produce an invalid qname such as
+# ``sebok:Engineered_System_(glossary)`` (parentheses are not allowed) that fails to re-parse.
+_PARSE_SAFE_LOCAL = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.\-]*$")
 
 
 def canonical_turtle(graph: Graph, *, prefixes: dict[str, str]) -> str:
@@ -29,7 +35,13 @@ def canonical_turtle(graph: Graph, *, prefixes: dict[str, str]) -> str:
         nm.bind(pfx, ns, override=True, replace=True)
 
     def n3(node: Node) -> str:
-        return node.n3(nm)
+        rendered = node.n3(nm)
+        if isinstance(node, URIRef) and not rendered.startswith("<"):
+            # a prefixed name was produced — keep it only if its local part is parse-safe
+            local = rendered.partition(":")[2]
+            if not (_PARSE_SAFE_LOCAL.match(local) and not local.endswith(".")):
+                return f"<{node}>"
+        return rendered
 
     def pred_key(pred: Node) -> tuple[int, str]:
         return (0, "") if pred == RDF.type else (1, n3(pred))

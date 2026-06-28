@@ -47,3 +47,18 @@ def test_canonical_turtle_sorts_subjects_and_uses_a_for_rdf_type() -> None:
     assert out.startswith("@prefix")
     assert out.index("term/a") < out.index("term/b")  # subjects sorted
     assert "    a skos:Concept" in out  # rdf:type rendered as `a`, prefixed objects
+
+
+def test_canonical_turtle_roundtrips_when_a_bound_prefix_has_unsafe_local_names() -> None:
+    # a sebokwiki glossary URL has "(glossary)" — not a valid Turtle local name; binding the prefix
+    # must NOT produce an invalid qname. The serializer falls back to a full IRI so it re-parses.
+    sebok = "https://sebokwiki.org/wiki/"
+    subj = URIRef("https://w3id.org/cds/term/x")
+    target = URIRef(f"{sebok}Engineered_System_(glossary)")
+    g = Graph()
+    g.add((subj, SKOS.exactMatch, target))
+    out = canonical_turtle(g, prefixes={"skos": str(SKOS), "sebok": sebok})
+    assert "(glossary)" in out
+    reparsed = Graph()
+    reparsed.parse(data=out, format="turtle")  # must not raise
+    assert (subj, SKOS.exactMatch, target) in reparsed
