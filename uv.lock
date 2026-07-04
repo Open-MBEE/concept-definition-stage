@@ -110,6 +110,10 @@ docs = [
     { name = "mkdocs-material" },
     { name = "mkdocstrings", extra = ["python"] },
 ]
+interop = [
+    { name = "requests" },
+    { name = "sysmlv2-python-client" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -121,11 +125,13 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "rdflib", specifier = ">=7.0" },
+    { name = "requests", marker = "extra == 'interop'", specifier = ">=2.31" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.5" },
+    { name = "sysmlv2-python-client", marker = "extra == 'interop'", git = "https://github.com/Open-MBEE/sysmlv2-python-client" },
     { name = "typer", specifier = ">=0.12" },
     { name = "types-pyyaml", marker = "extra == 'dev'", specifier = ">=6" },
 ]
-provides-extras = ["dev", "docs"]
+provides-extras = ["dev", "docs", "interop"]
 
 [[package]]
 name = "certifi"
@@ -1098,6 +1104,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050, upload-time = "2024-12-04T17:35:26.475Z" },
 ]
+
+[[package]]
+name = "sysmlv2-python-client"
+version = "0.1.0"
+source = { git = "https://github.com/Open-MBEE/sysmlv2-python-client#9172500f9ebd84b30dd90a5fc612904f6072784a" }
 
 [[package]]
 name = "typer"

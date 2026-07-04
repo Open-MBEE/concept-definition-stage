@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
 authors = [{ name = "Michael Zargham", email = "michael.zargham@gmail.com" }]
+maintainers = [{ name = "cds contributors" }]
 keywords = ["systems-engineering", "sebok", "incose", "sysml-v2", "rdf", "skos", "mbse"]
 dependencies = [
   # core/model — local-first hard deps (see plan: Coupling)
@@ -24,9 +25,17 @@ dependencies = [
 # render/View layer needs Typst + Pandoc binaries too (not Python deps)
 dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10", "types-PyYAML>=6"]
 docs = ["mkdocs-material>=9.5", "mkdocstrings[python]>=0.25"]
+# live SysML v2 service interop (roadmap T9); requires Starforge credentials in .env
+interop = [
+  "sysmlv2-python-client @ git+https://github.com/Open-MBEE/sysmlv2-python-client",
+  "requests>=2.31",
+]
 
 [project.scripts]
 cds = "cds.core.cli:app"
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/cds"]
