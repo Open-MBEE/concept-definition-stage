@@ -140,8 +140,12 @@ def new(
     model = model_for_kind(kind)
     from cds.core.authoring import create_record
 
-    iri = create_record(project, model.model_validate(fields))
-    typer.secho(f"{kind} {iri}", fg=typer.colors.GREEN)
+    rec = model.model_validate(fields)
+    iri = create_record(project, rec)
+    # echo the stored fields so an upsert/correction is visible (not just the IRI)
+    typer.secho(f"{kind} {rec.slug} — {rec.label}", fg=typer.colors.GREEN)
+    typer.echo(f"  {rec.description}")
+    typer.echo(f"  {iri}")
 
 
 park_app = typer.Typer(help="Parking-lot: capture out-of-scope ideas without derailing.",
@@ -261,6 +265,59 @@ def tension_add(
         Tension(slug=slug, label=label, description=description, between=between or []),
     )
     typer.secho(f"tension {iri}", fg=typer.colors.GREEN)
+
+
+@app.command(name="list")
+def list_(
+    kind: Annotated[str, typer.Argument(help="Record kind to list (mission, goal, need, …).")],
+) -> None:
+    """List the records of a kind (slug — label), for reviewing what's captured."""
+    from cds.core.authoring import list_records
+    from cds.core.model.instances import KIND_TERM
+    from cds.core.workspace import load_project
+
+    if kind not in KIND_TERM:
+        typer.secho(f"unknown kind {kind!r}; expected one of {', '.join(KIND_TERM)}",
+                    fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    items = list_records(load_project(), kind)
+    if not items:
+        typer.secho(f"(no {kind} records yet)", fg=typer.colors.YELLOW)
+    for slug, label in items:
+        typer.echo(f"  {slug}: {label}")
+
+
+@app.command()
+def show(
+    kind: Annotated[str, typer.Argument(help="Record kind.")],
+    slug: Annotated[str, typer.Argument(help="Record slug.")],
+) -> None:
+    """Show one record's stored fields — read-back for reflecting content to the human."""
+    from cds.core.authoring import show_record
+    from cds.core.workspace import load_project
+
+    lines = show_record(load_project(), kind, slug)
+    if lines is None:
+        typer.secho(f"no {kind} {slug!r}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    for line in lines:
+        typer.echo(line)
+
+
+@app.command()
+def rm(
+    kind: Annotated[str, typer.Argument(help="Record kind.")],
+    slug: Annotated[str, typer.Argument(help="Record slug.")],
+) -> None:
+    """Delete a record — the sanctioned way to retract, alongside re-authoring to correct."""
+    from cds.core.authoring import remove_record
+    from cds.core.workspace import load_project
+
+    if remove_record(load_project(), kind, slug):
+        typer.secho(f"removed {kind} {slug}", fg=typer.colors.GREEN)
+    else:
+        typer.secho(f"no {kind} {slug!r}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
 
 
 @app.command()
