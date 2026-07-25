@@ -8,7 +8,7 @@
 git clone https://github.com/Open-MBEE/concept-definition-stage
 cd concept-definition-stage
 uv sync --extra dev        # installs cds + test/lint/type-check tools
-uv run pytest              # 109 tests, ~4 s
+uv run pytest              # the full test suite
 uv run ruff check .
 uv run mypy
 ```
@@ -62,7 +62,7 @@ the CLI compiles them.
 
 ## Pull request checklist
 
-- [ ] `uv run pytest` passes (109+ tests, no new failures)
+- [ ] `uv run pytest` passes (no new failures)
 - [ ] `uv run ruff check .` clean
 - [ ] `uv run mypy` clean
 - [ ] `uv run cds verify` conforms (T1-clean)
