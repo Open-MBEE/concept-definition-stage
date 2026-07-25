@@ -38,7 +38,7 @@ interop = [
 ]
 
 [project.scripts]
-cds = "cds.core.cli:app"
+cds = "cds.core.cli:main"
 
 [tool.hatch.metadata]
 allow-direct-references = true

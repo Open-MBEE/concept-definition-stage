@@ -548,14 +548,16 @@ def compile(
     typer.secho(f"compiled {out}", fg=typer.colors.GREEN)
 
 
-def _not_yet(command: str, slice_: str) -> int:
-    typer.secho(
-        f"`cds {command}` is not implemented yet (planned for {slice_}).",
-        fg=typer.colors.YELLOW,
-        err=True,
-    )
-    return 1
+def main() -> None:
+    """Console entry point — turns a missing-project error into a clean message, not a traceback."""
+    from cds.core.workspace import CdsProjectNotFound
+
+    try:
+        app()
+    except CdsProjectNotFound as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise SystemExit(2) from None
 
 
 if __name__ == "__main__":
-    app()
+    main()
