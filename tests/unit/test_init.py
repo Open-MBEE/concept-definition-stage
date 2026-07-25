@@ -21,7 +21,9 @@ def test_init_scaffolds_marker_dirs_and_assets(tmp_path: Path) -> None:
     assert tomllib.loads(marker.read_text())["project"]["name"] == "demo"
     assert (tmp_path / "concept-definition" / "instances" / ".gitkeep").is_file()
     assert (tmp_path / "concept-definition" / "briefs" / ".gitkeep").is_file()
-    assert (tmp_path / "CLAUDE.md").is_file()
+    assert (tmp_path / "AGENTS.md").is_file()  # neutral contract (canonical)
+    assert (tmp_path / "CLAUDE.md").is_file()  # thin pointer to AGENTS.md
+    assert "AGENTS.md" in (tmp_path / "CLAUDE.md").read_text()
     assert (tmp_path / ".claude" / "settings.json").is_file()
     assert "cds.toml" in result.created
 

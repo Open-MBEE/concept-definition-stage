@@ -22,7 +22,9 @@ def _assets_dir() -> Path:
 
 
 #: (source under assets/, destination relative to project root); skills are globbed separately.
+#: The neutral AGENTS.md is the canonical contract for the user's project; CLAUDE.md points to it.
 _VENDORED: tuple[tuple[str, str], ...] = (
+    ("claude/AGENTS.md", "AGENTS.md"),
     ("claude/CLAUDE.md", "CLAUDE.md"),
     ("claude/settings.json", ".claude/settings.json"),
 )
