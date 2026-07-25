@@ -70,4 +70,4 @@ Flexo MMS and SysML v2 services.
 - **w3id registration:** `https://w3id.org/cds#` namespace is used but not yet registered
   (non-blocking; T2 in the roadmap)
 
-[0.1.0]: https://github.com/Open-MBEE/cds/releases/tag/v0.1.0
+[0.1.0]: https://github.com/Open-MBEE/concept-definition-stage/releases/tag/v0.1.0

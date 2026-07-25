@@ -72,8 +72,8 @@ or an `openmbee-cds` name). Decide what ships: code only (the canon PDFs and ope
 **Acceptance:** the IRIs dereference to the cds-core / concept-definition artifacts (or the docs site).
 **Notes:** currently used as-is (non-blocking). Coordinate the redirect target with T3 (GitHub Pages).
 
-### T3 — mkdocs → GitHub Pages (`docs`)
-**What:** configure mkdocs(-material) + mkdocstrings to build the design spec, construction-order prose,
+### T3 — Sphinx docsite → GitHub Pages (`docs`)
+**What:** build the scaffolded Sphinx docsite (MyST + pydata-theme + autodoc): the design spec, construction-order prose,
 auto API docs, and the rendered vocabulary; publish to GitHub Pages from CI.
 **Acceptance:** a live Pages site on push to `main`; API reference + the Concept Definition vocabulary
 (the Typst/HTML view) are browsable. Wire the w3id redirect (T2) here.
