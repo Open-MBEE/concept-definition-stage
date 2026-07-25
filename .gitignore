@@ -29,3 +29,7 @@ site/
 
 # OS
 .DS_Store
+
+# Sphinx docs build output
+docs/_build/
+docs/_autosummary/

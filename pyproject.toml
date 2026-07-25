@@ -24,7 +24,13 @@ dependencies = [
 [project.optional-dependencies]
 # render/View layer needs Typst + Pandoc binaries too (not Python deps)
 dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10", "types-PyYAML>=6"]
-docs = ["mkdocs-material>=9.5", "mkdocstrings[python]>=0.25"]
+# Scientific-Python docs stack (NumFOCUS/OpenMBEE norm): Sphinx + MyST + pydata theme + autodoc.
+docs = [
+  "sphinx>=7.2",
+  "myst-parser>=2.0",
+  "pydata-sphinx-theme>=0.15",
+  "linkify-it-py>=2.0",
+]
 # live SysML v2 service interop (roadmap T9); requires Starforge credentials in .env
 interop = [
   "sysmlv2-python-client @ git+https://github.com/Open-MBEE/sysmlv2-python-client",
