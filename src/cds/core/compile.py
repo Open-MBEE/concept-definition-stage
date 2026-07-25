@@ -89,6 +89,9 @@ def compile_brief(graph: Graph, *, base: str) -> str:
             if kind == "objective":
                 refines = _refs(graph, s, CDS.refines)
                 extra = f" _(refines: {refines})_" if refines else ""
+            elif kind == "goal":
+                addresses = _refs(graph, s, CDS.addresses)
+                extra = f" _(addresses: {addresses})_" if addresses else ""
             sup = _supersedes(graph, s)
             lines.append(f"- **{_label(graph, s)}** — {_desc(graph, s)}{extra}{sup}")
         lines.append("")
