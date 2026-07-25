@@ -26,6 +26,12 @@ def test_init_scaffolds_marker_dirs_and_assets(tmp_path: Path) -> None:
     assert "cds.toml" in result.created
 
 
+def test_init_vendors_the_skills(tmp_path: Path) -> None:
+    init_project(tmp_path, name="demo")
+    assert (tmp_path / ".claude" / "skills" / "cds-elicit.md").is_file()
+    assert (tmp_path / ".claude" / "skills" / "cds-review.md").is_file()
+
+
 def test_init_defaults_project_name_to_dir(tmp_path: Path) -> None:
     proj = tmp_path / "my-analysis"
     init_project(proj)

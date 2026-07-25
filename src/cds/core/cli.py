@@ -75,7 +75,9 @@ def synthesis(
 def new(
     kind: Annotated[str, typer.Argument(help="Record kind (mission, goal, stakeholder, need, …).")],
     slug: Annotated[str, typer.Argument(help="Short id for this record (kebab-case).")],
-    synthesis: Annotated[str, typer.Option(help="Slug of the parent mapping (cds:Synthesis).")],
+    synthesis: Annotated[
+        str | None, typer.Option(help="Slug of the parent mapping (cds:Synthesis).")
+    ] = None,
     label: Annotated[str | None, typer.Option(help="Short name.")] = None,
     description: Annotated[str | None, typer.Option(help="The content statement.")] = None,
     for_stakeholder: Annotated[
@@ -107,8 +109,13 @@ def new(
         raise typer.Exit(2)
 
     if interactive:
+        synthesis = synthesis or typer.prompt("synthesis (mapping slug)")
         label = label or typer.prompt("label (short name)")
         description = description or typer.prompt("description (the statement)")
+    if synthesis is None:
+        typer.secho("--synthesis is required (or use --interactive)",
+                    fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
     if label is None or description is None:
         typer.secho("--label and --description are required (or use --interactive)",
                     fg=typer.colors.RED, err=True)
