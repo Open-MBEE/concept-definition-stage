@@ -21,6 +21,7 @@ Here we record **end-to-end / user-facing testing** of the tool as a whole.
 | Date | Run | Method | Headline outcome |
 | --- | --- | --- | --- |
 | 2026-07-25 | [sim-usertest](2026-07-25-sim-usertest/) | 2× two-agent sessions + battery | Found the critical "**can't safely correct a record**" bug (re-authoring appended). All safe bugs fixed with tests; 4 maintainer decisions captured & implemented. |
+| 2026-07-25 | [coldstart](2026-07-25-coldstart/) | 5× cold-start walkthroughs (4 personas + docs-only) | Discovery→install→init→first-records journey. Install is the non-dev floor; no in-CLI term lookup; 2 correctness bugs (link corruption, no dangling-ref check); doc drift. Produced the **onboarding benchmark** (release acceptance criteria). |
 
 ## Related (kept outside this repo, by design)
 
