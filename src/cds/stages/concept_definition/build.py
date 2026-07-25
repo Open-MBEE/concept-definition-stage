@@ -24,12 +24,13 @@ from cds.core.asot.rdf import to_graph as asot_to_graph
 from cds.core.model.term import Term, load_term, term_to_graph
 from cds.core.namespaces import CDS, CDS_TERM, DCTERMS, OMG_SYSML, PROV, SKOS, SPDX, SYSML
 from cds.core.serialize import canonical_turtle
+from cds.core.workspace import concept_definition_ttl_path
 from cds.stages.concept_definition.seed import GTWR_SOURCE, seed_authorities, seed_sources
 
 SCHEME = URIRef("https://w3id.org/cds/scheme/concept-definition")
 CHARACTERISTICS_SCHEME = URIRef("https://w3id.org/cds/scheme/need-characteristics")
 TERMS_DIR = Path(__file__).resolve().parent / "terms"
-OUTPUT_TTL = Path(__file__).resolve().parents[4] / "ontology" / "concept-definition.ttl"
+OUTPUT_TTL = concept_definition_ttl_path()
 
 CHARACTERISTICS_FILE = Path(__file__).resolve().parent / "characteristics.yaml"
 

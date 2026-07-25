@@ -23,8 +23,9 @@ from cds import __version__
 from cds.core.controlled import controlled_vocab_graph
 from cds.core.namespaces import CDS, DCTERMS, PROV, SKOS
 from cds.core.serialize import canonical_turtle
+from cds.core.workspace import core_ttl_path
 
-CORE_TTL_PATH = Path(__file__).resolve().parents[3] / "ontology" / "cds-core.ttl"
+CORE_TTL_PATH = core_ttl_path()
 CORE_ONTOLOGY = URIRef("https://w3id.org/cds")
 
 CORE_PREFIXES: dict[str, str] = {

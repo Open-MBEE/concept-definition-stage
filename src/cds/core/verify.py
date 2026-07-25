@@ -33,8 +33,9 @@ from rdflib.namespace import SH, XSD
 from rdflib.term import Node
 
 from cds.core.namespaces import CDS, DCTERMS, PROV
+from cds.core.workspace import shapes_dir as _shapes_dir
 
-SHAPES_DIR = Path(__file__).resolve().parents[3] / "ontology" / "shapes"
+SHAPES_DIR = _shapes_dir()
 
 
 class Severity(StrEnum):

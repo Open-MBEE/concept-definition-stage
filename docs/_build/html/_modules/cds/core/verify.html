@@ -1,0 +1,830 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cds.core.verify &#8212; cds</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cds/core/verify';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">cds</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user-guide.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../construction-order.html">
+    Construction order — structural integrity encodes process integrity
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../sources.html">
+    Source acquisition
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../retrieval-queue.html">
+    Retrieval queue (human-retrieval escalation — local fallback)
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Open-MBEE/concept-definition-stage" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user-guide.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../construction-order.html">
+    Construction order — structural integrity encodes process integrity
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../sources.html">
+    Source acquisition
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../retrieval-queue.html">
+    Retrieval queue (human-retrieval escalation — local fallback)
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Open-MBEE/concept-definition-stage" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cds.core.verify</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for cds.core.verify</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Tri-severity verification with first-class (RDF) waivers — the local-first ``cds verify``.</span>
+
+<span class="sd">This module gives a **Pythonic** surface over a semantic-web engine: SHACL/pyshacl run underneath,</span>
+<span class="sd">but callers see plain ``Finding`` / ``VerifyResult`` / ``Waiver`` objects and a ``Severity`` enum —</span>
+<span class="sd">never the pyshacl results graph or SHACL constraint-component vocabulary.</span>
+
+<span class="sd">Two concerns are kept distinct (they are *not* the same thing):</span>
+
+<span class="sd">* **SHACL conformance** = &quot;is the construction structurally correct?&quot; — pyshacl computes this as</span>
+<span class="sd">  ``conforms`` (with warnings/infos allowed, it is exactly &quot;no T1 violation&quot;). That is the gate:</span>
+<span class="sd">  ``VerifyResult.passed`` *is* ``conforms``. We do not re-derive or second-guess it.</span>
+<span class="sd">* **Our tri-severity reporting + waiver policy** sits *on top* for human triage: T2/T3 findings are</span>
+<span class="sd">  surfaced, and an operator may **waive** a T2/T3 (with a recorded reason). **T1 is never waivable**</span>
+<span class="sd">  — a waiver that selects a Violation has no effect on it, and waivers never touch ``conforms``.</span>
+
+<span class="sd">Severity maps to SHACL&#39;s native levels: **T1 = ``sh:Violation``**, **T2 = ``sh:Warning``**,</span>
+<span class="sd">**T3 = ``sh:Info``**. Waivers are **first-class RDF data** (``cds:Waiver``) carried in the graph,</span>
+<span class="sd">not a side-car config file — the audit trail of what was accepted is versioned with the rest.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyshacl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rdflib</span><span class="w"> </span><span class="kn">import</span> <span class="n">RDF</span><span class="p">,</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">URIRef</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rdflib.namespace</span><span class="w"> </span><span class="kn">import</span> <span class="n">SH</span><span class="p">,</span> <span class="n">XSD</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rdflib.term</span><span class="w"> </span><span class="kn">import</span> <span class="n">Node</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cds.core.model.instances</span><span class="w"> </span><span class="kn">import</span> <span class="n">KIND_TERM</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cds.core.namespaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">CDS</span><span class="p">,</span> <span class="n">CDS_TERM</span><span class="p">,</span> <span class="n">DCTERMS</span><span class="p">,</span> <span class="n">PROV</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cds.core.workspace</span><span class="w"> </span><span class="kn">import</span> <span class="n">shapes_dir</span> <span class="k">as</span> <span class="n">_shapes_dir</span>
+
+<span class="n">SHAPES_DIR</span> <span class="o">=</span> <span class="n">_shapes_dir</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Severity">
+<a class="viewcode-back" href="../../../api.html#cds.core.verify.Severity">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Severity</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The tri-severity ladder (ant-rdf lineage), mapped to SHACL&#39;s native levels.&quot;&quot;&quot;</span>
+
+    <span class="n">VIOLATION</span> <span class="o">=</span> <span class="s2">&quot;violation&quot;</span>  <span class="c1"># T1 — fails the build</span>
+    <span class="n">WARNING</span> <span class="o">=</span> <span class="s2">&quot;warning&quot;</span>  <span class="c1"># T2 — surfaced, does not fail</span>
+    <span class="n">INFO</span> <span class="o">=</span> <span class="s2">&quot;info&quot;</span>  <span class="c1"># T3 — lint</span></div>
+
+
+
+<span class="n">_FROM_SHACL</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">Severity</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">SH</span><span class="o">.</span><span class="n">Violation</span><span class="p">:</span> <span class="n">Severity</span><span class="o">.</span><span class="n">VIOLATION</span><span class="p">,</span>
+    <span class="n">SH</span><span class="o">.</span><span class="n">Warning</span><span class="p">:</span> <span class="n">Severity</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
+    <span class="n">SH</span><span class="o">.</span><span class="n">Info</span><span class="p">:</span> <span class="n">Severity</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">_RANK</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Severity</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">Severity</span><span class="o">.</span><span class="n">VIOLATION</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Severity</span><span class="o">.</span><span class="n">WARNING</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Severity</span><span class="o">.</span><span class="n">INFO</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+<span class="n">_TIER</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Severity</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">Severity</span><span class="o">.</span><span class="n">VIOLATION</span><span class="p">:</span> <span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="n">Severity</span><span class="o">.</span><span class="n">WARNING</span><span class="p">:</span> <span class="s2">&quot;T2&quot;</span><span class="p">,</span> <span class="n">Severity</span><span class="o">.</span><span class="n">INFO</span><span class="p">:</span> <span class="s2">&quot;T3&quot;</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_local_name</span><span class="p">(</span><span class="n">iri</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The trailing name of an IRI (after the last ``#`` or ``/``).&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">sep</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">sep</span> <span class="ow">in</span> <span class="n">iri</span><span class="p">:</span>
+            <span class="n">iri</span> <span class="o">=</span> <span class="n">iri</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="n">sep</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">iri</span>
+
+
+<div class="viewcode-block" id="Finding">
+<a class="viewcode-back" href="../../../api.html#cds.core.verify.Finding">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Finding</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;One check result, in cds terms — no SHACL plumbing leaks through.</span>
+
+<span class="sd">    ``rule`` is the stable identity of the check that fired (each shape is named); ``focus`` is the</span>
+<span class="sd">    node it fired on; ``message`` is the check&#39;s authored explanation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">severity</span><span class="p">:</span> <span class="n">Severity</span>
+    <span class="n">rule</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">focus</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tier</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_TIER</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">severity</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="VerifyResult">
+<a class="viewcode-back" href="../../../api.html#cds.core.verify.VerifyResult">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VerifyResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The outcome of a verification.</span>
+
+<span class="sd">    ``conforms`` is SHACL&#39;s structural verdict (the gate); ``findings`` are the kept (unwaived)</span>
+<span class="sd">    tri-severity results for human triage.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">conforms</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">findings</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Finding</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">passed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The build gate — identically SHACL conformance (no T1 violation).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">conforms</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">violations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Finding</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">findings</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">severity</span> <span class="ow">is</span> <span class="n">Severity</span><span class="o">.</span><span class="n">VIOLATION</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">warnings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Finding</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">findings</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">severity</span> <span class="ow">is</span> <span class="n">Severity</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">infos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Finding</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">findings</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">severity</span> <span class="ow">is</span> <span class="n">Severity</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Waiver">
+<a class="viewcode-back" href="../../../api.html#cds.core.verify.Waiver">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Waiver</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A first-class, conscious acceptance of a non-Violation finding.</span>
+
+<span class="sd">    Selects the finding by its ``rule`` (the check&#39;s stable name) and, optionally, a specific</span>
+<span class="sd">    ``focus`` node. ``reason`` is mandatory. Waivers are **append-only audit data** — round-tripped</span>
+<span class="sd">    to/from RDF (``cds:Waiver``) — and **T1 is never waivable**.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">rule</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">focus</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># operator who accepted it (provenance)</span>
+    <span class="n">waived_on</span><span class="p">:</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># when accepted (a stable input, never build-time now())</span>
+
+<div class="viewcode-block" id="Waiver.matches">
+<a class="viewcode-back" href="../../../api.html#cds.core.verify.Waiver.matches">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">matches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">finding</span><span class="p">:</span> <span class="n">Finding</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rule</span> <span class="o">!=</span> <span class="n">finding</span><span class="o">.</span><span class="n">rule</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">focus</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">focus</span> <span class="o">==</span> <span class="n">finding</span><span class="o">.</span><span class="n">focus</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="load_shapes">
+<a class="viewcode-back" href="../../../api.html#cds.core.verify.load_shapes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_shapes</span><span class="p">(</span><span class="n">shapes_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">SHAPES_DIR</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Graph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load and merge every ``*.ttl`` shape file in ``shapes_dir`` into one graph.&quot;&quot;&quot;</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">ttl</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">shapes_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.ttl&quot;</span><span class="p">)):</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">ttl</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;turtle&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">g</span></div>
+
+
+
+<div class="viewcode-block" id="waiver_to_graph">
+<a class="viewcode-back" href="../../../api.html#cds.core.verify.waiver_to_graph">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">waiver_to_graph</span><span class="p">(</span><span class="n">waiver</span><span class="p">:</span> <span class="n">Waiver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Graph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Emit a waiver as first-class RDF (``cds:Waiver``).&quot;&quot;&quot;</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">()</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">URIRef</span><span class="p">(</span><span class="n">waiver</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">s</span><span class="p">,</span> <span class="n">RDF</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">Waiver</span><span class="p">))</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">s</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">waivesRule</span><span class="p">,</span> <span class="n">Literal</span><span class="p">(</span><span class="n">waiver</span><span class="o">.</span><span class="n">rule</span><span class="p">)))</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">s</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">waiverReason</span><span class="p">,</span> <span class="n">Literal</span><span class="p">(</span><span class="n">waiver</span><span class="o">.</span><span class="n">reason</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">waiver</span><span class="o">.</span><span class="n">focus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">s</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">waivesFocus</span><span class="p">,</span> <span class="n">URIRef</span><span class="p">(</span><span class="n">waiver</span><span class="o">.</span><span class="n">focus</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">waiver</span><span class="o">.</span><span class="n">by</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">s</span><span class="p">,</span> <span class="n">PROV</span><span class="o">.</span><span class="n">wasAttributedTo</span><span class="p">,</span> <span class="n">URIRef</span><span class="p">(</span><span class="n">waiver</span><span class="o">.</span><span class="n">by</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">waiver</span><span class="o">.</span><span class="n">waived_on</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">s</span><span class="p">,</span> <span class="n">DCTERMS</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">Literal</span><span class="p">(</span><span class="n">waiver</span><span class="o">.</span><span class="n">waived_on</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span> <span class="n">datatype</span><span class="o">=</span><span class="n">XSD</span><span class="o">.</span><span class="n">date</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">g</span></div>
+
+
+
+<div class="viewcode-block" id="waivers_from_graph">
+<a class="viewcode-back" href="../../../api.html#cds.core.verify.waivers_from_graph">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">waivers_from_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">Graph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Waiver</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read every ``cds:Waiver`` carried in ``graph`` — waivers are data, not config.&quot;&quot;&quot;</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Waiver</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">subjects</span><span class="p">(</span><span class="n">RDF</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">Waiver</span><span class="p">):</span>
+        <span class="n">rule</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">waivesRule</span><span class="p">)</span>
+        <span class="n">reason</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">waiverReason</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rule</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">reason</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">focus</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">waivesFocus</span><span class="p">)</span>
+        <span class="n">by</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">PROV</span><span class="o">.</span><span class="n">wasAttributedTo</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">DCTERMS</span><span class="o">.</span><span class="n">date</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">Waiver</span><span class="p">(</span>
+                <span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+                <span class="n">rule</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">rule</span><span class="p">),</span>
+                <span class="n">reason</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">reason</span><span class="p">),</span>
+                <span class="n">focus</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">focus</span><span class="p">)</span> <span class="k">if</span> <span class="n">focus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">by</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">by</span><span class="p">)</span> <span class="k">if</span> <span class="n">by</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">waived_on</span><span class="o">=</span><span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">))</span> <span class="k">if</span> <span class="n">d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_findings</span><span class="p">(</span><span class="n">report</span><span class="p">:</span> <span class="n">Graph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Finding</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Finding</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">subjects</span><span class="p">(</span><span class="n">RDF</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">SH</span><span class="o">.</span><span class="n">ValidationResult</span><span class="p">):</span>
+        <span class="n">sev</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">SH</span><span class="o">.</span><span class="n">resultSeverity</span><span class="p">)</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">SH</span><span class="o">.</span><span class="n">sourceShape</span><span class="p">)</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">SH</span><span class="o">.</span><span class="n">resultMessage</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">Finding</span><span class="p">(</span>
+                <span class="n">severity</span><span class="o">=</span><span class="n">_FROM_SHACL</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sev</span><span class="p">,</span> <span class="n">Severity</span><span class="o">.</span><span class="n">VIOLATION</span><span class="p">)</span> <span class="k">if</span> <span class="n">sev</span> <span class="k">else</span> <span class="n">Severity</span><span class="o">.</span><span class="n">VIOLATION</span><span class="p">,</span>
+                <span class="n">rule</span><span class="o">=</span><span class="n">_local_name</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">shape</span><span class="p">))</span> <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">focus</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">SH</span><span class="o">.</span><span class="n">focusNode</span><span class="p">)),</span>
+                <span class="n">message</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="k">if</span> <span class="n">message</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="p">(</span><span class="n">_RANK</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">severity</span><span class="p">],</span> <span class="n">f</span><span class="o">.</span><span class="n">rule</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">focus</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">message</span><span class="p">)))</span>
+
+
+<span class="n">_SHALL</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\bshall\b&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_conflicts</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Graph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Finding</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cross-record consistency checks over an *instance* graph (not expressible per-record SHACL).</span>
+
+<span class="sd">    Adapts ant-rdf&#39;s ``_check_crossrefs`` shape — iterate a curated set of relations, cross-check an</span>
+<span class="sd">    index built from the graph, and emit findings in the same shape SHACL produces. All are surfaced</span>
+<span class="sd">    (T2/T3), not gate-failing; they flag rather than block, per the elicitation ethos.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">findings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Finding</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">needs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">subjects</span><span class="p">(</span><span class="n">RDF</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">CDS_TERM</span><span class="p">[</span><span class="s2">&quot;need&quot;</span><span class="p">]))</span>
+
+    <span class="k">for</span> <span class="n">need</span> <span class="ow">in</span> <span class="n">needs</span><span class="p">:</span>
+        <span class="n">desc</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">need</span><span class="p">,</span> <span class="n">DCTERMS</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">desc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_SHALL</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">desc</span><span class="p">)):</span>
+            <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Finding</span><span class="p">(</span><span class="n">Severity</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span> <span class="s2">&quot;NeedFormShall&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">need</span><span class="p">),</span>
+                <span class="s2">&quot;need uses &#39;shall&#39; — write it in need-form instead, &quot;</span>
+                <span class="s2">&quot;e.g. &#39;the &lt;stakeholder&gt; needs the system to …&#39; (requirements come later)&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">objects</span><span class="p">(</span><span class="n">need</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">forStakeholder</span><span class="p">)):</span>
+            <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Finding</span><span class="p">(</span><span class="n">Severity</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span> <span class="s2">&quot;NeedWithoutStakeholder&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">need</span><span class="p">),</span>
+                <span class="s2">&quot;need is not linked to any stakeholder (orphan need)&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">objects</span><span class="p">(</span><span class="n">need</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">servesGoal</span><span class="p">)):</span>
+            <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Finding</span><span class="p">(</span><span class="n">Severity</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="s2">&quot;NeedServesNoGoal&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">need</span><span class="p">),</span>
+                <span class="s2">&quot;need serves no goal (not linked to any goal it advances)&quot;</span><span class="p">))</span>
+
+    <span class="c1"># duplicate statements: same semantic type + normalized description</span>
+    <span class="n">by_key</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">subjects</span><span class="p">(</span><span class="n">RDF</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">Instance</span><span class="p">):</span>
+        <span class="n">desc</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">DCTERMS</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">desc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">objects</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">RDF</span><span class="o">.</span><span class="n">type</span><span class="p">)</span> <span class="k">if</span> <span class="n">t</span> <span class="o">!=</span> <span class="n">CDS</span><span class="o">.</span><span class="n">Instance</span><span class="p">)</span>
+        <span class="n">by_key</span><span class="p">[(</span><span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">types</span><span class="p">),</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()))]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">_key</span><span class="p">,</span> <span class="n">subs</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">by_key</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Finding</span><span class="p">(</span><span class="n">Severity</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span> <span class="s2">&quot;DuplicateStatement&quot;</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">subs</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="sa">f</span><span class="s2">&quot;duplicate statement shared by: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">subs</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+
+    <span class="c1"># set-level completeness: a mapping with no needs yet</span>
+    <span class="k">for</span> <span class="n">syn</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">subjects</span><span class="p">(</span><span class="n">RDF</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">Synthesis</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">((</span><span class="n">need</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">inSynthesis</span><span class="p">,</span> <span class="n">syn</span><span class="p">)</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">for</span> <span class="n">need</span> <span class="ow">in</span> <span class="n">needs</span><span class="p">):</span>
+            <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Finding</span><span class="p">(</span><span class="n">Severity</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="s2">&quot;SynthesisWithoutNeeds&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">syn</span><span class="p">),</span>
+                <span class="s2">&quot;mapping has no needs yet (integrated set is empty)&quot;</span><span class="p">))</span>
+
+    <span class="c1"># dangling references: a project-internal link whose target record doesn&#39;t exist. Matched by</span>
+    <span class="c1"># slug (not exact IRI), so a link built with a hard-coded target kind still resolves.</span>
+    <span class="n">existing</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">subjects</span><span class="p">(</span><span class="n">RDF</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">Instance</span><span class="p">)}</span>
+    <span class="n">existing</span> <span class="o">|=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">subjects</span><span class="p">(</span><span class="n">RDF</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">Synthesis</span><span class="p">)}</span>
+    <span class="n">marks</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">/&quot;</span> <span class="k">for</span> <span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="o">*</span><span class="n">KIND_TERM</span><span class="p">,</span> <span class="s2">&quot;synthesis&quot;</span><span class="p">))</span>
+    <span class="n">link_props</span> <span class="o">=</span> <span class="p">(</span><span class="n">CDS</span><span class="o">.</span><span class="n">forStakeholder</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">servesGoal</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">refines</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">addresses</span><span class="p">,</span>
+                  <span class="n">CDS</span><span class="o">.</span><span class="n">supersedes</span><span class="p">,</span> <span class="n">CDS</span><span class="o">.</span><span class="n">inSynthesis</span><span class="p">)</span>
+    <span class="n">seen</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">link_props</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">subj</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">subject_objects</span><span class="p">(</span><span class="n">prop</span><span class="p">):</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">URIRef</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">m</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">marks</span><span class="p">):</span>
+                <span class="k">continue</span>  <span class="c1"># external IRI (e.g. a cited source) — not a project link</span>
+            <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">existing</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">subj</span><span class="p">),</span> <span class="n">text</span><span class="p">)</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">subj</span><span class="p">),</span> <span class="n">text</span><span class="p">))</span>
+            <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Finding</span><span class="p">(</span><span class="n">Severity</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span> <span class="s2">&quot;DanglingReference&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">subj</span><span class="p">),</span>
+                <span class="sa">f</span><span class="s2">&quot;links to a record that doesn&#39;t exist: </span><span class="si">{</span><span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">findings</span>
+
+
+<div class="viewcode-block" id="verify">
+<a class="viewcode-back" href="../../../api.html#cds.core.verify.verify">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">verify</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Graph</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">shapes</span><span class="p">:</span> <span class="n">Graph</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">waivers</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Waiver</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">check_conflicts</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VerifyResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate ``data`` against the cds shapes.</span>
+
+<span class="sd">    ``conforms`` (SHACL&#39;s verdict) is the gate. Waivers default to those carried *in* ``data`` (they</span>
+<span class="sd">    are first-class RDF); pass ``waivers`` explicitly to override. Waivers only ever drop a</span>
+<span class="sd">    surfaced T2/T3 — never a T1. Set ``check_conflicts`` to add the cross-record consistency pass</span>
+<span class="sd">    (need-form, orphan/duplicate, set-level) — used when verifying a user&#39;s authored mapping.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">shapes</span> <span class="o">=</span> <span class="n">shapes</span> <span class="k">if</span> <span class="n">shapes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">load_shapes</span><span class="p">()</span>
+    <span class="n">conforms</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">_text</span> <span class="o">=</span> <span class="n">pyshacl</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span>
+        <span class="n">shacl_graph</span><span class="o">=</span><span class="n">shapes</span><span class="p">,</span>
+        <span class="n">advanced</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># sh:sparql + sh:prefixes</span>
+        <span class="n">inference</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+        <span class="n">allow_infos</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">allow_warnings</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">pool</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_findings</span><span class="p">(</span><span class="n">report</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">check_conflicts</span><span class="p">:</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_check_conflicts</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+    <span class="n">waiver_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">waivers</span><span class="p">)</span> <span class="k">if</span> <span class="n">waivers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">waivers_from_graph</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">kept</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+        <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">f</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">pool</span>
+                <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">severity</span> <span class="ow">is</span> <span class="n">Severity</span><span class="o">.</span><span class="n">VIOLATION</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">waiver_list</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="p">(</span><span class="n">_RANK</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">severity</span><span class="p">],</span> <span class="n">f</span><span class="o">.</span><span class="n">rule</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">focus</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">message</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">VerifyResult</span><span class="p">(</span><span class="n">conforms</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">conforms</span><span class="p">),</span> <span class="n">findings</span><span class="o">=</span><span class="n">kept</span><span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Open-MBEE.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,593 @@
+@prefix cds: <https://w3id.org/cds#> .
+@prefix cdsterm: <https://w3id.org/cds/term/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix omg-sysml: <https://www.omg.org/spec/SysML/20240801/SysML#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix spdx: <https://spdx.org/licenses/> .
+@prefix sysml: <https://www.omg.org/spec/SysML/2.0/> .
+
+<https://w3id.org/cds/auth/incose>
+    a cds:Authority,
+        prov:Agent ;
+    cds:authorityKind <https://w3id.org/cds#AuthorityKind/standard> ;
+    rdfs:label "INCOSE (International Council on Systems Engineering)" .
+
+<https://w3id.org/cds/auth/sebok>
+    a cds:Authority,
+        prov:Agent ;
+    cds:authorityKind <https://w3id.org/cds#AuthorityKind/curated-canon> ;
+    rdfs:label "SEBoK (Guide to the Systems Engineering Body of Knowledge)" .
+
+<https://w3id.org/cds/characteristic/C10>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The set of needs and set of requirements for an entity should stand alone such that it sufficiently describes the necessary capabilities, characteristics, functionality, performance, drivers, constraints, conditions, interactions, standards, regulations, safety, security, resilience, and quality factors without requiring other sets of needs or sets of requirements at the appropriate level of abstraction." ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C10" ;
+    skos:prefLabel "Complete" .
+
+<https://w3id.org/cds/characteristic/C11>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C11" ;
+    skos:prefLabel "Consistent" .
+
+<https://w3id.org/cds/characteristic/C12>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "A set of needs and a set of requirements is feasible if it can be realized within entity constraints (such as cost, schedule, technical) with acceptable risk." ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C12" ;
+    skos:prefLabel "Feasible" .
+
+<https://w3id.org/cds/characteristic/C13>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The set of needs and the set of resulting requirements must each be written such that it is clear as to what is expected of the entity and its relation to the macro system of which it is a part." ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C13" ;
+    skos:prefLabel "Comprehensible" .
+
+<https://w3id.org/cds/characteristic/C14>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "It must be possible to validate that the set of needs will lead to the achievement of the product goals and objectives, stakeholder expectations, risks, and lifecycle concepts within the constraints (such as cost, schedule, technical, legal and regulatory compliance) with acceptable risk. It must be possible to validate that the set of requirements will lead to the achievement of the set of needs and higher-level requirements within the constraints (such as cost, schedule, technical, and regulatory compliance) with acceptable risk." ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C14" ;
+    skos:prefLabel "Able to be validated" .
+
+<https://w3id.org/cds/characteristic/C15>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The set of needs must be an accurate representation of the lifecycle concepts or sources from which it was transformed. The set of requirements must be an accurate representation of the needs, sources, or higher-level requirements from which it was transformed." ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C15" ;
+    skos:prefLabel "Correct" .
+
+<https://w3id.org/cds/characteristic/C1>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The need requirement statement defines capability, characteristic, constraint, or quality factor needed or required to satisfy a lifecycle concept, need, source, or higher-level requirement." ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C1" ;
+    skos:prefLabel "Necessary" .
+
+<https://w3id.org/cds/characteristic/C2>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The specific intent and amount of detail of the need or requirement statement is appropriate to the level (the level of abstraction, organization, or system architecture) of the entity to which it refers." ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C2" ;
+    skos:prefLabel "Appropriate" .
+
+<https://w3id.org/cds/characteristic/C3>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "Need and requirement statements must be stated such that their intent is clear and can be interpreted in only one way by all intended audiences." ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C3" ;
+    skos:prefLabel "Unambiguous" .
+
+<https://w3id.org/cds/characteristic/C4>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The need statement sufficiently describes the necessary capability, characteristic, constraint, conditions, or quality factor to meet the lifecycle concept or source from which it was transformed. The requirement statement sufficiently describes the necessary capability, characteristic, constraint, conditions, or quality factor to meet the need, source, or higher-level requirement from which it was transformed." ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C4" ;
+    skos:prefLabel "Complete" .
+
+<https://w3id.org/cds/characteristic/C5>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The need or requirement statement should state a single capability, characteristic, constraint, or quality factor." ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C5" ;
+    skos:prefLabel "Singular" .
+
+<https://w3id.org/cds/characteristic/C6>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The need or requirement can be realized within entity constraints (for example: cost, schedule, technical, legal, ethical, safety) with acceptable risk." ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C6" ;
+    skos:prefLabel "Feasible" .
+
+<https://w3id.org/cds/characteristic/C7>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The need statement is structured and worded such that its realization can be validated to the approving authority’s satisfaction. The requirement statement is structured and worded such that its realization can be verified to the approving authority’s satisfaction." ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C7" ;
+    skos:prefLabel "Verifiable" .
+
+<https://w3id.org/cds/characteristic/C8>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "The need statement must be an accurate representation of the lifecycle concept or source from which it was transformed. The requirement statement must be an accurate representation of the need, source, or higher-level requirement from which it was transformed." ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C8" ;
+    skos:prefLabel "Correct" .
+
+<https://w3id.org/cds/characteristic/C9>
+    a skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:definition "Statements and expressions of individual needs and requirements should conform to an approved standard pattern and style guide or standard for writing and managing needs and requirements." ;
+    skos:inScheme <https://w3id.org/cds/scheme/need-characteristics> ;
+    skos:notation "C9" ;
+    skos:prefLabel "Conforming" .
+
+<https://w3id.org/cds/scheme/concept-definition>
+    a skos:ConceptScheme ;
+    dcterms:title "SEBoK Concept Definition reference vocabulary" ;
+    owl:versionInfo "0.1.0" ;
+    prov:wasDerivedFrom <https://w3id.org/cds/src/incose-gtwr-v4-summary>,
+        <https://w3id.org/cds/src/sebok-v2-14> ;
+    rdfs:label "Concept Definition Vocabulary" .
+
+<https://w3id.org/cds/scheme/need-characteristics>
+    a skos:ConceptScheme ;
+    prov:wasDerivedFrom <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    rdfs:label "GtWR well-formedness characteristics (C1-C15)" .
+
+<https://w3id.org/cds/src/incose-gtwr-v4-summary/retrieval>
+    a cds:RetrievalActivity,
+        prov:Activity ;
+    cds:retrievalStatus <https://w3id.org/cds#RetrievalStatus/verified> ;
+    prov:endedAtTime "2026-06-27T00:00:00+00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+
+<https://w3id.org/cds/src/incose-gtwr-v4-summary/verification/0>
+    a cds:VerificationActivity,
+        prov:Activity ;
+    cds:verificationMethod <https://w3id.org/cds#VerificationMethod/checksum> ;
+    cds:verificationNote "content-addressed snapshot; sha256 matches the held file" ;
+    prov:endedAtTime "2026-06-27T00:00:00+00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+    prov:used <https://w3id.org/cds/src/incose-gtwr-v4-summary> .
+
+<https://w3id.org/cds/src/incose-gtwr-v4-summary>
+    a cds:Source,
+        prov:Entity ;
+    cds:captureTier <https://w3id.org/cds#CaptureTier/snapshot> ;
+    cds:contentHash "sha256:0bf5918db034757fb63fb81a677263ebe36323eee95e51fbd0197aecdd574176" ;
+    cds:license <https://w3id.org/cds/license/LicenseRef-INCOSE-GtWR-Summary> ;
+    cds:locator "INCOSE-TP-2010-006-04" ;
+    cds:snapshot "0bf5918db034757fb63fb81a677263ebe36323eee95e51fbd0197aecdd574176.pdf" ;
+    cds:sourceType <https://w3id.org/cds#SourceType/pdf> ;
+    cds:wasVerifiedBy <https://w3id.org/cds/src/incose-gtwr-v4-summary/verification/0> ;
+    prov:wasAttributedTo <https://w3id.org/cds/auth/incose> ;
+    prov:wasGeneratedBy <https://w3id.org/cds/src/incose-gtwr-v4-summary/retrieval> .
+
+<https://w3id.org/cds/src/sebok-v2-14/retrieval>
+    a cds:RetrievalActivity,
+        prov:Activity ;
+    cds:retrievalStatus <https://w3id.org/cds#RetrievalStatus/verified> ;
+    prov:endedAtTime "2026-06-27T00:00:00+00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+
+<https://w3id.org/cds/src/sebok-v2-14/verification/0>
+    a cds:VerificationActivity,
+        prov:Activity ;
+    cds:verificationMethod <https://w3id.org/cds#VerificationMethod/checksum> ;
+    cds:verificationNote "sha256 of the operator-held SEBoK v2.14 PDF; reference tier, not vendored" ;
+    prov:endedAtTime "2026-06-27T00:00:00+00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+    prov:used <https://w3id.org/cds/src/sebok-v2-14> .
+
+<https://w3id.org/cds/src/sebok-v2-14>
+    a cds:Source,
+        prov:Entity ;
+    cds:captureTier <https://w3id.org/cds#CaptureTier/reference> ;
+    cds:contentHash "sha256:251668f0ed4eca5a7c36755c6c56a07d663ef8a2bd66addd41e595eabcf0dce2" ;
+    cds:license spdx:CC-BY-NC-SA-3.0 ;
+    cds:locator "https://sebokwiki.org/wiki/Guide_to_the_Systems_Engineering_Body_of_Knowledge_(SEBoK)" ;
+    cds:sourceType <https://w3id.org/cds#SourceType/pdf> ;
+    cds:wasVerifiedBy <https://w3id.org/cds/src/sebok-v2-14/verification/0> ;
+    prov:wasAttributedTo <https://w3id.org/cds/auth/sebok> ;
+    prov:wasGeneratedBy <https://w3id.org/cds/src/sebok-v2-14/retrieval> .
+
+cdsterm:approving-authority
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    skos:altLabel "Approving Authorities" ;
+    skos:definition "The approving authorities include stakeholders that are responsible for formally certifying, qualifying, and approving the system for use in its operational environment by its intended users." ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Approving Authority" ;
+    skos:relatedMatch <https://sebokwiki.org/wiki/Stakeholder_(glossary)> .
+
+cdsterm:capability
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "DoD 2009" ;
+    cds:sysmlConstruct sysml:UseCaseDefinition ;
+    skos:definition "The ability to achieve a desired effect under specified (performance) standards and conditions through combinations of ways and means (activities and resources) to perform a set of activities." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Capability_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Capability" .
+
+cdsterm:concept-definition
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Created for SEBoK" ;
+    skos:definition "A set of core technical activities of systems engineering in which the problem space and the needs of the stakeholders are closely examined. This consists of analysis of the problem space and definition of stakeholder needs for required services within it." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Concept_Definition_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Concept Definition" .
+
+cdsterm:constraint
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "ANSI/EIA 1998" ;
+    skos:definition "A restriction, limit, or regulation imposed on a product, project, or process." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Constraint_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Constraint" .
+
+cdsterm:driver
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Specking et al. 2018" ;
+    skos:definition "Fundamental design decisions that define the platform characteristics that enable current and future missions, e.g. airframe and engine for a UAV and structure and engine for a car." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Driver_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Driver" .
+
+cdsterm:engineered-system
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Created for SEBoK" ;
+    skos:definition "An open, concrete system of technical or socio-technical elements which is the focus of a SE Life Cycle. Its characteristics include being created by and for people, having a purpose and satisfying key stakeholders’ value propositions when considered as part of a broader System Context." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Engineered_System_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Engineered System" .
+
+cdsterm:function
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Ackoff 1971" ;
+    skos:definition "A system outcomes which contribute to goals or objectives. To have a function, a system must be able to provide the outcome through two or more different combinations of elemental behavior." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Function_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Function" .
+
+cdsterm:functional-architecture
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Created for SEBoK" ;
+    skos:definition "A functional architecture is a set of functions and their sub-functions that defines the transformations of input flows into output flows performed by the system to achieve its mission." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Functional_Architecture_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Functional Architecture" .
+
+cdsterm:goal
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    skos:definition "Goals are elaborated from the mission statement to communicate what must be achieved to result in a successful mission. Goals allow the organization to divide the mission statement into manageable pieces and promote a shared understanding between the project team and the business operations level stakeholders of what needs to be done to achieve the mission." ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Goal" ;
+    skos:relatedMatch <https://sebokwiki.org/wiki/Mission_(glossary)> .
+
+cdsterm:integrated-set-of-needs
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:broadMatch <https://sebokwiki.org/wiki/Stakeholder_Needs_and_Requirements_(glossary)> ;
+    skos:definition "A need set is a structured set of agreed-to need expressions for the entity (enterprise/business unit/system/subsystem/system element/process) and its external interfaces. Within the NRM, GtNR, GtVV, and this Guide this set of needs is referred to as an Integrated Set of Needs. This Integrated Set of Needs is well-formed, having the characteristics defined in this Guide, communicating the scope of effort to which the system of interest will be validated against." ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Integrated Set of Needs" .
+
+cdsterm:life-cycle
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Pyster 2009, 73" ;
+    skos:definition "The organized collection of activities, relationships and contracts which apply to a system-of-interest during its life." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Life_Cycle_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Life Cycle" .
+
+cdsterm:logical-architecture
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Created for SEBoK" ;
+    skos:definition "The logical architecture of a system is composed of a set of related technical concepts and principles that support the logical operation of the system. It includes a functional architecture, a behavioral architecture, and a temporal architecture." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Logical_Architecture_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Logical Architecture" .
+
+cdsterm:mbse
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "INCOSE 2007" ;
+    skos:altLabel "MBSE" ;
+    skos:definition "The formalized application of modeling to support system requirements, design, analysis, verification and validation activities beginning in the conceptual design phase and continuing throughout development and later life cycle phases." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Model-Based_Systems_Engineering_(MBSE)_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Model-Based Systems Engineering" .
+
+cdsterm:measure-of-effectiveness
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "IEEE 2005" ;
+    skos:altLabel "MoE" ;
+    skos:definition "The metrics by which an acquirer will measure satisfaction with products produced by the technical effort." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Measure_of_Effectiveness_(MoE)_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Measure of Effectiveness" .
+
+cdsterm:mission
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Created for SEBoK" ;
+    cds:sysmlConstruct sysml:UseCaseDefinition ;
+    skos:definition "The mission of a system is the top-level function of the system; the one that synthesizes all transformation of all inputs and solicitations into outputs and reactions." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Mission_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Mission" .
+
+cdsterm:mission-analysis
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "modified from Blanchard and Fabryky 2011" ;
+    skos:definition "Examination and definition of the primary and secondary purposes of a system." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Mission_Analysis_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Mission Analysis" .
+
+cdsterm:need
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:closeMatch <https://sebokwiki.org/wiki/Need_(glossary)> ;
+    skos:definition "A need statement is the result of a formal transformation of one or more sources or lifecycle concepts into an agreed-to expectation for an entity to perform some function or possess some quality within specified constraints with acceptable risk." ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Need" .
+
+cdsterm:need-statement
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "INCOSE GtWR 2023" ;
+    skos:definition "Needs are written in a structured, natural language from the perspective of what the stakeholders need the SoI to do. To help distinguish needs from the requirements, the needs statements do not include the word “shall” (or other word that depicts the statement is a requirement). It is recommended that need statements use a different format from requirements, such as: “The stakeholders need the system to”." ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Need Statement" ;
+    skos:relatedMatch <https://sebokwiki.org/wiki/Need_(glossary)> .
+
+cdsterm:objective
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    skos:definition "Objectives are elaborated from the goals to provide more details concerning what must be done that will result in the goals and mission to be achieved." ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Objective" ;
+    skos:relatedMatch <https://sebokwiki.org/wiki/Mission_(glossary)> .
+
+cdsterm:operational-concept
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "ANSI/AIAA G-043-199" ;
+    skos:definition "verbal and graphic statement of an organization’s assumptions or intent in regard to an operation or series of operations of a system or a related set of systems." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Operational_Concept_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Operational Concept" .
+
+cdsterm:opportunity
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Dictionary.com 2012" ;
+    skos:definition "an appropriate or favorable time or occasion; a situation or condition favorable for attainment of a goal; a good position, chance, or prospect, as for advancement or success." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Opportunity_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Opportunity" .
+
+cdsterm:problem
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Conrow 2008" ;
+    skos:definition "A concern that has a probability of occurrence equal to one, a consequence of occurrence greater than zero, and a time-frame that is current. A problem is an event that has occurred and has a negative impact to the project." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Problem_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Problem" .
+
+cdsterm:requirement
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/incose-gtwr-v4-summary> ;
+    skos:closeMatch <https://sebokwiki.org/wiki/Requirement_(glossary)> ;
+    skos:definition "A requirement statement is the result of a formal transformation of one or more sources, needs, or higher-level requirements into an agreed-to obligation for an entity to perform some function or possess some quality within specified constraints with acceptable risk." ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Requirement" .
+
+cdsterm:risk
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "DAU 2003; Conrow 2008" ;
+    skos:definition "Risk is a measure of the potential inability to achieve overall program objectives within defined cost, schedule, and technical constraints and has two components: The probability (or likelihood) of failing to achieve a particular outcome and The consequences (or impact) of failing to achieve that outcome. A risk has a probability of occurrence that is greater than zero but less than one, a consequence of occurrence greater than zero, and a time-frame in the future." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Risk_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Risk" .
+
+cdsterm:solution
+    a cds:Term,
+        skos:Concept ;
+    cds:addresses cdsterm:opportunity,
+        cdsterm:problem,
+        cdsterm:threat ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "American Heritage Dictionary 2009" ;
+    skos:definition "A means of solving a problem or dealing with a difficult situation." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Solution_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Solution" .
+
+cdsterm:solution-class
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    skos:definition "A solution class refers to the means of achieving a solution. Examples include development of a new system, modifying or upgrading an existing system, leveraging multiple existing systems, or generating operational changes." ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Solution Class" ;
+    skos:relatedMatch <https://sebokwiki.org/wiki/Solution_(glossary)> .
+
+cdsterm:stakeholder
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "ISO/IEC/IEEE 2015" ;
+    skos:definition "Individual or organization having a right, share, claim, or interest in a system or in its possession of characteristics that meet their needs and expectations" ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Stakeholder_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Stakeholder" .
+
+cdsterm:stakeholder-needs-and-requirements
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "ISO/IEC/IEEE 15288, 2023, Section 6.4.2" ;
+    cds:sysmlConstruct sysml:RequirementDefinition ;
+    skos:definition "Stakeholder needs include elicitation of needs, wants, desires, expectations and perceived constraints of identified stakeholders. Needs concentrate on system purpose and behavior, and are described in the context of the operational environment and conditions." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Stakeholder_Needs_and_Requirements_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Stakeholder Needs and Requirements" .
+
+cdsterm:stakeholder-register
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    skos:definition "An approach for recording the list of stakeholders is to use a stakeholder register that includes key information for each stakeholder and how they are involved with the SoI." ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Stakeholder Register" ;
+    skos:relatedMatch <https://sebokwiki.org/wiki/Stakeholder_(glossary)> .
+
+cdsterm:system-boundary
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Checkland 1999, 312" ;
+    skos:definition "A distinction made by an observer which marks the difference between an entity he takes to be a system and its environment." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/System_Boundary_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "System Boundary" .
+
+cdsterm:system-context
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Flood and Carson 1993" ;
+    skos:definition "Describes the system relationships and environment, resolved around a selected system-of-interest." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/System_Context_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "System Context" .
+
+cdsterm:system-definition
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "Created for SEBoK" ;
+    skos:definition "A set of core technical activities of systems engineering, including the activities that are completed primarily in the front-end portion of the system design. This consists of the definition of system requirements, the design of one or more logical and physical architectures, and analysis and selection between possible solution options." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/System_Definition_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "System Definition" .
+
+cdsterm:system-of-interest
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "ISO/IEC/IEEE 2015" ;
+    cds:sysmlConstruct sysml:PartDefinition ;
+    skos:altLabel "SoI" ;
+    skos:definition "The system whose life cycle is under consideration." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/System-of-Interest_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "System-of-Interest" .
+
+cdsterm:system-requirement
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "ISO/IEC/IEEE, 2015, section 6.4.2" ;
+    cds:sysmlConstruct sysml:RequirementDefinition ;
+    skos:definition "A statement that transforms the stakeholder, user-oriented view of desired capabilities into a technical view, of a solution that meets the operational needs of the user." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/System_Requirement_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "System Requirement" .
+
+cdsterm:threat
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "ISO/IEC/IEEE 2011" ;
+    skos:definition "State of the system or system environment which can lead to adverse effects." ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Threat_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Threat" .
+
+cdsterm:traceability
+    a cds:Term,
+        skos:Concept ;
+    cds:cites <https://w3id.org/cds/src/sebok-v2-14> ;
+    cds:definitionSource "IEEE 1233-1998 (R2002), 3.1.9" ;
+    skos:definition "The degree to which a relationship can be established between two or more products of the development process, especially products having a predecessor-successor or master-subordinate relationship to one another" ;
+    skos:exactMatch <https://sebokwiki.org/wiki/Traceability_(glossary)> ;
+    skos:inScheme <https://w3id.org/cds/scheme/concept-definition> ;
+    skos:prefLabel "Traceability" .
+
+omg-sysml:PartDefinition
+    a owl:Class .
+
+omg-sysml:RequirementDefinition
+    a owl:Class .
+
+omg-sysml:UseCaseDefinition
+    a owl:Class .
+
+sysml:PartDefinition
+    a owl:Class ;
+    owl:equivalentClass omg-sysml:PartDefinition .
+
+sysml:RequirementDefinition
+    a owl:Class ;
+    owl:equivalentClass omg-sysml:RequirementDefinition .
+
+sysml:UseCaseDefinition
+    a owl:Class ;
+    owl:equivalentClass omg-sysml:UseCaseDefinition .

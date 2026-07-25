@@ -26,6 +26,36 @@ app = typer.Typer(
 
 
 @app.command()
+def init(
+    path: Annotated[
+        Path | None,
+        typer.Argument(help="Project directory to scaffold; defaults to the current directory."),
+    ] = None,
+    name: Annotated[
+        str | None,
+        typer.Option(help="Project name recorded in cds.toml; defaults to the directory name."),
+    ] = None,
+    force: Annotated[
+        bool,
+        typer.Option(help="Overwrite existing scaffolded files."),
+    ] = False,
+) -> None:
+    """Scaffold a CDS data root here — cds.toml, data dirs, and the model-facing assets."""
+    from cds.core.init import init_project
+
+    result = init_project(path, name=name, force=force)
+    for rel in result.created:
+        typer.secho(f"  + {rel}", fg=typer.colors.GREEN)
+    for rel in result.skipped:
+        typer.secho(f"  · {rel} (exists, skipped)", fg=typer.colors.YELLOW)
+    typer.secho(
+        f"cds project ready at {result.root} "
+        f"({len(result.created)} created, {len(result.skipped)} skipped).",
+        fg=typer.colors.GREEN,
+    )
+
+
+@app.command()
 def build() -> None:
     """Compile YAML term sources into the canonical ``concept-definition.ttl`` (deterministic)."""
     from cds.core.verify import verify as run_verify
@@ -119,6 +149,7 @@ def render(
     """Render the scheme to a deterministic Typst -> PDF reference document (license-keyed View)."""
     from cds.core.render.typst import render_pdf, typst_document
     from cds.core.render.view import scheme_view
+    from cds.core.workspace import find_data_root
     from cds.stages.concept_definition.build import build_concept_definition_graph
 
     view = scheme_view(
@@ -126,8 +157,11 @@ def render(
         title="Concept Definition Vocabulary",
         text_license=text_license,
     )
-    views_dir = Path(__file__).resolve().parents[3] / "views"
-    views_dir.mkdir(exist_ok=True)
+    # Write into the user's project when one is resolvable; otherwise the CDS repo (maintainer use).
+    project = find_data_root()
+    repo_views = Path(__file__).resolve().parents[3] / "views"
+    views_dir = (project / "views") if project is not None else repo_views
+    views_dir.mkdir(parents=True, exist_ok=True)
     typ = views_dir / "concept-definition.typ"
     typ.write_text(typst_document(view))
     pdf = render_pdf(view, views_dir / "concept-definition.pdf")

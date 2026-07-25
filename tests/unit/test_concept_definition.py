@@ -112,13 +112,12 @@ def test_business_mission_analysis_concepts_are_grounded_and_sourced() -> None:
 
 
 def test_related_only_warnings_are_waived_by_first_class_rdf_waivers() -> None:
-    from pathlib import Path
-
     from rdflib import Graph
 
     from cds.core.verify import verify, waivers_from_graph
+    from cds.core.workspace import waivers_path
 
-    waivers_ttl = Path(__file__).resolve().parents[2] / "ontology" / "waivers.ttl"
+    waivers_ttl = waivers_path()
     waiver_graph = Graph()
     waiver_graph.parse(waivers_ttl, format="turtle")
     result = verify(build_concept_definition_graph(), waivers=waivers_from_graph(waiver_graph))
