@@ -1,75 +1,103 @@
 # Third-party content licenses
 
-`cds` materializes verbatim definitions from authoritative systems engineering sources in its
-RDF model layer (`ontology/concept-definition.ttl`). This file enumerates those sources and
-their applicable license terms.
+`cds` materializes **verbatim definitions** from authoritative systems-engineering sources into its
+RDF model layer (`ontology/concept-definition.ttl`). This file enumerates the sources whose text is
+reproduced and their applicable license terms.
 
-The tooling (Python source, SHACL shapes, CLI) is Apache-2.0. Only the verbatim definitions
-in the M layer are subject to the source licenses below.
+## The mixed-licensing map
 
----
+The distribution carries two license regimes, and this file is the map between them:
 
-## SEBoK v2.14 — Systems Engineering Body of Knowledge
+- **The tooling** — Python source, SHACL shapes, CLI, the `cds:` vocabulary — is **Apache-2.0**
+  (`LICENSE`).
+- **The embedded verbatim canon** — the reproduced definitions materialized in
+  `ontology/concept-definition.ttl` — **retains its upstream source license.** Two sources are
+  reproduced verbatim: SEBoK (CC BY-NC-SA) and the INCOSE GtWR summary (reproduction-with-attribution).
+  Their terms are recorded below.
 
-**Publisher:** SERC (Systems Engineering Research Center) / Stevens Institute of Technology  
-**Version:** v2.14  
-**URL:** https://sebokwiki.org/  
-**License:** Creative Commons Attribution–NonCommercial–ShareAlike 4.0 International (CC BY-NC-SA 4.0)  
-**License URL:** https://creativecommons.org/licenses/by-nc-sa/4.0/
-
-**Used for:** Verbatim glossary definitions for the 25 SEBoK-sourced terms in
-`ontology/concept-definition.ttl`. These definitions are materialized in the M layer as a
-hallucination guard (see `AGENTS.md`). Rendered outputs (`views/`) do not reproduce verbatim
-SEBoK text unless the operator's `text_license` is CC BY-NC-SA compatible; the default
-rendering cites the source URL instead.
-
-**Attribution:** Definitions reproduced from the *Systems Engineering Body of Knowledge*
-(SEBoK), v2.14, published by SERC under CC BY-NC-SA 4.0.
+Reproducing the canonical text is a deliberate engineering decision (the hallucination guard — see the
+policy note at the end and `AGENTS.md`). Every reproduced definition is **fully cited** to its source;
+`cds` does not claim to be an authoritative source, it acknowledges the canonical ones. The
+authoritative, machine-readable enumeration of what is reproduced and from where lives in
+`ontology/concept-definition.ttl` (`cds:cites` + `skos:definition`); the counts below are a snapshot
+as of **v0.1.0**.
 
 ---
 
-## INCOSE GtWR v4 — Guide to the Roadmap (Characteristic Statements)
+## SEBoK v2.14 — Guide to the Systems Engineering Body of Knowledge
 
-**Publisher:** INCOSE (International Council on Systems Engineering)  
-**Version:** v4 summary  
-**License:** INCOSE custom license — reproduction with attribution permitted for
-non-commercial educational and research use. Contact INCOSE for commercial use.
+**Publisher:** Systems Engineering Research Center (SERC) / Stevens Institute of Technology, for the
+BKCASE project.
+**Version:** v2.14
+**URL:** https://sebokwiki.org/
+**License:** Creative Commons Attribution–NonCommercial–ShareAlike 3.0 (CC BY-NC-SA 3.0)
+**License URL:** https://creativecommons.org/licenses/by-nc-sa/3.0/
+**SPDX id (as tracked in the model):** `CC-BY-NC-SA-3.0`
 
-**Used for:** The 14 verified GtWR characteristic-statement definitions (C1–C10, C12–C15)
-in `ontology/concept-definition.ttl`. C11 is currently held pending a clean source copy.
+**Reproduced for:** verbatim glossary definitions for the **33** SEBoK-sourced terms in
+`ontology/concept-definition.ttl` (v0.1.0). Each carries `cds:cites` to the registered SEBoK boundary
+object and, where SEBoK records one, the upstream attribution SEBoK itself cites (`cds:definitionSource`
+— see below).
 
-**Attribution:** Characteristic statements reproduced from the *INCOSE Guide to the Roadmap*
-(GtWR), v4, © INCOSE. Used with attribution under INCOSE's educational use terms.
+**ShareAlike / NonCommercial note:** CC BY-NC-SA 3.0 carries **NonCommercial** and **ShareAlike**
+terms. The reproduced SEBoK text remains under BY-NC-SA; it does **not** relicense under Apache-2.0.
+The rendered View layer (`cds render` / `cds compile`) does **not** emit verbatim SEBoK text unless the
+operator's configured `text_license` is BY-NC-SA-compatible (`sebok_renderable`); otherwise it cites the
+source URL instead. Distribution obligations attach to the operator's chosen use, which `cds` tracks but
+does not enforce.
+
+**Attribution:** Definitions reproduced from the *Guide to the Systems Engineering Body of Knowledge*
+(SEBoK), v2.14, © Stevens Institute of Technology / SERC, under CC BY-NC-SA 3.0.
 
 ---
 
-## Referenced standards (not reproduced verbatim)
+## INCOSE GtWR v4 summary — Guide to Writing Requirements
 
-The following standards are cited as `cds:definitionSource` for individual terms. Their text
-is **not reproduced** in the M layer; only the attribution metadata is recorded. No license
-compliance obligation arises from citation alone.
+**Publisher:** INCOSE (International Council on Systems Engineering)
+**Document:** INCOSE-TP-2010-006-04 (Guide to Writing Requirements, v4 — summary)
+**License (verbatim, from the summary's copyright information):**
 
-| Source | Publisher |
-|--------|-----------|
-| ANSI/AIAA G-043-199 | AIAA |
-| ANSI/EIA 1998 | EIA |
-| ISO/IEC/IEEE 15288:2023 | ISO / IEC / IEEE |
-| ISO/IEC/IEEE 2011 | ISO / IEC / IEEE |
-| ISO/IEC/IEEE 2015 | ISO / IEC / IEEE |
-| IEEE 1233-1998 (R2002) | IEEE |
-| IEEE 2005 | IEEE |
-| INCOSE 2007 (SE Vision 2020) | INCOSE |
-| DoD 2009 | U.S. Department of Defense |
-| DAU 2003 | Defense Acquisition University |
+> Given this is a summary of the Guide for Writing Requirements, permission to reproduce and use this
+> summary is granted, with attribution to INCOSE and the original author(s) where practical, provided
+> this copyright notice is included with all reproductions and derivative works.
+
+Tracked in the model as `LicenseRef-INCOSE-GtWR-Summary` (self-describing, `cds:reproducible true`).
+
+**Reproduced for** (in `ontology/concept-definition.ttl`, v0.1.0):
+
+- the **14** GtWR well-formedness characteristic statements C1–C10 and C12–C15 (C11 is held pending a
+  clean source copy — its concept is present, its definition is not); and
+- **3** GtWR-native term definitions: `need`, `requirement`, `integrated-set-of-needs`.
+
+**Attribution:** Reproduced from the *INCOSE Guide to Writing Requirements* (GtWR) v4 summary,
+INCOSE-TP-2010-006-04, © INCOSE, with attribution under the summary's reproduction-with-attribution
+terms. This copyright notice is included as those terms require.
+
+---
+
+## Upstream attributions preserved as provenance (not reproduced by `cds`)
+
+Many SEBoK definitions record the source SEBoK *itself* drew them from. `cds` preserves that
+attribution verbatim as metadata (`cds:definitionSource`) so the provenance chain is complete — but it
+does **not** reproduce those upstream works' text. They are SEBoK's citations, carried through; **no
+license obligation arises on `cds` from citation alone.** The authoritative list is the set of
+`cds:definitionSource` values in `ontology/concept-definition.ttl`; as of v0.1.0 it includes:
+
+ANSI/AIAA G-043-199 · ANSI/EIA 1998 · Ackoff 1971 · American Heritage Dictionary 2009 ·
+Checkland 1999 · Conrow 2008 · "Created for SEBoK" · DAU 2003 · Dictionary.com 2012 · DoD 2009 ·
+Flood and Carson 1993 · IEEE 1233-1998 (R2002) · IEEE 2005 · INCOSE 2007 (SE Vision 2020) ·
+INCOSE GtWR 2023 · ISO/IEC/IEEE 15288:2023 · ISO/IEC/IEEE 2011 · ISO/IEC/IEEE 2015 · Pyster 2009 ·
+Specking et al. 2018 · (modified from) Blanchard and Fabrycky 2011.
 
 ---
 
 ## Policy note on verbatim M-layer materialization
 
-`cds` intentionally materializes verbatim definitions in the RDF M layer rather than storing
-only citations. This is an engineering enforcement decision: the software holds the authoritative
-text so it can verify that rendered outputs faithfully reflect canon, not LLM-generated
-paraphrase. RDF triples are not human-consumable publication; the V layer is where distribution
-controls apply. See `AGENTS.md` for the full rationale.
+`cds` intentionally materializes verbatim definitions in the RDF model layer rather than storing only
+citations. This is an engineering-fidelity decision: enforcing conformance with an engineering standard
+without holding the standard's own words is a hallucination risk, so the software holds the
+authoritative text to verify that rendered outputs reflect canon rather than model paraphrase. The
+model layer is the enforcement substrate; the View layer is where the operator's distribution controls
+apply (`text_license` gating). See `AGENTS.md` for the full rationale.
 
 This policy has been reviewed with the Open-MBEE maintainers.
