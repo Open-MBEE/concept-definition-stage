@@ -16,6 +16,7 @@ from pathlib import Path
 from rdflib import RDF, RDFS, Graph, Literal, URIRef
 
 from cds.core.model.instances import (
+    KIND_TERM,
     Record,
     Synthesis,
     record_iri,
@@ -28,6 +29,7 @@ from cds.core.model.notes import (
     RetrievalItem,
     RetrievalStatus,
     Tension,
+    TensionStatus,
     parked_iri,
     parked_to_graph,
     queue_iri,
@@ -56,13 +58,34 @@ def _prefixes(project: Project) -> dict[str, str]:
 
 
 def _merge_into(target: Path, addition: Graph, project: Project) -> None:
-    """Parse-if-exists → union → deterministic re-serialize (the ant-rdf accumulation primitive)."""
+    """Upsert a record: parse-if-exists → **replace** the subject's triples → deterministic write.
+
+    This is an *upsert*, not a blind union: re-authoring a slug replaces that subject's prior
+    triples rather than appending, so correcting/reversing an answer (re-run ``cds new`` with the
+    fixed values) yields a single clean record instead of a contradictory multi-valued one. Other
+    subjects in the same file are untouched (per-kind accumulation still holds).
+    """
     graph = Graph()
     if target.exists():
         graph.parse(target, format="turtle")
+    for subject in set(addition.subjects()):
+        graph.remove((subject, None, None))  # upsert: drop any prior assertions for this subject
     graph += addition
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(canonical_turtle(graph, prefixes=_prefixes(project)), encoding="utf-8")
+
+
+def _remove_subject(target: Path, subject: URIRef, project: Project) -> bool:
+    """Delete a subject's triples from ``target``; returns False if it wasn't present."""
+    if not target.exists():
+        return False
+    graph = Graph()
+    graph.parse(target, format="turtle")
+    if (subject, None, None) not in graph:
+        return False
+    graph.remove((subject, None, None))
+    target.write_text(canonical_turtle(graph, prefixes=_prefixes(project)), encoding="utf-8")
+    return True
 
 
 def _synthesis_file(project: Project) -> Path:
@@ -80,9 +103,44 @@ def create_synthesis(project: Project, syn: Synthesis) -> URIRef:
 
 
 def create_record(project: Project, rec: Record) -> URIRef:
-    """Author a single instance record into its per-kind file; returns its IRI."""
+    """Author (upsert) a single instance record into its per-kind file; returns its IRI."""
     _merge_into(_kind_file(project, rec.kind), record_to_graph(rec, base=project.base_iri), project)
     return record_iri(project.base_iri, rec.kind, rec.slug)
+
+
+def remove_record(project: Project, kind: str, slug: str) -> bool:
+    """Delete a record; returns False if it didn't exist."""
+    return _remove_subject(
+        _kind_file(project, kind), record_iri(project.base_iri, kind, slug), project
+    )
+
+
+def list_records(project: Project, kind: str) -> list[tuple[str, str]]:
+    """Every record of ``kind`` as ``(slug, label)``, sorted by slug."""
+    graph = _load(_kind_file(project, kind))
+    out: list[tuple[str, str]] = []
+    for s in graph.subjects(RDF.type, CDS_TERM[KIND_TERM[kind]]):
+        label = graph.value(s, RDFS.label)
+        out.append((str(s).rsplit("/", 1)[-1], str(label) if label is not None else ""))
+    return sorted(out)
+
+
+def show_record(project: Project, kind: str, slug: str) -> list[str] | None:
+    """Human-readable display lines for one record, or ``None`` if absent."""
+    graph = _load(_kind_file(project, kind))
+    s = record_iri(project.base_iri, kind, slug)
+    if (s, None, None) not in graph:
+        return None
+    lines = [f"{kind} {slug}  <{s}>"]
+    label = graph.value(s, RDFS.label)
+    desc = graph.value(s, DCTERMS.description)
+    lines.append(f"  label:       {label}")
+    lines.append(f"  description: {desc}")
+    for pred in ("forStakeholder", "servesGoal", "refines", "addresses", "supersedes", "cites"):
+        targets = sorted(str(o).rsplit("/", 1)[-1] for o in graph.objects(s, CDS[pred]))
+        if targets:
+            lines.append(f"  {pred}: {', '.join(targets)}")
+    return lines
 
 
 def project_graph(project: Project) -> Graph:
@@ -178,6 +236,33 @@ def _tension_file(project: Project) -> Path:
 
 
 def create_tension(project: Project, item: Tension) -> URIRef:
-    """Record a named conflict between records; returns its IRI."""
+    """Record (upsert) a named conflict between records; returns its IRI."""
     _merge_into(_tension_file(project), tension_to_graph(item, base=project.base_iri), project)
     return tension_iri(project.base_iri, item.slug)
+
+
+def set_tension_status(project: Project, slug: str, status: TensionStatus) -> None:
+    """Mark a tension open/resolved; resolved tensions drop out of the compiled brief."""
+    target = _tension_file(project)
+    graph = _load(target)
+    s = tension_iri(project.base_iri, slug)
+    if (s, RDF.type, CDS.Tension) not in graph:
+        raise KeyError(f"no tension {slug!r}")
+    graph.remove((s, CDS.tensionStatus, None))
+    graph.add((s, CDS.tensionStatus, Literal(status.value)))
+    target.write_text(canonical_turtle(graph, prefixes=_prefixes(project)), encoding="utf-8")
+
+
+def remove_parked(project: Project, slug: str) -> bool:
+    """Delete a parked idea; returns False if absent."""
+    return _remove_subject(_parked_file(project), parked_iri(project.base_iri, slug), project)
+
+
+def remove_queue_item(project: Project, slug: str) -> bool:
+    """Delete a retrieval-queue item; returns False if absent."""
+    return _remove_subject(_queue_file(project), queue_iri(project.base_iri, slug), project)
+
+
+def remove_tension(project: Project, slug: str) -> bool:
+    """Delete a tension; returns False if absent."""
+    return _remove_subject(_tension_file(project), tension_iri(project.base_iri, slug), project)

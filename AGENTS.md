@@ -1,12 +1,17 @@
 # AGENTS.md — `cds` authoring contract (LLM-agnostic)
 
+> **Audience:** this is the **contributor** contract — for anyone (human or agent) working *on the
+> `cds` codebase and its canonical vocabulary*. It is **not** the guide for *using* the tool on your
+> own project. End users: see [Getting started](docs/getting-started.md); a separate, neutral
+> `AGENTS.md` is vendored into *your* project by `cds init` to guide the assistant there.
+
 This file is the **vendor-neutral** operating contract for any agent (LLM or the CLI itself) or human
 working on `cds`. It is adapted from `ant-rdf`'s authoring contract but is not tied to any one tool. Tool-
 specific files (e.g. `CLAUDE.md`) may symlink to this file.
 
 `cds` ("Concept Definition Stage") commits SEBoK/INCOSE **Concept Definition** canon to version-controlled
-RDF. The authoritative scoping document is the approved plan
-(`~/.claude/plans/i-want-a-build-cryptic-sundae.md`).
+RDF. The authoritative scope lives in the repository's [`ROADMAP.md`](ROADMAP.md) and the issue
+tracker.
 
 ## The one inviolable rule: no fabricated canon
 

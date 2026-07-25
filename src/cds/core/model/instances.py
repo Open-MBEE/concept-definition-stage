@@ -13,10 +13,53 @@ Serialization is deterministic (sorted multivalues) and blank-node-free, so
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+import re
+from typing import Annotated
+
+from pydantic import AfterValidator, BaseModel
 from rdflib import RDF, RDFS, Graph, Literal, URIRef
 
 from cds.core.namespaces import CDS, CDS_TERM, DCTERMS
+
+_SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+
+
+def validate_slug(v: str) -> str:
+    """Reject anything but kebab-case (lowercase letters, digits, single hyphens).
+
+    Slugs flow directly into IRIs, so an invalid one (spaces, parens, uppercase) would otherwise
+    produce broken Turtle or an ugly identifier. Rejecting early yields a friendly CLI error.
+    """
+    if not _SLUG_RE.match(v):
+        raise ValueError(
+            f"slug {v!r} must be kebab-case: lowercase letters, digits, and single hyphens "
+            "(e.g. 'reach-a-human')"
+        )
+    return v
+
+
+#: A validated kebab-case slug, reused across every authorable model.
+Slug = Annotated[str, AfterValidator(validate_slug)]
+
+
+def _validate_slug_list(values: list[str]) -> list[str]:
+    """Split comma-separated entries and validate each as a kebab slug.
+
+    Catches the ``--for-stakeholder a,b`` corruption (one malformed IRI): the comma list becomes two
+    validated slugs, and a bad target (space, comma-only, uppercase) is rejected rather than baked
+    into an invalid IRI.
+    """
+    out: list[str] = []
+    for value in values:
+        for part in str(value).split(","):
+            part = part.strip()
+            if part:
+                out.append(validate_slug(part))
+    return out
+
+
+#: A list of kebab slugs referencing other records (comma-lists accepted, each validated).
+SlugList = Annotated[list[str], AfterValidator(_validate_slug_list)]
 
 #: Authorable kinds → the vocabulary term slug used as the instance's semantic ``rdf:type``.
 KIND_TERM: dict[str, str] = {
@@ -53,7 +96,7 @@ def record_iri(base: str, kind: str, slug: str) -> URIRef:
 class Synthesis(BaseModel):
     """The mapping container — a project's concept definition / integrated set of needs."""
 
-    slug: str
+    slug: Slug
     title: str
     description: str = ""
 
@@ -61,12 +104,13 @@ class Synthesis(BaseModel):
 class Record(BaseModel):
     """Shared base for every authored instance."""
 
-    slug: str
+    slug: Slug
     kind: str
     label: str
     description: str
     synthesis: str  # slug of the parent Synthesis
     cites: list[str] = []  # provenance: source IRIs
+    supersedes: list[str] = []  # IRIs of record(s) this one replaces (change provenance)
 
     def model_post_init(self, _context: object) -> None:
         if self.kind not in KIND_TERM:
@@ -80,13 +124,13 @@ class Statement(Record):
 class Goal(Record):
     """A goal — may address problems/opportunities."""
 
-    addresses: list[str] = []  # slugs of problem/opportunity it addresses
+    addresses: SlugList = []  # slugs of problem/opportunity it addresses
 
 
 class Objective(Record):
     """A measurable objective refining one or more goals."""
 
-    refines: list[str] = []  # goal slugs
+    refines: SlugList = []  # goal slugs
 
 
 class Stakeholder(Record):
@@ -100,8 +144,8 @@ class Stakeholder(Record):
 class Need(Record):
     """A stakeholder need (need-form; the 'shall'-free check lives in verify)."""
 
-    for_stakeholder: list[str] = []  # stakeholder slugs
-    serves_goal: list[str] = []  # goal slugs
+    for_stakeholder: SlugList = []  # stakeholder slugs
+    serves_goal: SlugList = []  # goal slugs
 
 
 # ------------------------------------------------------------------------------- serialization
@@ -129,6 +173,8 @@ def record_to_graph(rec: Record, *, base: str) -> Graph:
     g.add((s, CDS.inSynthesis, synthesis_iri(base, rec.synthesis)))
     for cite in sorted(rec.cites):
         g.add((s, CDS.cites, URIRef(cite)))
+    for superseded in sorted(rec.supersedes):
+        g.add((s, CDS.supersedes, URIRef(superseded)))
 
     if isinstance(rec, Goal):
         for slug in sorted(rec.addresses):

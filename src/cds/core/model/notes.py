@@ -16,6 +16,7 @@ from enum import StrEnum
 from pydantic import BaseModel
 from rdflib import RDF, RDFS, Graph, Literal, URIRef
 
+from cds.core.model.instances import Slug
 from cds.core.namespaces import CDS, DCTERMS
 
 
@@ -27,10 +28,17 @@ class RetrievalStatus(StrEnum):
     VERIFIED = "verified"
 
 
+class TensionStatus(StrEnum):
+    """Whether a named conflict is still live or has been reconciled."""
+
+    OPEN = "open"
+    RESOLVED = "resolved"
+
+
 class ParkedItem(BaseModel):
     """A parked, out-of-scope idea (roadmap material)."""
 
-    slug: str
+    slug: Slug
     label: str
     description: str = ""
     note: str | None = None
@@ -40,7 +48,7 @@ class ParkedItem(BaseModel):
 class RetrievalItem(BaseModel):
     """An open unknown tracked through ``pending → provided → verified``."""
 
-    slug: str
+    slug: Slug
     question: str
     status: RetrievalStatus = RetrievalStatus.PENDING
     locator: str | None = None  # where the answer was found, once provided
@@ -50,10 +58,11 @@ class RetrievalItem(BaseModel):
 class Tension(BaseModel):
     """A named conflict between records (surfaced, not hidden) — e.g. two needs that pull apart."""
 
-    slug: str
+    slug: Slug
     label: str
     description: str = ""
     between: list[str] = []  # IRIs of the records in tension
+    status: TensionStatus = TensionStatus.OPEN
 
 
 def parked_iri(base: str, slug: str) -> URIRef:
@@ -100,6 +109,7 @@ def tension_to_graph(item: Tension, *, base: str) -> Graph:
     s = tension_iri(base, item.slug)
     g.add((s, RDF.type, CDS.Tension))
     g.add((s, RDFS.label, Literal(item.label)))
+    g.add((s, CDS.tensionStatus, Literal(item.status.value)))
     if item.description:
         g.add((s, DCTERMS.description, Literal(item.description)))
     for iri in sorted(item.between):

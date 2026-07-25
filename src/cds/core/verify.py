@@ -34,6 +34,7 @@ from rdflib import RDF, Graph, Literal, URIRef
 from rdflib.namespace import SH, XSD
 from rdflib.term import Node
 
+from cds.core.model.instances import KIND_TERM
 from cds.core.namespaces import CDS, CDS_TERM, DCTERMS, PROV
 from cds.core.workspace import shapes_dir as _shapes_dir
 
@@ -215,10 +216,14 @@ def _check_conflicts(data: Graph) -> list[Finding]:
         desc = data.value(need, DCTERMS.description)
         if desc is not None and _SHALL.search(str(desc)):
             findings.append(Finding(Severity.WARNING, "NeedFormShall", str(need),
-                "need uses 'shall' — needs use need-form, not requirement-form"))
+                "need uses 'shall' — write it in need-form instead, "
+                "e.g. 'the <stakeholder> needs the system to …' (requirements come later)"))
         if not any(data.objects(need, CDS.forStakeholder)):
             findings.append(Finding(Severity.WARNING, "NeedWithoutStakeholder", str(need),
                 "need is not linked to any stakeholder (orphan need)"))
+        if not any(data.objects(need, CDS.servesGoal)):
+            findings.append(Finding(Severity.INFO, "NeedServesNoGoal", str(need),
+                "need serves no goal (not linked to any goal it advances)"))
 
     # duplicate statements: same semantic type + normalized description
     by_key: dict[tuple[str, str], list[str]] = defaultdict(list)
@@ -238,6 +243,25 @@ def _check_conflicts(data: Graph) -> list[Finding]:
         if not any((need, CDS.inSynthesis, syn) in data for need in needs):
             findings.append(Finding(Severity.INFO, "SynthesisWithoutNeeds", str(syn),
                 "mapping has no needs yet (integrated set is empty)"))
+
+    # dangling references: a project-internal link whose target record doesn't exist. Matched by
+    # slug (not exact IRI), so a link built with a hard-coded target kind still resolves.
+    existing = {str(s).rsplit("/", 1)[-1] for s in data.subjects(RDF.type, CDS.Instance)}
+    existing |= {str(s).rsplit("/", 1)[-1] for s in data.subjects(RDF.type, CDS.Synthesis)}
+    marks = tuple(f"/{kind}/" for kind in (*KIND_TERM, "synthesis"))
+    link_props = (CDS.forStakeholder, CDS.servesGoal, CDS.refines, CDS.addresses,
+                  CDS.supersedes, CDS.inSynthesis)
+    seen: set[tuple[str, str]] = set()
+    for prop in link_props:
+        for subj, obj in data.subject_objects(prop):
+            text = str(obj)
+            if not isinstance(obj, URIRef) or not any(m in text for m in marks):
+                continue  # external IRI (e.g. a cited source) — not a project link
+            if text.rsplit("/", 1)[-1] in existing or (str(subj), text) in seen:
+                continue
+            seen.add((str(subj), text))
+            findings.append(Finding(Severity.WARNING, "DanglingReference", str(subj),
+                f"links to a record that doesn't exist: {'/'.join(text.rsplit('/', 2)[-2:])}"))
 
     return findings
 

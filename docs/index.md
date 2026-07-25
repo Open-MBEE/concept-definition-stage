@@ -1,13 +1,36 @@
 # cds — Concept Definition Stage
 
-A lifecycle-aware, stage-specific facilitation model for the SEBoK **Concept Definition** knowledge area
-(Business/Mission Analysis + Stakeholder Needs Definition). `cds` commits SEBoK/INCOSE canon to
-version-controlled RDF — docs-as-code, model-based SE, with full provenance and no fabricated canon.
+Define *what* a project is really about — its mission, goals, stakeholders, and needs — as
+version-controlled, checkable data, with an AI helping you do it and a clean brief to show for it.
 
-- **Authoring contract & construction order:** see [`AGENTS.md`](https://github.com/) and
-  [Construction order](construction-order.md).
-- **Scope:** v0.1 is a reference vocabulary (~25 SEBoK glossary terms); full needs elicitation is v0.2.
-- **Discipline:** every definition is verbatim from a named authority, provenance-tracked; missing canon is
-  escalated to a human (see [Retrieval queue](retrieval-queue.md)), never guessed.
+`cds` is a command-line tool for the **front end of a project**: working out the problem, the mission,
+who has a stake, and what they need — *before* designing a solution. It records those decisions as
+structured RDF in **your own repository**, checks them, and compiles a readable brief. It commits
+established systems-engineering canon (SEBoK + INCOSE) so you don't have to be an expert to start.
 
-See the approved design plan for the full scoping rationale.
+New here? Start with **[Getting started](getting-started.md)**.
+
+```{toctree}
+:maxdepth: 2
+:caption: Using cds
+
+getting-started
+user-guide
+```
+
+```{toctree}
+:maxdepth: 1
+:caption: Method & reference
+
+construction-order
+api
+sources
+retrieval-queue
+```
+
+```{toctree}
+:maxdepth: 1
+:caption: Project
+
+contributing
+```

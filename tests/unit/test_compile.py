@@ -51,6 +51,19 @@ def test_brief_has_sections_and_content(tmp_path: Path) -> None:
     assert "stakeholder: seeker" in md
 
 
+def test_goal_addresses_link_is_rendered(tmp_path: Path) -> None:
+    from cds.core.model.instances import Goal
+
+    project = _project(tmp_path)
+    create_synthesis(project, Synthesis(slug="cd", title="CD"))
+    create_record(project, Statement(slug="p1", kind="problem", label="Problem",
+                                     description="the pain", synthesis="cd"))
+    create_record(project, Goal(slug="reach", kind="goal", label="Reach",
+                                description="connect", synthesis="cd", addresses=["p1"]))
+    md = compile_brief(project_graph(project), base=project.base_iri)
+    assert "addresses: p1" in md
+
+
 def test_brief_is_byte_stable(tmp_path: Path) -> None:
     project = _project(tmp_path)
     _author(project)

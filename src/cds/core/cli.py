@@ -7,10 +7,13 @@ guardrails live in ``cds.core.model``.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated
+from typing import TYPE_CHECKING, Annotated, TypeVar
 
 import typer
+
+_T = TypeVar("_T")
 
 if TYPE_CHECKING:
     from rdflib import Graph
@@ -19,10 +22,68 @@ if TYPE_CHECKING:
 
 app = typer.Typer(
     name="cds",
-    help="Concept Definition Stage — commit SEBoK/INCOSE Concept Definition canon to RDF.",
+    help="Map a project's mission, goals, stakeholders, and needs as checkable data. "
+    "Run `cds guide` to get started, or `cds explain <term>` to look up a term.",
     no_args_is_help=True,
     add_completion=False,
 )
+
+
+def _version_callback(value: bool) -> None:
+    if value:
+        from importlib.metadata import version
+
+        typer.echo(f"cds {version('cds')}")
+        raise typer.Exit()
+
+
+@app.callback()
+def _root(
+    version: Annotated[
+        bool,
+        typer.Option("--version", callback=_version_callback, is_eager=True,
+                     help="Show the version and exit."),
+    ] = False,
+) -> None:
+    """Concept Definition Stage."""
+
+
+@app.command()
+def guide() -> None:
+    """Print the getting-started guide — the first-session walkthrough."""
+    from cds.core.workspace import package_dir
+
+    text = (package_dir() / "assets" / "guide" / "getting-started.md").read_text(encoding="utf-8")
+    typer.echo(text)
+
+
+@app.command()
+def explain(
+    term: Annotated[
+        str | None,
+        typer.Argument(help="A record kind or term to explain; omit to list them all."),
+    ] = None,
+) -> None:
+    """Explain a vocabulary term in plain language, with how to author it and its source."""
+    from cds.core.explain import explain as explain_term
+    from cds.core.explain import glossary
+
+    if term is None:
+        for line in glossary():
+            typer.echo(line)
+        return
+    lines = explain_term(term)
+    if lines is None:
+        from cds.core.model.instances import KIND_TERM
+
+        typer.secho(
+            f"unknown term {term!r}. Try one of: {', '.join(KIND_TERM)} (or `cds explain`).",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(2)
+    for line in lines:
+        typer.echo(line)
 
 
 @app.command()
@@ -53,6 +114,10 @@ def init(
         f"({len(result.created)} created, {len(result.skipped)} skipped).",
         fg=typer.colors.GREEN,
     )
+    typer.secho("\nNext steps:", fg=typer.colors.BLUE)
+    typer.echo('  cds synthesis myproject --title "My project"    # start a mapping')
+    typer.echo('  cds new mission core --synthesis myproject --label "…" --description "…"')
+    typer.echo("  cds explain <kind>   # what does a term mean?   cds guide   # full walkthrough")
 
 
 @app.command()
@@ -61,13 +126,14 @@ def synthesis(
     title: Annotated[str, typer.Option(help="Human title of the concept-definition mapping.")],
     description: Annotated[str, typer.Option(help="One-line description of the mapping.")] = "",
 ) -> None:
-    """Create (or update) the mapping container — a ``cds:Synthesis`` (the integrated set)."""
+    """Start (or update) a mapping — the container your mission/goals/needs belong to."""
     from cds.core.authoring import create_synthesis
     from cds.core.model.instances import Synthesis
     from cds.core.workspace import load_project
 
     project = load_project()
-    iri = create_synthesis(project, Synthesis(slug=slug, title=title, description=description))
+    syn = _validated(lambda: Synthesis(slug=slug, title=title, description=description))
+    iri = create_synthesis(project, syn)
     typer.secho(f"synthesis {iri}", fg=typer.colors.GREEN)
 
 
@@ -92,6 +158,10 @@ def new(
     interest: Annotated[str | None, typer.Option(help="stakeholder interest.")] = None,
     influence: Annotated[str | None, typer.Option(help="stakeholder influence.")] = None,
     cites: Annotated[list[str] | None, typer.Option(help="Source IRI(s) for provenance.")] = None,
+    supersedes: Annotated[
+        list[str] | None,
+        typer.Option(help="Slug (same kind) or IRI of a record this one replaces."),
+    ] = None,
     interactive: Annotated[
         bool, typer.Option(help="Prompt for label/description if omitted.")
     ] = False,
@@ -129,6 +199,7 @@ def new(
         "description": description,
         "synthesis": synthesis,
         "cites": cites or [],
+        "supersedes": [_resolve_ref(project.base_iri, kind, v) for v in (supersedes or [])],
         "for_stakeholder": for_stakeholder or [],
         "serves_goal": serves_goal or [],
         "refines": refines or [],
@@ -140,8 +211,12 @@ def new(
     model = model_for_kind(kind)
     from cds.core.authoring import create_record
 
-    iri = create_record(project, model.model_validate(fields))
-    typer.secho(f"{kind} {iri}", fg=typer.colors.GREEN)
+    rec = _validated(lambda: model.model_validate(fields))
+    iri = create_record(project, rec)
+    # echo the stored fields so an upsert/correction is visible (not just the IRI)
+    typer.secho(f"{kind} {rec.slug} — {rec.label}", fg=typer.colors.GREEN)
+    typer.echo(f"  {rec.description}")
+    typer.echo(f"  {iri}")
 
 
 park_app = typer.Typer(help="Parking-lot: capture out-of-scope ideas without derailing.",
@@ -164,9 +239,10 @@ def park_add(
     from cds.core.model.notes import ParkedItem
     from cds.core.workspace import load_project
 
-    iri = create_parked(
-        load_project(), ParkedItem(slug=slug, label=label, description=description, note=note)
+    item = _validated(
+        lambda: ParkedItem(slug=slug, label=label, description=description, note=note)
     )
+    iri = create_parked(load_project(), item)
     typer.secho(f"parked {iri}", fg=typer.colors.GREEN)
 
 
@@ -194,9 +270,10 @@ def queue_add(
     from cds.core.model.notes import RetrievalItem
     from cds.core.workspace import load_project
 
-    iri = create_queue_item(
-        load_project(), RetrievalItem(slug=slug, question=question, description=description)
+    item = _validated(
+        lambda: RetrievalItem(slug=slug, question=question, description=description)
     )
+    iri = create_queue_item(load_project(), item)
     typer.secho(f"queued {iri} (pending)", fg=typer.colors.GREEN)
 
 
@@ -256,11 +333,116 @@ def tension_add(
     from cds.core.model.notes import Tension
     from cds.core.workspace import load_project
 
-    iri = create_tension(
-        load_project(),
-        Tension(slug=slug, label=label, description=description, between=between or []),
+    item = _validated(
+        lambda: Tension(slug=slug, label=label, description=description, between=between or [])
     )
+    iri = create_tension(load_project(), item)
     typer.secho(f"tension {iri}", fg=typer.colors.GREEN)
+
+
+@tension_app.command("resolve")
+def tension_resolve(
+    slug: Annotated[str, typer.Argument(help="Tension id to mark resolved.")],
+) -> None:
+    """Mark a tension resolved — it drops out of the compiled brief."""
+    from cds.core.authoring import set_tension_status
+    from cds.core.model.notes import TensionStatus
+    from cds.core.workspace import load_project
+
+    try:
+        set_tension_status(load_project(), slug, TensionStatus.RESOLVED)
+    except KeyError:
+        typer.secho(f"no tension {slug!r}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2) from None
+    typer.secho(f"{slug} → resolved", fg=typer.colors.GREEN)
+
+
+@tension_app.command("rm")
+def tension_rm(slug: Annotated[str, typer.Argument(help="Tension id to delete.")]) -> None:
+    """Delete a tension."""
+    from cds.core.authoring import remove_tension
+    from cds.core.workspace import load_project
+
+    _rm_or_exit(remove_tension(load_project(), slug), "tension", slug)
+
+
+@park_app.command("rm")
+def park_rm(slug: Annotated[str, typer.Argument(help="Parked-idea id to delete.")]) -> None:
+    """Delete a parked idea."""
+    from cds.core.authoring import remove_parked
+    from cds.core.workspace import load_project
+
+    _rm_or_exit(remove_parked(load_project(), slug), "parked", slug)
+
+
+@queue_app.command("rm")
+def queue_rm(slug: Annotated[str, typer.Argument(help="Queue-item id to delete.")]) -> None:
+    """Delete a retrieval-queue item."""
+    from cds.core.authoring import remove_queue_item
+    from cds.core.workspace import load_project
+
+    _rm_or_exit(remove_queue_item(load_project(), slug), "queue", slug)
+
+
+def _rm_or_exit(removed: bool, kind: str, slug: str) -> None:
+    if removed:
+        typer.secho(f"removed {kind} {slug}", fg=typer.colors.GREEN)
+    else:
+        typer.secho(f"no {kind} {slug!r}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+
+
+@app.command(name="list")
+def list_(
+    kind: Annotated[str, typer.Argument(help="Record kind to list (mission, goal, need, …).")],
+) -> None:
+    """List the records of a kind (slug — label), for reviewing what's captured."""
+    from cds.core.authoring import list_records
+    from cds.core.model.instances import KIND_TERM
+    from cds.core.workspace import load_project
+
+    if kind not in KIND_TERM:
+        typer.secho(f"unknown kind {kind!r}; expected one of {', '.join(KIND_TERM)}",
+                    fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    items = list_records(load_project(), kind)
+    if not items:
+        typer.secho(f"(no {kind} records yet)", fg=typer.colors.YELLOW)
+    for slug, label in items:
+        typer.echo(f"  {slug}: {label}")
+
+
+@app.command()
+def show(
+    kind: Annotated[str, typer.Argument(help="Record kind.")],
+    slug: Annotated[str, typer.Argument(help="Record slug.")],
+) -> None:
+    """Show one record's stored fields — read-back for reflecting content to the human."""
+    from cds.core.authoring import show_record
+    from cds.core.workspace import load_project
+
+    lines = show_record(load_project(), kind, slug)
+    if lines is None:
+        typer.secho(f"no {kind} {slug!r}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    for line in lines:
+        typer.echo(line)
+
+
+@app.command()
+def rm(
+    kind: Annotated[str, typer.Argument(help="Record kind.")],
+    slug: Annotated[str, typer.Argument(help="Record slug.")],
+) -> None:
+    """Delete a record — the sanctioned way to retract, alongside re-authoring to correct."""
+    from cds.core.authoring import remove_record
+    from cds.core.workspace import load_project
+
+    if remove_record(load_project(), kind, slug):
+        typer.secho(f"removed {kind} {slug}", fg=typer.colors.GREEN)
+    else:
+        typer.secho(f"no {kind} {slug!r}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
 
 
 @app.command()
@@ -302,7 +484,7 @@ def verify(
         typer.Option(help="Turtle waivers graph (cds:Waiver); defaults to ontology/waivers.ttl."),
     ] = None,
 ) -> None:
-    """Run the SHACL tri-severity + construction-order checks; non-zero exit on Tier-1."""
+    """Check your mapping for common mistakes (missing links, 'shall' in a need, duplicates)."""
     from cds.core.verify import SHAPES_DIR
     from cds.core.verify import verify as run_verify
     from cds.core.workspace import find_data_root
@@ -341,6 +523,25 @@ def _report_and_exit(result: VerifyResult) -> None:
         f"verify FAILED — {len(result.violations)} Tier-1 violation(s).", fg=typer.colors.RED
     )
     raise typer.Exit(1)
+
+
+def _validated(factory: Callable[[], _T]) -> _T:
+    """Build a Pydantic model, turning a validation error (e.g. a bad slug) into a clean exit."""
+    from pydantic import ValidationError
+
+    try:
+        return factory()
+    except ValidationError as exc:
+        msg = exc.errors()[0].get("msg", str(exc))
+        typer.secho(str(msg), fg=typer.colors.RED, err=True)
+        raise typer.Exit(2) from None
+
+
+def _resolve_ref(base: str, kind: str, value: str) -> str:
+    """Resolve a supersedes reference: a full IRI as-is, else a same-kind slug under the project."""
+    from cds.core.model.instances import record_iri
+
+    return value if "://" in value else str(record_iri(base, kind, value))
 
 
 def _load_turtle(path: Path) -> Graph:
@@ -409,14 +610,16 @@ def compile(
     typer.secho(f"compiled {out}", fg=typer.colors.GREEN)
 
 
-def _not_yet(command: str, slice_: str) -> int:
-    typer.secho(
-        f"`cds {command}` is not implemented yet (planned for {slice_}).",
-        fg=typer.colors.YELLOW,
-        err=True,
-    )
-    return 1
+def main() -> None:
+    """Console entry point — turns a missing-project error into a clean message, not a traceback."""
+    from cds.core.workspace import CdsProjectNotFound
+
+    try:
+        app()
+    except CdsProjectNotFound as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise SystemExit(2) from None
 
 
 if __name__ == "__main__":
-    app()
+    main()

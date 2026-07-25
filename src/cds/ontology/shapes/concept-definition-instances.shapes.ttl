@@ -10,14 +10,16 @@
 cds:instanceHasLabel a sh:PropertyShape ;
     sh:path rdfs:label ;
     sh:minCount 1 ;
+    sh:maxCount 1 ;
     sh:severity sh:Violation ;
-    sh:message "every instance needs an rdfs:label (its short name)" .
+    sh:message "an instance needs exactly one rdfs:label (its short name)" .
 
 cds:instanceHasDescription a sh:PropertyShape ;
     sh:path dcterms:description ;
     sh:minCount 1 ;
+    sh:maxCount 1 ;
     sh:severity sh:Violation ;
-    sh:message "every instance needs a dcterms:description (its content statement)" .
+    sh:message "an instance needs exactly one dcterms:description (its content statement)" .
 
 cds:instanceInSynthesis a sh:PropertyShape ;
     sh:path cds:inSynthesis ;
@@ -34,8 +36,9 @@ cds:InstanceShape a sh:NodeShape ;
 cds:synthesisHasLabel a sh:PropertyShape ;
     sh:path rdfs:label ;
     sh:minCount 1 ;
+    sh:maxCount 1 ;
     sh:severity sh:Violation ;
-    sh:message "a cds:Synthesis needs an rdfs:label (its title)" .
+    sh:message "a cds:Synthesis needs exactly one rdfs:label (its title)" .
 
 cds:SynthesisShape a sh:NodeShape ;
     sh:targetClass cds:Synthesis ;
