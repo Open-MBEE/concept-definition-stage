@@ -137,6 +137,99 @@ def new(
     typer.secho(f"{kind} {iri}", fg=typer.colors.GREEN)
 
 
+park_app = typer.Typer(help="Parking-lot: capture out-of-scope ideas without derailing.",
+                       no_args_is_help=True, add_completion=False)
+queue_app = typer.Typer(help="Retrieval queue: track open unknowns (pending→provided→verified).",
+                        no_args_is_help=True, add_completion=False)
+app.add_typer(park_app, name="park")
+app.add_typer(queue_app, name="queue")
+
+
+@park_app.command("add")
+def park_add(
+    slug: Annotated[str, typer.Argument(help="Short id for the parked idea.")],
+    label: Annotated[str, typer.Option(help="Short name of the idea.")],
+    description: Annotated[str, typer.Option(help="What the idea is.")] = "",
+    note: Annotated[str | None, typer.Option(help="Why it's parked / when to revisit.")] = None,
+) -> None:
+    """Park an out-of-scope idea so it isn't lost."""
+    from cds.core.authoring import create_parked
+    from cds.core.model.notes import ParkedItem
+    from cds.core.workspace import load_project
+
+    iri = create_parked(
+        load_project(), ParkedItem(slug=slug, label=label, description=description, note=note)
+    )
+    typer.secho(f"parked {iri}", fg=typer.colors.GREEN)
+
+
+@park_app.command("list")
+def park_list() -> None:
+    """List parked ideas."""
+    from cds.core.authoring import list_parked
+    from cds.core.workspace import load_project
+
+    items = list_parked(load_project())
+    if not items:
+        typer.secho("(parking-lot empty)", fg=typer.colors.YELLOW)
+    for slug, label in items:
+        typer.echo(f"  {slug}: {label}")
+
+
+@queue_app.command("add")
+def queue_add(
+    slug: Annotated[str, typer.Argument(help="Short id for the open unknown.")],
+    question: Annotated[str, typer.Option(help="The open question to resolve later.")],
+    description: Annotated[str, typer.Option(help="Context on the unknown.")] = "",
+) -> None:
+    """Add an open unknown to the retrieval queue (status starts 'pending')."""
+    from cds.core.authoring import create_queue_item
+    from cds.core.model.notes import RetrievalItem
+    from cds.core.workspace import load_project
+
+    iri = create_queue_item(
+        load_project(), RetrievalItem(slug=slug, question=question, description=description)
+    )
+    typer.secho(f"queued {iri} (pending)", fg=typer.colors.GREEN)
+
+
+@queue_app.command("set")
+def queue_set(
+    slug: Annotated[str, typer.Argument(help="Queue item id.")],
+    status: Annotated[str, typer.Option(help="pending | provided | verified.")],
+    locator: Annotated[str | None, typer.Option(help="Where the answer was found.")] = None,
+) -> None:
+    """Advance a queue item's status."""
+    from cds.core.authoring import set_queue_status
+    from cds.core.model.notes import RetrievalStatus
+    from cds.core.workspace import load_project
+
+    try:
+        parsed = RetrievalStatus(status)
+    except ValueError:
+        typer.secho("status must be pending, provided, or verified", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2) from None
+    try:
+        set_queue_status(load_project(), slug, parsed, locator=locator)
+    except KeyError:
+        typer.secho(f"no queue item {slug!r}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2) from None
+    typer.secho(f"{slug} → {parsed.value}", fg=typer.colors.GREEN)
+
+
+@queue_app.command("list")
+def queue_list() -> None:
+    """List open unknowns and their status."""
+    from cds.core.authoring import list_queue
+    from cds.core.workspace import load_project
+
+    items = list_queue(load_project())
+    if not items:
+        typer.secho("(retrieval queue empty)", fg=typer.colors.YELLOW)
+    for slug, status, question in items:
+        typer.echo(f"  [{status}] {slug}: {question}")
+
+
 @app.command()
 def build() -> None:
     """Compile YAML term sources into the canonical ``concept-definition.ttl`` (deterministic)."""
