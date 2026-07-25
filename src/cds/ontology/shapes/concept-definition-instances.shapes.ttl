@@ -1,0 +1,42 @@
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix cds:     <https://w3id.org/cds#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Shapes for a user's authored concept-definition INSTANCES (not the reference vocabulary).
+# Every record carries the cds:Instance marker; the mapping container is a cds:Synthesis.
+# Property shapes are IRIs (not blank nodes) so `cds verify` reports a readable rule name.
+
+cds:instanceHasLabel a sh:PropertyShape ;
+    sh:path rdfs:label ;
+    sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "every instance needs an rdfs:label (its short name)" .
+
+cds:instanceHasDescription a sh:PropertyShape ;
+    sh:path dcterms:description ;
+    sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "every instance needs a dcterms:description (its content statement)" .
+
+cds:instanceInSynthesis a sh:PropertyShape ;
+    sh:path cds:inSynthesis ;
+    sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "every instance must belong to a cds:Synthesis (its mapping)" .
+
+cds:InstanceShape a sh:NodeShape ;
+    sh:targetClass cds:Instance ;
+    sh:property cds:instanceHasLabel ;
+    sh:property cds:instanceHasDescription ;
+    sh:property cds:instanceInSynthesis .
+
+cds:synthesisHasLabel a sh:PropertyShape ;
+    sh:path rdfs:label ;
+    sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "a cds:Synthesis needs an rdfs:label (its title)" .
+
+cds:SynthesisShape a sh:NodeShape ;
+    sh:targetClass cds:Synthesis ;
+    sh:property cds:synthesisHasLabel .

@@ -6,6 +6,8 @@
 
 [project]
 name = "{name}"
+# Base IRI for the RDF instances you author (mission/goals/stakeholders/needs live under here).
+base_iri = "https://cds.example/{name}/"
 
 [layout]
 # Where authored RDF instances accumulate, and where deterministic briefs are compiled.

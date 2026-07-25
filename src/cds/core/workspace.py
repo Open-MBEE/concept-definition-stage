@@ -109,6 +109,7 @@ class Project:
     """
 
     root: Path
+    base_iri: str = "https://cds.example/project/"
     instances_subdir: str = "concept-definition/instances"
     briefs_subdir: str = "concept-definition/briefs"
 
@@ -134,8 +135,12 @@ def load_project(explicit: Path | None = None, *, start: Path | None = None) -> 
         cfg = tomllib.loads(marker.read_text(encoding="utf-8"))
     raw_layout = cfg.get("layout")
     layout: dict[str, object] = raw_layout if isinstance(raw_layout, dict) else {}
+    raw_project = cfg.get("project")
+    project_cfg: dict[str, object] = raw_project if isinstance(raw_project, dict) else {}
+    default_base = f"https://cds.example/{root.name}/"
     return Project(
         root=root,
+        base_iri=str(project_cfg.get("base_iri", default_base)),
         instances_subdir=str(layout.get("instances", "concept-definition/instances")),
         briefs_subdir=str(layout.get("briefs", "concept-definition/briefs")),
     )
