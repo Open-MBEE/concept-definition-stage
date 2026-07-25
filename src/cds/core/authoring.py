@@ -29,6 +29,7 @@ from cds.core.model.notes import (
     RetrievalItem,
     RetrievalStatus,
     Tension,
+    TensionStatus,
     parked_iri,
     parked_to_graph,
     queue_iri,
@@ -135,7 +136,7 @@ def show_record(project: Project, kind: str, slug: str) -> list[str] | None:
     desc = graph.value(s, DCTERMS.description)
     lines.append(f"  label:       {label}")
     lines.append(f"  description: {desc}")
-    for pred in ("forStakeholder", "servesGoal", "refines", "addresses", "cites"):
+    for pred in ("forStakeholder", "servesGoal", "refines", "addresses", "supersedes", "cites"):
         targets = sorted(str(o).rsplit("/", 1)[-1] for o in graph.objects(s, CDS[pred]))
         if targets:
             lines.append(f"  {pred}: {', '.join(targets)}")
@@ -235,6 +236,33 @@ def _tension_file(project: Project) -> Path:
 
 
 def create_tension(project: Project, item: Tension) -> URIRef:
-    """Record a named conflict between records; returns its IRI."""
+    """Record (upsert) a named conflict between records; returns its IRI."""
     _merge_into(_tension_file(project), tension_to_graph(item, base=project.base_iri), project)
     return tension_iri(project.base_iri, item.slug)
+
+
+def set_tension_status(project: Project, slug: str, status: TensionStatus) -> None:
+    """Mark a tension open/resolved; resolved tensions drop out of the compiled brief."""
+    target = _tension_file(project)
+    graph = _load(target)
+    s = tension_iri(project.base_iri, slug)
+    if (s, RDF.type, CDS.Tension) not in graph:
+        raise KeyError(f"no tension {slug!r}")
+    graph.remove((s, CDS.tensionStatus, None))
+    graph.add((s, CDS.tensionStatus, Literal(status.value)))
+    target.write_text(canonical_turtle(graph, prefixes=_prefixes(project)), encoding="utf-8")
+
+
+def remove_parked(project: Project, slug: str) -> bool:
+    """Delete a parked idea; returns False if absent."""
+    return _remove_subject(_parked_file(project), parked_iri(project.base_iri, slug), project)
+
+
+def remove_queue_item(project: Project, slug: str) -> bool:
+    """Delete a retrieval-queue item; returns False if absent."""
+    return _remove_subject(_queue_file(project), queue_iri(project.base_iri, slug), project)
+
+
+def remove_tension(project: Project, slug: str) -> bool:
+    """Delete a tension; returns False if absent."""
+    return _remove_subject(_tension_file(project), tension_iri(project.base_iri, slug), project)

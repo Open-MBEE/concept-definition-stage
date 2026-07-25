@@ -51,6 +51,11 @@ def _refs(g: Graph, s: Node, pred: Node) -> str:
     return ", ".join(names)
 
 
+def _supersedes(g: Graph, s: Node) -> str:
+    names = sorted(_local(o) for o in g.objects(s, CDS.supersedes))
+    return f" _(supersedes: {', '.join(names)})_" if names else ""
+
+
 def _md_table(headers: list[str], rows: list[list[str]]) -> list[str]:
     def esc(cell: str) -> str:
         return cell.replace("|", "\\|").replace("\n", " ")
@@ -84,7 +89,8 @@ def compile_brief(graph: Graph, *, base: str) -> str:
             if kind == "objective":
                 refines = _refs(graph, s, CDS.refines)
                 extra = f" _(refines: {refines})_" if refines else ""
-            lines.append(f"- **{_label(graph, s)}** — {_desc(graph, s)}{extra}")
+            sup = _supersedes(graph, s)
+            lines.append(f"- **{_label(graph, s)}** — {_desc(graph, s)}{extra}{sup}")
         lines.append("")
 
     # ---- Stakeholders
@@ -119,11 +125,13 @@ def compile_brief(graph: Graph, *, base: str) -> str:
             if serves:
                 tags.append(f"serves: {serves}")
             suffix = f" _({'; '.join(tags)})_" if tags else ""
-            lines.append(f"- **{_label(graph, s)}** — {_desc(graph, s)}{suffix}")
+            lines.append(
+                f"- **{_label(graph, s)}** — {_desc(graph, s)}{suffix}{_supersedes(graph, s)}"
+            )
         lines.append("")
 
     # ---- side ledgers
-    _section(lines, graph, CDS.Tension, "Tensions")
+    _tensions_section(lines, graph)
     _section(lines, graph, CDS.ParkedItem, "Parking-lot")
     _queue_section(lines, graph)
 
@@ -135,6 +143,26 @@ def _section(lines: list[str], graph: Graph, cls: Node, heading: str) -> None:
     if not items:
         return
     lines.append(f"## {heading}")
+    lines.append("")
+    for s in items:
+        desc = _desc(graph, s)
+        lines.append(f"- **{_label(graph, s)}**" + (f" — {desc}" if desc else ""))
+    lines.append("")
+
+
+def _tensions_section(lines: list[str], graph: Graph) -> None:
+    # only OPEN tensions render; resolved ones drop out of the brief
+    items = sorted(
+        (
+            s
+            for s in graph.subjects(RDF.type, CDS.Tension)
+            if str(graph.value(s, CDS.tensionStatus) or "open") != "resolved"
+        ),
+        key=str,
+    )
+    if not items:
+        return
+    lines.append("## Tensions")
     lines.append("")
     for s in items:
         desc = _desc(graph, s)

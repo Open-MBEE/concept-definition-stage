@@ -64,9 +64,12 @@ cds synthesis <slug> --title "<the project>"
 
 ## Correcting a record (the human changed their mind)
 
-When the human reverses or reworwords something already recorded, **re-run `cds new` with the same
+When the human reverses or rewords something already recorded, **re-run `cds new` with the same
 slug and the corrected values** — authoring is an *upsert*, so it replaces the old record cleanly (no
-duplicate values). To retract something entirely, use `cds rm <kind> <slug>`. To read back what's
+duplicate values). If you want to keep the change history, author the new record under a fresh slug
+with `--supersedes <old-slug>` (it records a `cds:supersedes` link, shown in the brief). To retract
+entirely, use `cds rm <kind> <slug>` (also `cds park rm` / `cds queue rm` / `cds tension rm`). When a
+tension is reconciled, `cds tension resolve <slug>` drops it from the brief. To read back what's
 stored (e.g. to reflect it to the human), use `cds show <kind> <slug>` or `cds list <kind>`. You
 still **never hand-edit the Turtle** — every change goes through the CLI.
 

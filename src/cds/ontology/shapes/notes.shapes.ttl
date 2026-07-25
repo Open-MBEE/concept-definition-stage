@@ -36,9 +36,18 @@ cds:RetrievalItemShape a sh:NodeShape ;
 cds:tensionHasLabel a sh:PropertyShape ;
     sh:path rdfs:label ;
     sh:minCount 1 ;
+    sh:maxCount 1 ;
     sh:severity sh:Violation ;
-    sh:message "a tension needs an rdfs:label" .
+    sh:message "a tension needs exactly one rdfs:label" .
+
+cds:tensionHasStatus a sh:PropertyShape ;
+    sh:path cds:tensionStatus ;
+    sh:minCount 1 ;
+    sh:in ( "open" "resolved" ) ;
+    sh:severity sh:Violation ;
+    sh:message "a tension needs a status of open or resolved" .
 
 cds:TensionShape a sh:NodeShape ;
     sh:targetClass cds:Tension ;
-    sh:property cds:tensionHasLabel .
+    sh:property cds:tensionHasLabel ;
+    sh:property cds:tensionHasStatus .

@@ -13,10 +13,33 @@ Serialization is deterministic (sorted multivalues) and blank-node-free, so
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+import re
+from typing import Annotated
+
+from pydantic import AfterValidator, BaseModel
 from rdflib import RDF, RDFS, Graph, Literal, URIRef
 
 from cds.core.namespaces import CDS, CDS_TERM, DCTERMS
+
+_SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+
+
+def validate_slug(v: str) -> str:
+    """Reject anything but kebab-case (lowercase letters, digits, single hyphens).
+
+    Slugs flow directly into IRIs, so an invalid one (spaces, parens, uppercase) would otherwise
+    produce broken Turtle or an ugly identifier. Rejecting early yields a friendly CLI error.
+    """
+    if not _SLUG_RE.match(v):
+        raise ValueError(
+            f"slug {v!r} must be kebab-case: lowercase letters, digits, and single hyphens "
+            "(e.g. 'reach-a-human')"
+        )
+    return v
+
+
+#: A validated kebab-case slug, reused across every authorable model.
+Slug = Annotated[str, AfterValidator(validate_slug)]
 
 #: Authorable kinds → the vocabulary term slug used as the instance's semantic ``rdf:type``.
 KIND_TERM: dict[str, str] = {
@@ -53,7 +76,7 @@ def record_iri(base: str, kind: str, slug: str) -> URIRef:
 class Synthesis(BaseModel):
     """The mapping container — a project's concept definition / integrated set of needs."""
 
-    slug: str
+    slug: Slug
     title: str
     description: str = ""
 
@@ -61,12 +84,13 @@ class Synthesis(BaseModel):
 class Record(BaseModel):
     """Shared base for every authored instance."""
 
-    slug: str
+    slug: Slug
     kind: str
     label: str
     description: str
     synthesis: str  # slug of the parent Synthesis
     cites: list[str] = []  # provenance: source IRIs
+    supersedes: list[str] = []  # IRIs of record(s) this one replaces (change provenance)
 
     def model_post_init(self, _context: object) -> None:
         if self.kind not in KIND_TERM:
@@ -129,6 +153,8 @@ def record_to_graph(rec: Record, *, base: str) -> Graph:
     g.add((s, CDS.inSynthesis, synthesis_iri(base, rec.synthesis)))
     for cite in sorted(rec.cites):
         g.add((s, CDS.cites, URIRef(cite)))
+    for superseded in sorted(rec.supersedes):
+        g.add((s, CDS.supersedes, URIRef(superseded)))
 
     if isinstance(rec, Goal):
         for slug in sorted(rec.addresses):
