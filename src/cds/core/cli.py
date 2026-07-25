@@ -22,10 +22,68 @@ if TYPE_CHECKING:
 
 app = typer.Typer(
     name="cds",
-    help="Concept Definition Stage — commit SEBoK/INCOSE Concept Definition canon to RDF.",
+    help="Map a project's mission, goals, stakeholders, and needs as checkable data. "
+    "Run `cds guide` to get started, or `cds explain <term>` to look up a term.",
     no_args_is_help=True,
     add_completion=False,
 )
+
+
+def _version_callback(value: bool) -> None:
+    if value:
+        from importlib.metadata import version
+
+        typer.echo(f"cds {version('cds')}")
+        raise typer.Exit()
+
+
+@app.callback()
+def _root(
+    version: Annotated[
+        bool,
+        typer.Option("--version", callback=_version_callback, is_eager=True,
+                     help="Show the version and exit."),
+    ] = False,
+) -> None:
+    """Concept Definition Stage."""
+
+
+@app.command()
+def guide() -> None:
+    """Print the getting-started guide — the first-session walkthrough."""
+    from cds.core.workspace import package_dir
+
+    text = (package_dir() / "assets" / "guide" / "getting-started.md").read_text(encoding="utf-8")
+    typer.echo(text)
+
+
+@app.command()
+def explain(
+    term: Annotated[
+        str | None,
+        typer.Argument(help="A record kind or term to explain; omit to list them all."),
+    ] = None,
+) -> None:
+    """Explain a vocabulary term in plain language, with how to author it and its source."""
+    from cds.core.explain import explain as explain_term
+    from cds.core.explain import glossary
+
+    if term is None:
+        for line in glossary():
+            typer.echo(line)
+        return
+    lines = explain_term(term)
+    if lines is None:
+        from cds.core.model.instances import KIND_TERM
+
+        typer.secho(
+            f"unknown term {term!r}. Try one of: {', '.join(KIND_TERM)} (or `cds explain`).",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(2)
+    for line in lines:
+        typer.echo(line)
 
 
 @app.command()
@@ -56,6 +114,10 @@ def init(
         f"({len(result.created)} created, {len(result.skipped)} skipped).",
         fg=typer.colors.GREEN,
     )
+    typer.secho("\nNext steps:", fg=typer.colors.BLUE)
+    typer.echo('  cds synthesis myproject --title "My project"    # start a mapping')
+    typer.echo('  cds new mission core --synthesis myproject --label "…" --description "…"')
+    typer.echo("  cds explain <kind>   # what does a term mean?   cds guide   # full walkthrough")
 
 
 @app.command()
@@ -64,7 +126,7 @@ def synthesis(
     title: Annotated[str, typer.Option(help="Human title of the concept-definition mapping.")],
     description: Annotated[str, typer.Option(help="One-line description of the mapping.")] = "",
 ) -> None:
-    """Create (or update) the mapping container — a ``cds:Synthesis`` (the integrated set)."""
+    """Start (or update) a mapping — the container your mission/goals/needs belong to."""
     from cds.core.authoring import create_synthesis
     from cds.core.model.instances import Synthesis
     from cds.core.workspace import load_project
@@ -422,7 +484,7 @@ def verify(
         typer.Option(help="Turtle waivers graph (cds:Waiver); defaults to ontology/waivers.ttl."),
     ] = None,
 ) -> None:
-    """Run the SHACL tri-severity + construction-order checks; non-zero exit on Tier-1."""
+    """Check your mapping for common mistakes (missing links, 'shall' in a need, duplicates)."""
     from cds.core.verify import SHAPES_DIR
     from cds.core.verify import verify as run_verify
     from cds.core.workspace import find_data_root

@@ -17,7 +17,7 @@ def test_version_present() -> None:
 def test_cli_help() -> None:
     result = runner.invoke(app, ["--help"])
     assert result.exit_code == 0
-    assert "Concept Definition Stage" in result.output
+    assert "mission, goals, stakeholders" in result.output  # plain-language help
 
 
 def test_core_commands_are_registered() -> None:
