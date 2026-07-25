@@ -49,6 +49,26 @@ hit. At minimum:
    judgment-heavy items to the maintainer as explicit decisions.
 4. Record everything in a dated run folder here.
 
+## Cold-start (discovery) walkthrough
+
+A higher-abstraction variant: the user doesn't know the tool exists yet — a colleague sends the
+**repo link**. The journey starts at the README and must survive *discovery → install → init → first
+records*, so the test evaluates the whole onboarding surface, not just usage.
+
+- **Views.** Tag every friction by the view it belongs to: **github-read** (browser, README-first),
+  **install**, **pip-use** (the installed package's own surfaces — `--help`, shipped guide,
+  vendored assets), **clone-dev** (contributor), and **docsite** (the published docs). Each view must
+  make sense on its own.
+- **Personas across two axes** (technical × domain familiarity): e.g. engineer-without-SEBoK,
+  systems-engineer-without-Python-tooling, non-technical founder, and a both-savvy control. Friction
+  is persona-dependent — the control separates *real* bugs from *novice-only* friction.
+- **Method.** Each persona is a fresh **cold** agent running a cognitive walkthrough: it experiences
+  the journey in persona, actually drives the tool, and logs where *that* persona would stall or
+  bounce — especially ontology-term confusion. Add one **docs-only** run (no AI, README + shell only)
+  as the harshest test of the documentation alone.
+- **Deliverable.** Beyond findings: an **onboarding benchmark** — testable acceptance criteria for
+  "repo-link → first verified mapping without bouncing" — which feeds a release milestone.
+
 ## What "done" looks like
 
 The tool survives a full two-halves session (business/mission analysis → stakeholder needs) with
