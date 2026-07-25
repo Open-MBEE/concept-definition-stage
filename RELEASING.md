@@ -10,24 +10,34 @@ to PyPI until §0 is resolved** — it's a legal gate.
 
 ---
 
-## 0. BLOCKER — canon redistribution (resolve before any publish) · #2
+## 0. RESOLVED — verbatim canon is included, fully cited · #2
 
-The wheel currently ships `src/cds/ontology/concept-definition.ttl`, which **materializes verbatim
-SEBoK/INCOSE definitions** (SEBoK is **CC BY-NC-SA**). Publishing that file to PyPI is
-**redistribution** of restricted text — the "text in the model, cite in the view" argument (RDF isn't
-human-consumable) does **not** cover shipping it in a public package.
+The wheel ships `src/cds/ontology/concept-definition.ttl`, which materializes **verbatim SEBoK/INCOSE
+definitions** (SEBoK is **CC BY-NC-SA**).
 
-Decide, and record the decision in the PR that resolves #2:
+**Decision — Michael Zargham (project lead), 2026-07-25:** the distributed package **includes the
+verbatim canonical text**, on these grounds:
 
-- **(a) Ship cite-only canon** (recommended): the *distributed* artifact strips the verbatim
-  `skos:definition` / `cds:quote` text and keeps locators + citations. Options: a build step that emits
-  a redistributable `concept-definition.ttl` (definitions removed) for packaging, or gate packaging on
-  the operator's `text_license`. `cds verify` needs shapes, not the verbatim, so this is safe;
-  `cds explain` already cites rather than reproduces.
-- **(b) Confirm permission** for the specific text + ship proper `NOTICE`/attribution (ShareAlike
-  implications — the wheel would inherit BY-NC-SA, which conflicts with the Apache-2.0 code license).
+- **Fidelity of engineering praxis is the priority.** Enforcing compliance with an engineering
+  standard *without holding the standard's own words* is a large hallucination risk — the tool must
+  check against the authoritative text, never a paraphrase or model memory.
+- **The canonical sources are fully cited.** Every definition traces to its named authority
+  (`definition_source` + grounding + the boundary-object provenance). cds does **not** claim to be an
+  authoritative source; it **acknowledges** the canonical ones, and the citations **drive traffic to
+  the primary sources** rather than substitute for them.
 
-**Until (a) or (b) is done, PyPI publish (#6) is blocked.** This is the single most important item.
+**So #2 shifts from "decide whether to ship" → "make the attribution airtight" (the remaining work):**
+
+- Add a `NOTICE` attributing **each** canonical source (SEBoK v2.14, INCOSE GtWR/NRM/SE Handbook, ISO/
+  IEC/IEEE, …) with its license (e.g. SEBoK = CC BY-NC-SA) and a link; keep `THIRD_PARTY_LICENSES.md`
+  current.
+- State plainly that **code/structure is Apache-2.0** while the **embedded verbatim canon retains its
+  source license** — the distribution carries mixed licensing, and the `NOTICE` is the map. (SEBoK's
+  BY-NC-SA carries NonCommercial + ShareAlike terms; the NOTICE should surface this so downstream users
+  understand what the embedded text obliges.)
+- No cite-only stripping — that path is **not** taken.
+
+Once the `NOTICE`/attribution above is in place, PyPI publish (#6) is unblocked.
 
 ---
 
@@ -103,7 +113,8 @@ and `docs/getting-started.md` to `pip install <name>`.
 ## Suggested order
 
 1. **#1 CI hardening** (matrix + determinism) — foundation; do first.
-2. **§0 + #2** canon-redistribution decision — the legal gate; must precede any publish.
+2. **§0 + #2** attribution/NOTICE — the decision is made (verbatim included, fully cited); land the
+   `NOTICE` before publish.
 3. **#33 name** → **#6 packaging validation** → TestPyPI dry-run.
 4. **#8 Pages** — parallel-safe, do whenever.
 5. **#4 version bump + CHANGELOG** → tag → **#6 PyPI publish**.
