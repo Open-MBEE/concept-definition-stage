@@ -389,6 +389,26 @@ def render(
     typer.secho(f"rendered {pdf} ({mode}; text license {view.text_license})", fg=typer.colors.GREEN)
 
 
+@app.command()
+def compile(
+    output: Annotated[
+        Path | None,
+        typer.Option(help="Output path; defaults to <briefs>/concept-definition.md."),
+    ] = None,
+) -> None:
+    """Compile the mapping to a deterministic, human-readable Markdown brief."""
+    from cds.core.authoring import project_graph
+    from cds.core.compile import compile_brief
+    from cds.core.workspace import load_project
+
+    project = load_project()
+    md = compile_brief(project_graph(project), base=project.base_iri)
+    out = output if output is not None else project.briefs_dir / "concept-definition.md"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(md, encoding="utf-8")
+    typer.secho(f"compiled {out}", fg=typer.colors.GREEN)
+
+
 def _not_yet(command: str, slice_: str) -> int:
     typer.secho(
         f"`cds {command}` is not implemented yet (planned for {slice_}).",
