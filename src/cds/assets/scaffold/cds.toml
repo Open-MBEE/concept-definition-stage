@@ -1,0 +1,15 @@
+# CDS project marker.
+#
+# This file makes its directory a CDS *data root*: `cds` reads/writes your concept-definition
+# mapping (RDF instances + compiled briefs) under here — in YOUR repo, never in the CDS install.
+# Resolution: `cds` searches upward from the working directory for this file (or honors $CDS_PROJECT).
+
+[project]
+name = "{name}"
+# Base IRI for the RDF instances you author (mission/goals/stakeholders/needs live under here).
+base_iri = "https://cds.example/{name}/"
+
+[layout]
+# Where authored RDF instances accumulate, and where deterministic briefs are compiled.
+instances = "concept-definition/instances"
+briefs = "concept-definition/briefs"

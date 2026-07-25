@@ -1,0 +1,60 @@
+# Boundary-object (ASoT) shapes: authority + source well-formedness and the
+# authority-before-source construction-order precondition.
+#
+# Every check is a NAMED shape so each finding carries a stable rule identity (its local name),
+# surfaced to Python as Finding.rule — no blank-node / SHACL-internal leakage.
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix cds:  <https://w3id.org/cds#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix cdsh: <https://w3id.org/cds/shapes#> .
+
+cdsh:AuthorityShape a sh:NodeShape ;
+    sh:targetClass cds:Authority ;
+    sh:property cdsh:AuthorityLabel ;
+    sh:property cdsh:AuthorityKind .
+
+cdsh:AuthorityLabel a sh:PropertyShape ;
+    sh:path rdfs:label ; sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "an authority must carry an rdfs:label." .
+
+cdsh:AuthorityKind a sh:PropertyShape ;
+    sh:path cds:authorityKind ; sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "an authority must declare a cds:authorityKind." .
+
+cdsh:SourceShape a sh:NodeShape ;
+    sh:targetClass cds:Source ;
+    sh:property cdsh:SourceAttribution ;
+    sh:property cdsh:SourceLocator ;
+    sh:property cdsh:SourceTypeDeclared ;
+    sh:property cdsh:SourceCaptureTier ;
+    sh:property cdsh:SourceLicense .
+
+# construction order, stage 1 before 2: a source must attribute to a *registered* authority
+cdsh:SourceAttribution a sh:PropertyShape ;
+    sh:path prov:wasAttributedTo ; sh:minCount 1 ; sh:class cds:Authority ;
+    sh:severity sh:Violation ;
+    sh:message "a source must be attributed (prov:wasAttributedTo) to a registered cds:Authority — construction order stage 1 precedes stage 2." .
+
+cdsh:SourceLocator a sh:PropertyShape ;
+    sh:path cds:locator ; sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "a source must carry a cds:locator." .
+
+cdsh:SourceTypeDeclared a sh:PropertyShape ;
+    sh:path cds:sourceType ; sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "a source must declare a cds:sourceType." .
+
+cdsh:SourceCaptureTier a sh:PropertyShape ;
+    sh:path cds:captureTier ; sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "a source must declare a cds:captureTier." .
+
+# licenses are tracked, not enforced — absence is an auditability gap (Warning), never a violation
+cdsh:SourceLicense a sh:PropertyShape ;
+    sh:path cds:license ; sh:minCount 1 ;
+    sh:severity sh:Warning ;
+    sh:message "a source has no tracked cds:license — its usage cannot be audited (licenses are tracked, not enforced)." .

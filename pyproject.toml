@@ -39,6 +39,14 @@ allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/cds"]
+# Ship the read-only canon + vendored scaffolding assets inside the wheel (TOOL_ROOT). Editable
+# installs use the source tree directly; these globs make a future wheel carry the same canon.
+artifacts = [
+  "src/cds/ontology/**/*.ttl",
+  "src/cds/stages/concept_definition/terms/*.yaml",
+  "src/cds/stages/concept_definition/characteristics.yaml",
+  "src/cds/assets/**/*",
+]
 
 [tool.ruff]
 target-version = "py311"

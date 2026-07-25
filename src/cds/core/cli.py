@@ -26,6 +26,244 @@ app = typer.Typer(
 
 
 @app.command()
+def init(
+    path: Annotated[
+        Path | None,
+        typer.Argument(help="Project directory to scaffold; defaults to the current directory."),
+    ] = None,
+    name: Annotated[
+        str | None,
+        typer.Option(help="Project name recorded in cds.toml; defaults to the directory name."),
+    ] = None,
+    force: Annotated[
+        bool,
+        typer.Option(help="Overwrite existing scaffolded files."),
+    ] = False,
+) -> None:
+    """Scaffold a CDS data root here — cds.toml, data dirs, and the model-facing assets."""
+    from cds.core.init import init_project
+
+    result = init_project(path, name=name, force=force)
+    for rel in result.created:
+        typer.secho(f"  + {rel}", fg=typer.colors.GREEN)
+    for rel in result.skipped:
+        typer.secho(f"  · {rel} (exists, skipped)", fg=typer.colors.YELLOW)
+    typer.secho(
+        f"cds project ready at {result.root} "
+        f"({len(result.created)} created, {len(result.skipped)} skipped).",
+        fg=typer.colors.GREEN,
+    )
+
+
+@app.command()
+def synthesis(
+    slug: Annotated[str, typer.Argument(help="Short id for the mapping (kebab-case).")],
+    title: Annotated[str, typer.Option(help="Human title of the concept-definition mapping.")],
+    description: Annotated[str, typer.Option(help="One-line description of the mapping.")] = "",
+) -> None:
+    """Create (or update) the mapping container — a ``cds:Synthesis`` (the integrated set)."""
+    from cds.core.authoring import create_synthesis
+    from cds.core.model.instances import Synthesis
+    from cds.core.workspace import load_project
+
+    project = load_project()
+    iri = create_synthesis(project, Synthesis(slug=slug, title=title, description=description))
+    typer.secho(f"synthesis {iri}", fg=typer.colors.GREEN)
+
+
+@app.command()
+def new(
+    kind: Annotated[str, typer.Argument(help="Record kind (mission, goal, stakeholder, need, …).")],
+    slug: Annotated[str, typer.Argument(help="Short id for this record (kebab-case).")],
+    synthesis: Annotated[
+        str | None, typer.Option(help="Slug of the parent mapping (cds:Synthesis).")
+    ] = None,
+    label: Annotated[str | None, typer.Option(help="Short name.")] = None,
+    description: Annotated[str | None, typer.Option(help="The content statement.")] = None,
+    for_stakeholder: Annotated[
+        list[str] | None, typer.Option(help="need → stakeholder slug(s).")
+    ] = None,
+    serves_goal: Annotated[list[str] | None, typer.Option(help="need → goal slug(s).")] = None,
+    refines: Annotated[list[str] | None, typer.Option(help="objective → goal slug(s).")] = None,
+    addresses: Annotated[
+        list[str] | None, typer.Option(help="goal → problem/opportunity slug(s).")
+    ] = None,
+    segment: Annotated[str | None, typer.Option(help="stakeholder segment/perspective.")] = None,
+    interest: Annotated[str | None, typer.Option(help="stakeholder interest.")] = None,
+    influence: Annotated[str | None, typer.Option(help="stakeholder influence.")] = None,
+    cites: Annotated[list[str] | None, typer.Option(help="Source IRI(s) for provenance.")] = None,
+    interactive: Annotated[
+        bool, typer.Option(help="Prompt for label/description if omitted.")
+    ] = False,
+) -> None:
+    """Author one instance record (typed by its vocabulary term) into the project."""
+    from cds.core.model.instances import KIND_TERM, model_for_kind
+    from cds.core.workspace import load_project
+
+    if kind not in KIND_TERM:
+        typer.secho(
+            f"unknown kind {kind!r}; expected one of {', '.join(KIND_TERM)}",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(2)
+
+    if interactive:
+        synthesis = synthesis or typer.prompt("synthesis (mapping slug)")
+        label = label or typer.prompt("label (short name)")
+        description = description or typer.prompt("description (the statement)")
+    if synthesis is None:
+        typer.secho("--synthesis is required (or use --interactive)",
+                    fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    if label is None or description is None:
+        typer.secho("--label and --description are required (or use --interactive)",
+                    fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+
+    project = load_project()
+    fields: dict[str, object] = {
+        "slug": slug,
+        "kind": kind,
+        "label": label,
+        "description": description,
+        "synthesis": synthesis,
+        "cites": cites or [],
+        "for_stakeholder": for_stakeholder or [],
+        "serves_goal": serves_goal or [],
+        "refines": refines or [],
+        "addresses": addresses or [],
+        "segment": segment,
+        "interest": interest,
+        "influence": influence,
+    }
+    model = model_for_kind(kind)
+    from cds.core.authoring import create_record
+
+    iri = create_record(project, model.model_validate(fields))
+    typer.secho(f"{kind} {iri}", fg=typer.colors.GREEN)
+
+
+park_app = typer.Typer(help="Parking-lot: capture out-of-scope ideas without derailing.",
+                       no_args_is_help=True, add_completion=False)
+queue_app = typer.Typer(help="Retrieval queue: track open unknowns (pending→provided→verified).",
+                        no_args_is_help=True, add_completion=False)
+app.add_typer(park_app, name="park")
+app.add_typer(queue_app, name="queue")
+
+
+@park_app.command("add")
+def park_add(
+    slug: Annotated[str, typer.Argument(help="Short id for the parked idea.")],
+    label: Annotated[str, typer.Option(help="Short name of the idea.")],
+    description: Annotated[str, typer.Option(help="What the idea is.")] = "",
+    note: Annotated[str | None, typer.Option(help="Why it's parked / when to revisit.")] = None,
+) -> None:
+    """Park an out-of-scope idea so it isn't lost."""
+    from cds.core.authoring import create_parked
+    from cds.core.model.notes import ParkedItem
+    from cds.core.workspace import load_project
+
+    iri = create_parked(
+        load_project(), ParkedItem(slug=slug, label=label, description=description, note=note)
+    )
+    typer.secho(f"parked {iri}", fg=typer.colors.GREEN)
+
+
+@park_app.command("list")
+def park_list() -> None:
+    """List parked ideas."""
+    from cds.core.authoring import list_parked
+    from cds.core.workspace import load_project
+
+    items = list_parked(load_project())
+    if not items:
+        typer.secho("(parking-lot empty)", fg=typer.colors.YELLOW)
+    for slug, label in items:
+        typer.echo(f"  {slug}: {label}")
+
+
+@queue_app.command("add")
+def queue_add(
+    slug: Annotated[str, typer.Argument(help="Short id for the open unknown.")],
+    question: Annotated[str, typer.Option(help="The open question to resolve later.")],
+    description: Annotated[str, typer.Option(help="Context on the unknown.")] = "",
+) -> None:
+    """Add an open unknown to the retrieval queue (status starts 'pending')."""
+    from cds.core.authoring import create_queue_item
+    from cds.core.model.notes import RetrievalItem
+    from cds.core.workspace import load_project
+
+    iri = create_queue_item(
+        load_project(), RetrievalItem(slug=slug, question=question, description=description)
+    )
+    typer.secho(f"queued {iri} (pending)", fg=typer.colors.GREEN)
+
+
+@queue_app.command("set")
+def queue_set(
+    slug: Annotated[str, typer.Argument(help="Queue item id.")],
+    status: Annotated[str, typer.Option(help="pending | provided | verified.")],
+    locator: Annotated[str | None, typer.Option(help="Where the answer was found.")] = None,
+) -> None:
+    """Advance a queue item's status."""
+    from cds.core.authoring import set_queue_status
+    from cds.core.model.notes import RetrievalStatus
+    from cds.core.workspace import load_project
+
+    try:
+        parsed = RetrievalStatus(status)
+    except ValueError:
+        typer.secho("status must be pending, provided, or verified", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2) from None
+    try:
+        set_queue_status(load_project(), slug, parsed, locator=locator)
+    except KeyError:
+        typer.secho(f"no queue item {slug!r}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2) from None
+    typer.secho(f"{slug} → {parsed.value}", fg=typer.colors.GREEN)
+
+
+@queue_app.command("list")
+def queue_list() -> None:
+    """List open unknowns and their status."""
+    from cds.core.authoring import list_queue
+    from cds.core.workspace import load_project
+
+    items = list_queue(load_project())
+    if not items:
+        typer.secho("(retrieval queue empty)", fg=typer.colors.YELLOW)
+    for slug, status, question in items:
+        typer.echo(f"  [{status}] {slug}: {question}")
+
+
+tension_app = typer.Typer(help="Record named conflicts between records (surfaced, not hidden).",
+                          no_args_is_help=True, add_completion=False)
+app.add_typer(tension_app, name="tension")
+
+
+@tension_app.command("add")
+def tension_add(
+    slug: Annotated[str, typer.Argument(help="Short id for the tension.")],
+    label: Annotated[str, typer.Option(help="Short name of the conflict.")],
+    description: Annotated[str, typer.Option(help="What pulls against what, and why.")] = "",
+    between: Annotated[
+        list[str] | None, typer.Option(help="IRIs of the records in tension (repeatable).")
+    ] = None,
+) -> None:
+    """Record a named tension between records (e.g. two needs that conflict)."""
+    from cds.core.authoring import create_tension
+    from cds.core.model.notes import Tension
+    from cds.core.workspace import load_project
+
+    iri = create_tension(
+        load_project(),
+        Tension(slug=slug, label=label, description=description, between=between or []),
+    )
+    typer.secho(f"tension {iri}", fg=typer.colors.GREEN)
+
+
+@app.command()
 def build() -> None:
     """Compile YAML term sources into the canonical ``concept-definition.ttl`` (deterministic)."""
     from cds.core.verify import verify as run_verify
@@ -67,13 +305,25 @@ def verify(
     """Run the SHACL tri-severity + construction-order checks; non-zero exit on Tier-1."""
     from cds.core.verify import SHAPES_DIR
     from cds.core.verify import verify as run_verify
+    from cds.core.workspace import find_data_root
 
-    data = _load_turtle(graph) if graph is not None else _seed_graph()
+    in_project = False
+    if graph is not None:
+        data = _load_turtle(graph)
+    elif find_data_root() is not None:
+        # inside a user project: validate their authored instance graph + run conflict checks
+        from cds.core.authoring import project_graph
+        from cds.core.workspace import load_project
+
+        data = project_graph(load_project())
+        in_project = True
+    else:
+        data = _seed_graph()
     # waivers are first-class RDF — merge the operator's waiver graph into the data being verified
     waivers_path = waivers if waivers is not None else SHAPES_DIR.parent / "waivers.ttl"
     if waivers_path.exists():
         data.parse(waivers_path, format="turtle")
-    _report_and_exit(run_verify(data))
+    _report_and_exit(run_verify(data, check_conflicts=in_project))
 
 
 def _report_and_exit(result: VerifyResult) -> None:
@@ -119,6 +369,7 @@ def render(
     """Render the scheme to a deterministic Typst -> PDF reference document (license-keyed View)."""
     from cds.core.render.typst import render_pdf, typst_document
     from cds.core.render.view import scheme_view
+    from cds.core.workspace import find_data_root
     from cds.stages.concept_definition.build import build_concept_definition_graph
 
     view = scheme_view(
@@ -126,13 +377,36 @@ def render(
         title="Concept Definition Vocabulary",
         text_license=text_license,
     )
-    views_dir = Path(__file__).resolve().parents[3] / "views"
-    views_dir.mkdir(exist_ok=True)
+    # Write into the user's project when one is resolvable; otherwise the CDS repo (maintainer use).
+    project = find_data_root()
+    repo_views = Path(__file__).resolve().parents[3] / "views"
+    views_dir = (project / "views") if project is not None else repo_views
+    views_dir.mkdir(parents=True, exist_ok=True)
     typ = views_dir / "concept-definition.typ"
     typ.write_text(typst_document(view))
     pdf = render_pdf(view, views_dir / "concept-definition.pdf")
     mode = "verbatim canon" if view.renders_restricted_canon else "cite-only"
     typer.secho(f"rendered {pdf} ({mode}; text license {view.text_license})", fg=typer.colors.GREEN)
+
+
+@app.command()
+def compile(
+    output: Annotated[
+        Path | None,
+        typer.Option(help="Output path; defaults to <briefs>/concept-definition.md."),
+    ] = None,
+) -> None:
+    """Compile the mapping to a deterministic, human-readable Markdown brief."""
+    from cds.core.authoring import project_graph
+    from cds.core.compile import compile_brief
+    from cds.core.workspace import load_project
+
+    project = load_project()
+    md = compile_brief(project_graph(project), base=project.base_iri)
+    out = output if output is not None else project.briefs_dir / "concept-definition.md"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(md, encoding="utf-8")
+    typer.secho(f"compiled {out}", fg=typer.colors.GREEN)
 
 
 def _not_yet(command: str, slice_: str) -> int:

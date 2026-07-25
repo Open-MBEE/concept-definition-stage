@@ -1,0 +1,44 @@
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix cds:  <https://w3id.org/cds#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Shapes for the side ledgers: the parking-lot (cds:ParkedItem) and retrieval queue
+# (cds:RetrievalItem). These are not part of the integrated set, but still validated.
+
+cds:parkedHasLabel a sh:PropertyShape ;
+    sh:path rdfs:label ;
+    sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "a parked item needs an rdfs:label" .
+
+cds:ParkedItemShape a sh:NodeShape ;
+    sh:targetClass cds:ParkedItem ;
+    sh:property cds:parkedHasLabel .
+
+cds:queueHasLabel a sh:PropertyShape ;
+    sh:path rdfs:label ;
+    sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "a retrieval item needs an rdfs:label (its question)" .
+
+cds:queueHasStatus a sh:PropertyShape ;
+    sh:path cds:retrievalStatus ;
+    sh:minCount 1 ;
+    sh:in ( "pending" "provided" "verified" ) ;
+    sh:severity sh:Violation ;
+    sh:message "a retrieval item needs a status of pending, provided, or verified" .
+
+cds:RetrievalItemShape a sh:NodeShape ;
+    sh:targetClass cds:RetrievalItem ;
+    sh:property cds:queueHasLabel ;
+    sh:property cds:queueHasStatus .
+
+cds:tensionHasLabel a sh:PropertyShape ;
+    sh:path rdfs:label ;
+    sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "a tension needs an rdfs:label" .
+
+cds:TensionShape a sh:NodeShape ;
+    sh:targetClass cds:Tension ;
+    sh:property cds:tensionHasLabel .

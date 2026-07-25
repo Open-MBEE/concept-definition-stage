@@ -1,0 +1,107 @@
+# Term (vocabulary concept) shapes: the construction-order preconditions for a built term
+# (cites, grounded, admitted to a scheme) and the verbatim-in-M hallucination guard.
+# Targets cds:Term, so the control-vocab skos:Concepts are not swept in.
+#
+# Every check is a NAMED shape so each finding carries a stable rule (its local name).
+# NB: the scheme-level provenance shape (the scheme is a skos:ConceptScheme prov:wasDerivedFrom
+# its sources — construction order stage 6/7) lands in slice 6, when the scheme is first built.
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix cds:  <https://w3id.org/cds#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix cdsh: <https://w3id.org/cds/shapes#> .
+
+cdsh:TermShape a sh:NodeShape ;
+    sh:targetClass cds:Term ;
+    sh:property cdsh:TermPrefLabel ;
+    sh:property cdsh:TermInScheme ;
+    sh:property cdsh:TermCitation ;
+    sh:property cdsh:TermNrmNote .
+
+cdsh:TermPrefLabel a sh:PropertyShape ;
+    sh:path skos:prefLabel ; sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "a term must carry a skos:prefLabel." .
+
+cdsh:TermInScheme a sh:PropertyShape ;
+    sh:path skos:inScheme ; sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "a term must be admitted to a scheme (skos:inScheme) — construction order stage 6." .
+
+cdsh:TermCitation a sh:PropertyShape ;
+    sh:path cds:cites ; sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "a term must cite at least one boundary-object source (cds:cites) — construction order stage 4." .
+
+# a soft nudge toward NRM/GtWR grounding prose
+cdsh:TermNrmNote a sh:PropertyShape ;
+    sh:path cds:nrmCanon ; sh:minCount 1 ;
+    sh:severity sh:Info ;
+    sh:message "consider attaching an NRM/GtWR grounding note (cds:nrmCanon)." .
+
+# construction order stage 5: every term carries at least one grounding edge — no bare terms
+cdsh:TermGroundedShape a sh:NodeShape ;
+    sh:targetClass cds:Term ;
+    sh:severity sh:Violation ;
+    sh:message "a term must carry at least one grounding edge (rdfs:subClassOf or a skos:*Match) — no bare terms (construction order stage 5)." ;
+    sh:or (
+        [ sh:path rdfs:subClassOf ; sh:minCount 1 ]
+        [ sh:path skos:exactMatch ; sh:minCount 1 ]
+        [ sh:path skos:closeMatch ; sh:minCount 1 ]
+        [ sh:path skos:broadMatch ; sh:minCount 1 ]
+        [ sh:path skos:narrowMatch ; sh:minCount 1 ]
+        [ sh:path skos:relatedMatch ; sh:minCount 1 ]
+    ) .
+
+# construction order stage 3 — the verbatim-in-M hallucination guard: a term that materializes a
+# skos:definition must trace that verbatim to a VERIFIED source's retrieval activity.
+cdsh:TermVerbatimGuardShape a sh:NodeShape ;
+    sh:targetClass cds:Term ;
+    sh:severity sh:Violation ;
+    sh:sparql [
+        sh:message "hallucination guard: a term with a skos:definition must cite a VERIFIED source — the verbatim must trace to a verified retrieval (construction order stage 3)." ;
+        sh:prefixes cdsh:prefixes ;
+        sh:select """
+            SELECT $this WHERE {
+                $this skos:definition ?def .
+                FILTER NOT EXISTS {
+                    $this cds:cites ?src .
+                    ?src prov:wasGeneratedBy ?act .
+                    ?act cds:retrievalStatus <https://w3id.org/cds#RetrievalStatus/verified> .
+                }
+            }
+        """ ] .
+
+# construction order stage 6/7: a vocabulary scheme (one that actually has cds:Term members) must be
+# provenance-tracked to its sources. Fires only on member-bearing schemes, so the control-vocab
+# skos:ConceptSchemes (no cds:Term members) are untouched.
+cdsh:SchemeProvenanceShape a sh:NodeShape ;
+    sh:targetClass skos:ConceptScheme ;
+    sh:severity sh:Violation ;
+    sh:sparql [
+        sh:message "a vocabulary scheme with cds:Term members must be provenance-tracked (prov:wasDerivedFrom a source) — construction order stage 6/7." ;
+        sh:prefixes cdsh:prefixes ;
+        sh:select """
+            SELECT $this WHERE {
+                ?t a cds:Term ; skos:inScheme $this .
+                FILTER NOT EXISTS { $this prov:wasDerivedFrom ?src }
+            }
+        """ ] .
+
+# a term grounded ONLY by the fuzzy skos:relatedMatch — flag to tighten if a closer relation fits
+cdsh:TermRelatedOnlyShape a sh:NodeShape ;
+    sh:targetClass cds:Term ;
+    sh:severity sh:Warning ;
+    sh:sparql [
+        sh:message "a term is grounded only by skos:relatedMatch (fuzzy) — tighten to a closer relation if one fits." ;
+        sh:prefixes cdsh:prefixes ;
+        sh:select """
+            SELECT $this WHERE {
+                $this skos:relatedMatch ?r .
+                FILTER NOT EXISTS { $this rdfs:subClassOf ?a }
+                FILTER NOT EXISTS { $this skos:exactMatch ?b }
+                FILTER NOT EXISTS { $this skos:closeMatch ?c }
+                FILTER NOT EXISTS { $this skos:broadMatch ?d }
+                FILTER NOT EXISTS { $this skos:narrowMatch ?e }
+            }
+        """ ] .
