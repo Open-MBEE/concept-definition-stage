@@ -230,6 +230,32 @@ def queue_list() -> None:
         typer.echo(f"  [{status}] {slug}: {question}")
 
 
+tension_app = typer.Typer(help="Record named conflicts between records (surfaced, not hidden).",
+                          no_args_is_help=True, add_completion=False)
+app.add_typer(tension_app, name="tension")
+
+
+@tension_app.command("add")
+def tension_add(
+    slug: Annotated[str, typer.Argument(help="Short id for the tension.")],
+    label: Annotated[str, typer.Option(help="Short name of the conflict.")],
+    description: Annotated[str, typer.Option(help="What pulls against what, and why.")] = "",
+    between: Annotated[
+        list[str] | None, typer.Option(help="IRIs of the records in tension (repeatable).")
+    ] = None,
+) -> None:
+    """Record a named tension between records (e.g. two needs that conflict)."""
+    from cds.core.authoring import create_tension
+    from cds.core.model.notes import Tension
+    from cds.core.workspace import load_project
+
+    iri = create_tension(
+        load_project(),
+        Tension(slug=slug, label=label, description=description, between=between or []),
+    )
+    typer.secho(f"tension {iri}", fg=typer.colors.GREEN)
+
+
 @app.command()
 def build() -> None:
     """Compile YAML term sources into the canonical ``concept-definition.ttl`` (deterministic)."""
@@ -274,21 +300,23 @@ def verify(
     from cds.core.verify import verify as run_verify
     from cds.core.workspace import find_data_root
 
+    in_project = False
     if graph is not None:
         data = _load_turtle(graph)
     elif find_data_root() is not None:
-        # inside a user project: validate their authored instance graph
+        # inside a user project: validate their authored instance graph + run conflict checks
         from cds.core.authoring import project_graph
         from cds.core.workspace import load_project
 
         data = project_graph(load_project())
+        in_project = True
     else:
         data = _seed_graph()
     # waivers are first-class RDF — merge the operator's waiver graph into the data being verified
     waivers_path = waivers if waivers is not None else SHAPES_DIR.parent / "waivers.ttl"
     if waivers_path.exists():
         data.parse(waivers_path, format="turtle")
-    _report_and_exit(run_verify(data))
+    _report_and_exit(run_verify(data, check_conflicts=in_project))
 
 
 def _report_and_exit(result: VerifyResult) -> None:

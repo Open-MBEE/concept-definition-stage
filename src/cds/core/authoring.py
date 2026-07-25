@@ -27,10 +27,13 @@ from cds.core.model.notes import (
     ParkedItem,
     RetrievalItem,
     RetrievalStatus,
+    Tension,
     parked_iri,
     parked_to_graph,
     queue_iri,
     queue_to_graph,
+    tension_iri,
+    tension_to_graph,
 )
 from cds.core.namespaces import CDS, CDS_TERM, DCTERMS, SKOS
 from cds.core.serialize import canonical_turtle
@@ -168,3 +171,13 @@ def list_queue(project: Project) -> list[tuple[str, str, str]]:
             )
         )
     return sorted(out)
+
+
+def _tension_file(project: Project) -> Path:
+    return project.instances_dir / "tension.ttl"
+
+
+def create_tension(project: Project, item: Tension) -> URIRef:
+    """Record a named conflict between records; returns its IRI."""
+    _merge_into(_tension_file(project), tension_to_graph(item, base=project.base_iri), project)
+    return tension_iri(project.base_iri, item.slug)

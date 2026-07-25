@@ -32,3 +32,13 @@ cds:RetrievalItemShape a sh:NodeShape ;
     sh:targetClass cds:RetrievalItem ;
     sh:property cds:queueHasLabel ;
     sh:property cds:queueHasStatus .
+
+cds:tensionHasLabel a sh:PropertyShape ;
+    sh:path rdfs:label ;
+    sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "a tension needs an rdfs:label" .
+
+cds:TensionShape a sh:NodeShape ;
+    sh:targetClass cds:Tension ;
+    sh:property cds:tensionHasLabel .

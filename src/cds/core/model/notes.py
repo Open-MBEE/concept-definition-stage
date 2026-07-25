@@ -47,12 +47,25 @@ class RetrievalItem(BaseModel):
     description: str = ""
 
 
+class Tension(BaseModel):
+    """A named conflict between records (surfaced, not hidden) — e.g. two needs that pull apart."""
+
+    slug: str
+    label: str
+    description: str = ""
+    between: list[str] = []  # IRIs of the records in tension
+
+
 def parked_iri(base: str, slug: str) -> URIRef:
     return URIRef(f"{base}parked/{slug}")
 
 
 def queue_iri(base: str, slug: str) -> URIRef:
     return URIRef(f"{base}queue/{slug}")
+
+
+def tension_iri(base: str, slug: str) -> URIRef:
+    return URIRef(f"{base}tension/{slug}")
 
 
 def parked_to_graph(item: ParkedItem, *, base: str) -> Graph:
@@ -79,4 +92,16 @@ def queue_to_graph(item: RetrievalItem, *, base: str) -> Graph:
         g.add((s, DCTERMS.description, Literal(item.description)))
     if item.locator:
         g.add((s, CDS.locator, Literal(item.locator)))
+    return g
+
+
+def tension_to_graph(item: Tension, *, base: str) -> Graph:
+    g = Graph()
+    s = tension_iri(base, item.slug)
+    g.add((s, RDF.type, CDS.Tension))
+    g.add((s, RDFS.label, Literal(item.label)))
+    if item.description:
+        g.add((s, DCTERMS.description, Literal(item.description)))
+    for iri in sorted(item.between):
+        g.add((s, CDS.between, URIRef(iri)))
     return g

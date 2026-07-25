@@ -20,6 +20,8 @@ not a side-car config file — the audit trail of what was accepted is versioned
 
 from __future__ import annotations
 
+import re
+from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import date
@@ -32,7 +34,7 @@ from rdflib import RDF, Graph, Literal, URIRef
 from rdflib.namespace import SH, XSD
 from rdflib.term import Node
 
-from cds.core.namespaces import CDS, DCTERMS, PROV
+from cds.core.namespaces import CDS, CDS_TERM, DCTERMS, PROV
 from cds.core.workspace import shapes_dir as _shapes_dir
 
 SHAPES_DIR = _shapes_dir()
@@ -196,17 +198,63 @@ def _findings(report: Graph) -> tuple[Finding, ...]:
     return tuple(sorted(out, key=lambda f: (_RANK[f.severity], f.rule, f.focus, f.message)))
 
 
+_SHALL = re.compile(r"\bshall\b", re.IGNORECASE)
+
+
+def _check_conflicts(data: Graph) -> list[Finding]:
+    """Cross-record consistency checks over an *instance* graph (not expressible per-record SHACL).
+
+    Adapts ant-rdf's ``_check_crossrefs`` shape — iterate a curated set of relations, cross-check an
+    index built from the graph, and emit findings in the same shape SHACL produces. All are surfaced
+    (T2/T3), not gate-failing; they flag rather than block, per the elicitation ethos.
+    """
+    findings: list[Finding] = []
+    needs = list(data.subjects(RDF.type, CDS_TERM["need"]))
+
+    for need in needs:
+        desc = data.value(need, DCTERMS.description)
+        if desc is not None and _SHALL.search(str(desc)):
+            findings.append(Finding(Severity.WARNING, "NeedFormShall", str(need),
+                "need uses 'shall' — needs use need-form, not requirement-form"))
+        if not any(data.objects(need, CDS.forStakeholder)):
+            findings.append(Finding(Severity.WARNING, "NeedWithoutStakeholder", str(need),
+                "need is not linked to any stakeholder (orphan need)"))
+
+    # duplicate statements: same semantic type + normalized description
+    by_key: dict[tuple[str, str], list[str]] = defaultdict(list)
+    for s in data.subjects(RDF.type, CDS.Instance):
+        desc = data.value(s, DCTERMS.description)
+        if desc is None:
+            continue
+        types = sorted(str(t) for t in data.objects(s, RDF.type) if t != CDS.Instance)
+        by_key[("|".join(types), " ".join(str(desc).lower().split()))].append(str(s))
+    for _key, subs in sorted(by_key.items()):
+        if len(subs) > 1:
+            findings.append(Finding(Severity.WARNING, "DuplicateStatement", sorted(subs)[0],
+                f"duplicate statement shared by: {', '.join(sorted(subs))}"))
+
+    # set-level completeness: a mapping with no needs yet
+    for syn in data.subjects(RDF.type, CDS.Synthesis):
+        if not any((need, CDS.inSynthesis, syn) in data for need in needs):
+            findings.append(Finding(Severity.INFO, "SynthesisWithoutNeeds", str(syn),
+                "mapping has no needs yet (integrated set is empty)"))
+
+    return findings
+
+
 def verify(
     data: Graph,
     *,
     shapes: Graph | None = None,
     waivers: Iterable[Waiver] | None = None,
+    check_conflicts: bool = False,
 ) -> VerifyResult:
     """Validate ``data`` against the cds shapes.
 
     ``conforms`` (SHACL's verdict) is the gate. Waivers default to those carried *in* ``data`` (they
     are first-class RDF); pass ``waivers`` explicitly to override. Waivers only ever drop a
-    surfaced T2/T3 — never a T1.
+    surfaced T2/T3 — never a T1. Set ``check_conflicts`` to add the cross-record consistency pass
+    (need-form, orphan/duplicate, set-level) — used when verifying a user's authored mapping.
     """
     shapes = shapes if shapes is not None else load_shapes()
     conforms, report, _text = pyshacl.validate(
@@ -217,10 +265,18 @@ def verify(
         allow_infos=True,
         allow_warnings=True,
     )
+    pool = list(_findings(report))
+    if check_conflicts:
+        pool.extend(_check_conflicts(data))
     waiver_list = list(waivers) if waivers is not None else waivers_from_graph(data)
     kept = tuple(
-        f
-        for f in _findings(report)
-        if f.severity is Severity.VIOLATION or not any(w.matches(f) for w in waiver_list)
+        sorted(
+            (
+                f
+                for f in pool
+                if f.severity is Severity.VIOLATION or not any(w.matches(f) for w in waiver_list)
+            ),
+            key=lambda f: (_RANK[f.severity], f.rule, f.focus, f.message),
+        )
     )
     return VerifyResult(conforms=bool(conforms), findings=kept)
