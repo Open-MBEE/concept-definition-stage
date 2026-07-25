@@ -41,6 +41,26 @@ def validate_slug(v: str) -> str:
 #: A validated kebab-case slug, reused across every authorable model.
 Slug = Annotated[str, AfterValidator(validate_slug)]
 
+
+def _validate_slug_list(values: list[str]) -> list[str]:
+    """Split comma-separated entries and validate each as a kebab slug.
+
+    Catches the ``--for-stakeholder a,b`` corruption (one malformed IRI): the comma list becomes two
+    validated slugs, and a bad target (space, comma-only, uppercase) is rejected rather than baked
+    into an invalid IRI.
+    """
+    out: list[str] = []
+    for value in values:
+        for part in str(value).split(","):
+            part = part.strip()
+            if part:
+                out.append(validate_slug(part))
+    return out
+
+
+#: A list of kebab slugs referencing other records (comma-lists accepted, each validated).
+SlugList = Annotated[list[str], AfterValidator(_validate_slug_list)]
+
 #: Authorable kinds → the vocabulary term slug used as the instance's semantic ``rdf:type``.
 KIND_TERM: dict[str, str] = {
     "mission": "mission",
@@ -104,13 +124,13 @@ class Statement(Record):
 class Goal(Record):
     """A goal — may address problems/opportunities."""
 
-    addresses: list[str] = []  # slugs of problem/opportunity it addresses
+    addresses: SlugList = []  # slugs of problem/opportunity it addresses
 
 
 class Objective(Record):
     """A measurable objective refining one or more goals."""
 
-    refines: list[str] = []  # goal slugs
+    refines: SlugList = []  # goal slugs
 
 
 class Stakeholder(Record):
@@ -124,8 +144,8 @@ class Stakeholder(Record):
 class Need(Record):
     """A stakeholder need (need-form; the 'shall'-free check lives in verify)."""
 
-    for_stakeholder: list[str] = []  # stakeholder slugs
-    serves_goal: list[str] = []  # goal slugs
+    for_stakeholder: SlugList = []  # stakeholder slugs
+    serves_goal: SlugList = []  # goal slugs
 
 
 # ------------------------------------------------------------------------------- serialization
