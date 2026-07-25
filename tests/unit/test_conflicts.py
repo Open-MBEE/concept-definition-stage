@@ -40,6 +40,16 @@ def test_orphan_need_is_flagged(tmp_path: Path) -> None:
     assert "NeedWithoutStakeholder" in _rules(result)
 
 
+def test_need_serving_no_goal_is_flagged(tmp_path: Path) -> None:
+    project = _project(tmp_path)
+    create_synthesis(project, Synthesis(slug="cd", title="CD"))
+    create_record(project, Need(slug="n", kind="need", label="No goal",
+                                description="The seeker needs a thing.", synthesis="cd",
+                                for_stakeholder=["seeker"]))  # has stakeholder, no serves_goal
+    result = verify(project_graph(project), check_conflicts=True)
+    assert "NeedServesNoGoal" in _rules(result)
+
+
 def test_duplicate_statements_are_flagged(tmp_path: Path) -> None:
     project = _project(tmp_path)
     create_synthesis(project, Synthesis(slug="cd", title="CD"))

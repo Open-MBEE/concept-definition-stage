@@ -15,7 +15,10 @@ yes, then record it. Missing facts are *tracked*, never guessed.
 
 ## How to ask
 
-- **One question at a time.** Ask, wait, record via the CLI, then move on. Never batch.
+- **One thought at a time, but batch when natural.** Default to one question, record, move on — that
+  keeps the human in flow. When several items are the same shape (3–5 goals, one need per
+  stakeholder), you MAY ask for them in one batch, then record each one atomically with its own
+  `cds new`. Elicit in batches; record one record at a time.
 - **Gloss on first use.** The first time a term appears, give a one-line plain-language definition.
 - **Definition-first, don't preconclude.** When a classification is uncertain (is this a goal or an
   objective? a need or a requirement?), quote the vocabulary definition, show why, and hand the
@@ -35,7 +38,8 @@ cds synthesis <slug> --title "<the project>"
    `cds new problem <slug> --synthesis <s> --label "…" --description "…"`
    (`opportunity` for the favorable opening.)
 2. **Mission** — the primary (and secondary) purpose. `cds new mission …`
-3. **Goals** — 3–5 broad intended outcomes. `cds new goal …`
+3. **Goals** — 3–5 broad intended outcomes; optionally link one to the problem it addresses with
+   `--addresses <problem-slug>`. `cds new goal …`
 4. **Objectives** — make each goal measurable. `cds new objective … --refines <goal-slug>`
 5. **Drivers & constraints** — external forces and hard boundaries. `cds new driver …` / `constraint …`
 6. **Measures of effectiveness** — how you'd know it's working. `cds new moe …`
@@ -58,7 +62,16 @@ cds synthesis <slug> --title "<the project>"
   `cds queue add <slug> --question "…"`
 - A real conflict between records → name it: `cds tension add <slug> --label "…" --between <iri> --between <iri>`
 
+## Correcting a record (the human changed their mind)
+
+When the human reverses or reworwords something already recorded, **re-run `cds new` with the same
+slug and the corrected values** — authoring is an *upsert*, so it replaces the old record cleanly (no
+duplicate values). To retract something entirely, use `cds rm <kind> <slug>`. To read back what's
+stored (e.g. to reflect it to the human), use `cds show <kind> <slug>` or `cds list <kind>`. You
+still **never hand-edit the Turtle** — every change goes through the CLI.
+
 ## Close the loop
 
-After a working block: `cds verify` (report findings plainly), then—when M5 lands—`cds compile` to
-show the human a readable brief. Every change goes through the CLI; **never hand-edit the Turtle.**
+After a working block: `cds verify` (report findings plainly — orphan needs, 'shall' usage,
+duplicates), then `cds compile` to write the human a readable brief. Every change goes through the
+CLI; **never hand-edit the Turtle.**

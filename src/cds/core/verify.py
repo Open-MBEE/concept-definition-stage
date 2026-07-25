@@ -219,6 +219,9 @@ def _check_conflicts(data: Graph) -> list[Finding]:
         if not any(data.objects(need, CDS.forStakeholder)):
             findings.append(Finding(Severity.WARNING, "NeedWithoutStakeholder", str(need),
                 "need is not linked to any stakeholder (orphan need)"))
+        if not any(data.objects(need, CDS.servesGoal)):
+            findings.append(Finding(Severity.INFO, "NeedServesNoGoal", str(need),
+                "need serves no goal (not linked to any goal it advances)"))
 
     # duplicate statements: same semantic type + normalized description
     by_key: dict[tuple[str, str], list[str]] = defaultdict(list)
