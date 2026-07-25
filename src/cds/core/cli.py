@@ -7,10 +7,13 @@ guardrails live in ``cds.core.model``.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated
+from typing import TYPE_CHECKING, Annotated, TypeVar
 
 import typer
+
+_T = TypeVar("_T")
 
 if TYPE_CHECKING:
     from rdflib import Graph
@@ -67,7 +70,8 @@ def synthesis(
     from cds.core.workspace import load_project
 
     project = load_project()
-    iri = create_synthesis(project, Synthesis(slug=slug, title=title, description=description))
+    syn = _validated(lambda: Synthesis(slug=slug, title=title, description=description))
+    iri = create_synthesis(project, syn)
     typer.secho(f"synthesis {iri}", fg=typer.colors.GREEN)
 
 
@@ -92,6 +96,10 @@ def new(
     interest: Annotated[str | None, typer.Option(help="stakeholder interest.")] = None,
     influence: Annotated[str | None, typer.Option(help="stakeholder influence.")] = None,
     cites: Annotated[list[str] | None, typer.Option(help="Source IRI(s) for provenance.")] = None,
+    supersedes: Annotated[
+        list[str] | None,
+        typer.Option(help="Slug (same kind) or IRI of a record this one replaces."),
+    ] = None,
     interactive: Annotated[
         bool, typer.Option(help="Prompt for label/description if omitted.")
     ] = False,
@@ -129,6 +137,7 @@ def new(
         "description": description,
         "synthesis": synthesis,
         "cites": cites or [],
+        "supersedes": [_resolve_ref(project.base_iri, kind, v) for v in (supersedes or [])],
         "for_stakeholder": for_stakeholder or [],
         "serves_goal": serves_goal or [],
         "refines": refines or [],
@@ -140,7 +149,7 @@ def new(
     model = model_for_kind(kind)
     from cds.core.authoring import create_record
 
-    rec = model.model_validate(fields)
+    rec = _validated(lambda: model.model_validate(fields))
     iri = create_record(project, rec)
     # echo the stored fields so an upsert/correction is visible (not just the IRI)
     typer.secho(f"{kind} {rec.slug} — {rec.label}", fg=typer.colors.GREEN)
@@ -168,9 +177,10 @@ def park_add(
     from cds.core.model.notes import ParkedItem
     from cds.core.workspace import load_project
 
-    iri = create_parked(
-        load_project(), ParkedItem(slug=slug, label=label, description=description, note=note)
+    item = _validated(
+        lambda: ParkedItem(slug=slug, label=label, description=description, note=note)
     )
+    iri = create_parked(load_project(), item)
     typer.secho(f"parked {iri}", fg=typer.colors.GREEN)
 
 
@@ -198,9 +208,10 @@ def queue_add(
     from cds.core.model.notes import RetrievalItem
     from cds.core.workspace import load_project
 
-    iri = create_queue_item(
-        load_project(), RetrievalItem(slug=slug, question=question, description=description)
+    item = _validated(
+        lambda: RetrievalItem(slug=slug, question=question, description=description)
     )
+    iri = create_queue_item(load_project(), item)
     typer.secho(f"queued {iri} (pending)", fg=typer.colors.GREEN)
 
 
@@ -260,11 +271,63 @@ def tension_add(
     from cds.core.model.notes import Tension
     from cds.core.workspace import load_project
 
-    iri = create_tension(
-        load_project(),
-        Tension(slug=slug, label=label, description=description, between=between or []),
+    item = _validated(
+        lambda: Tension(slug=slug, label=label, description=description, between=between or [])
     )
+    iri = create_tension(load_project(), item)
     typer.secho(f"tension {iri}", fg=typer.colors.GREEN)
+
+
+@tension_app.command("resolve")
+def tension_resolve(
+    slug: Annotated[str, typer.Argument(help="Tension id to mark resolved.")],
+) -> None:
+    """Mark a tension resolved — it drops out of the compiled brief."""
+    from cds.core.authoring import set_tension_status
+    from cds.core.model.notes import TensionStatus
+    from cds.core.workspace import load_project
+
+    try:
+        set_tension_status(load_project(), slug, TensionStatus.RESOLVED)
+    except KeyError:
+        typer.secho(f"no tension {slug!r}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2) from None
+    typer.secho(f"{slug} → resolved", fg=typer.colors.GREEN)
+
+
+@tension_app.command("rm")
+def tension_rm(slug: Annotated[str, typer.Argument(help="Tension id to delete.")]) -> None:
+    """Delete a tension."""
+    from cds.core.authoring import remove_tension
+    from cds.core.workspace import load_project
+
+    _rm_or_exit(remove_tension(load_project(), slug), "tension", slug)
+
+
+@park_app.command("rm")
+def park_rm(slug: Annotated[str, typer.Argument(help="Parked-idea id to delete.")]) -> None:
+    """Delete a parked idea."""
+    from cds.core.authoring import remove_parked
+    from cds.core.workspace import load_project
+
+    _rm_or_exit(remove_parked(load_project(), slug), "parked", slug)
+
+
+@queue_app.command("rm")
+def queue_rm(slug: Annotated[str, typer.Argument(help="Queue-item id to delete.")]) -> None:
+    """Delete a retrieval-queue item."""
+    from cds.core.authoring import remove_queue_item
+    from cds.core.workspace import load_project
+
+    _rm_or_exit(remove_queue_item(load_project(), slug), "queue", slug)
+
+
+def _rm_or_exit(removed: bool, kind: str, slug: str) -> None:
+    if removed:
+        typer.secho(f"removed {kind} {slug}", fg=typer.colors.GREEN)
+    else:
+        typer.secho(f"no {kind} {slug!r}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
 
 
 @app.command(name="list")
@@ -398,6 +461,25 @@ def _report_and_exit(result: VerifyResult) -> None:
         f"verify FAILED — {len(result.violations)} Tier-1 violation(s).", fg=typer.colors.RED
     )
     raise typer.Exit(1)
+
+
+def _validated(factory: Callable[[], _T]) -> _T:
+    """Build a Pydantic model, turning a validation error (e.g. a bad slug) into a clean exit."""
+    from pydantic import ValidationError
+
+    try:
+        return factory()
+    except ValidationError as exc:
+        msg = exc.errors()[0].get("msg", str(exc))
+        typer.secho(str(msg), fg=typer.colors.RED, err=True)
+        raise typer.Exit(2) from None
+
+
+def _resolve_ref(base: str, kind: str, value: str) -> str:
+    """Resolve a supersedes reference: a full IRI as-is, else a same-kind slug under the project."""
+    from cds.core.model.instances import record_iri
+
+    return value if "://" in value else str(record_iri(base, kind, value))
 
 
 def _load_turtle(path: Path) -> Graph:
