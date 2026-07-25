@@ -5,8 +5,8 @@
 ## Quick setup
 
 ```bash
-git clone https://github.com/Open-MBEE/cds
-cd cds
+git clone https://github.com/Open-MBEE/concept-definition-stage
+cd concept-definition-stage
 uv sync --extra dev        # installs cds + test/lint/type-check tools
 uv run pytest              # 109 tests, ~4 s
 uv run ruff check .

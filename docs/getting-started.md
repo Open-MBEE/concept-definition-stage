@@ -8,15 +8,19 @@ INCOSE) and checks your work; you supply the real-world knowledge about your pro
 
 ## 1. Install
 
-Python 3.11+ is required; [`uv`](https://docs.astral.sh/uv/) is recommended.
+Requires **Python 3.11+**. Install into an isolated virtual environment:
 
 ```bash
 git clone https://github.com/Open-MBEE/concept-definition-stage
 cd concept-definition-stage
-uv pip install -e .
+python3.11 -m venv .venv && source .venv/bin/activate   # create & activate the env
+pip install -e .
+cds --version                                           # confirm it's installed
 ```
 
-(Once published to PyPI this becomes a plain `pip install`.)
+Prefer [`uv`](https://docs.astral.sh/uv/)? Install it first, then `uv venv && uv pip install -e .`.
+(Once published to PyPI this all becomes a plain `pip install`.) See
+[Troubleshooting](#troubleshooting) if a step fails.
 
 ## 2. Start a workspace in *your* project
 
@@ -57,33 +61,45 @@ A mapping is a **synthesis** (the container) plus **records** typed by a small v
 | `stakeholder` | anyone with a right, share, claim, or interest |
 | `need` | a stakeholder need, in "need form" (never "shall") |
 
-Not sure what a term means? Every kind is defined verbatim in the canon `cds` ships. Your AI
-assistant can explain any of them in context, or see the [construction order](construction-order.md)
-and the underlying vocabulary.
+Not sure what a term means? **Look it up:** `cds explain <kind>` prints a plain-language definition,
+how to author it, and its authoritative source (run `cds explain` for the whole list). Your AI
+assistant can also explain any term in context.
 
 ## 5. Author your first mapping
 
-```bash
-cds synthesis cd --title "My project"
+**Recommended order:** problem → mission → goals → objectives → stakeholders → needs (a record can
+link to ones you made earlier). Below, `main` is the slug for your mapping — you pass it as
+`--synthesis main` on everything you add to it. (The README Quickstart is the same sequence, shorter.)
 
-cds new problem p1 --synthesis cd \
+```bash
+cds synthesis main --title "My project"
+
+cds new problem p1 --synthesis main \
     --label "Too hard to reach a person" \
     --description "People get stuck in automated menus and give up."
 
-cds new mission core --synthesis cd \
+cds new mission core --synthesis main \
     --label "Reach a human" \
     --description "Get a person to a verified human, cutting through the automation."
 
-cds new goal reach --synthesis cd --addresses p1 \
+cds new goal reach --synthesis main --addresses p1 \
     --label "Reach" --description "Connect the seeker to a verified human."
 
-cds new stakeholder seeker --synthesis cd \
+cds new stakeholder seeker --synthesis main \
     --label "Seeker" --description "The person trying to reach a human." --segment elderly
 
-cds new need n1 --synthesis cd --for-stakeholder seeker --serves-goal reach \
+cds new need n1 --synthesis main --for-stakeholder seeker --serves-goal reach \
     --label "Effortless reach" \
     --description "The seeker needs the system to connect them without technical skill."
 ```
+
+**Needs use "need form," never "shall"** (requirements come in a later stage). Describe what the
+stakeholder *needs*, not what the system *shall* do:
+
+- ✅ *"The seeker needs the system to connect them without technical skill."*
+- ❌ *"The system shall connect the seeker within 30 seconds."*
+
+`cds verify` flags a need written with "shall" and shows you the fix.
 
 Review what you've recorded any time:
 
@@ -119,3 +135,13 @@ delete, use `cds rm <kind> <slug>`. Never hand-edit the `.ttl` files — always 
 - The [User guide](user-guide.md) covers every command and the full workflow.
 - `cds --help` lists everything; `cds <command> --help` explains each.
 - The [Construction order](construction-order.md) explains the method the tool is built on.
+
+## Troubleshooting
+
+- **`command not found: uv`** — you don't have `uv` installed. Use the plain path instead:
+  `python3.11 -m venv .venv && source .venv/bin/activate && pip install -e .`.
+- **`no virtual environment found`** — create and activate one *before* installing:
+  `python3.11 -m venv .venv` then `source .venv/bin/activate`, then `pip install -e .`.
+- **Python too old (e.g. 3.9)** — cds needs **3.11+**. On macOS the system `python3` is often 3.9;
+  install 3.11+ (e.g. `brew install python@3.11`, or from python.org) and use `python3.11`.
+- **`cds: command not found` in a new terminal** — re-activate the env: `source .venv/bin/activate`.

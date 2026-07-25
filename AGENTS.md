@@ -10,8 +10,8 @@ working on `cds`. It is adapted from `ant-rdf`'s authoring contract but is not t
 specific files (e.g. `CLAUDE.md`) may symlink to this file.
 
 `cds` ("Concept Definition Stage") commits SEBoK/INCOSE **Concept Definition** canon to version-controlled
-RDF. The authoritative scoping document is the approved plan
-(`~/.claude/plans/i-want-a-build-cryptic-sundae.md`).
+RDF. The authoritative scope lives in the repository's [`ROADMAP.md`](ROADMAP.md) and the issue
+tracker.
 
 ## The one inviolable rule: no fabricated canon
 

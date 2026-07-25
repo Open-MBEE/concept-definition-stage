@@ -16,15 +16,34 @@ rigorously instead of lost in a doc.
 
 ## Installation
 
-> **Coming soon:** a `pip install` from PyPI (release in progress).
+> **Coming soon:** `pip install …` from PyPI (release in progress).
 >
-> **For now, install from source** (Python 3.11+; [`uv`](https://docs.astral.sh/uv/) recommended):
+> **For now, install from source.** Requires **Python 3.11+**:
 >
 > ```bash
 > git clone https://github.com/Open-MBEE/concept-definition-stage
 > cd concept-definition-stage
-> uv pip install -e .
+> python3.11 -m venv .venv && source .venv/bin/activate   # create & activate an isolated env
+> pip install -e .
 > ```
+>
+> Prefer [`uv`](https://docs.astral.sh/uv/)? Install it first, then `uv venv && uv pip install -e .`.
+> Stuck? See [install troubleshooting](docs/getting-started.md#troubleshooting).
+
+## The building blocks (30-second version)
+
+You describe your project as a few kinds of record. In plain terms:
+
+| Kind | What it is |
+| --- | --- |
+| **mission** | the primary purpose — why the effort exists |
+| **goal** | a broad intended outcome; **objectives** make a goal measurable |
+| **problem / opportunity** | what motivates the effort |
+| **driver / constraint** | outside forces / hard boundaries |
+| **stakeholder** | anyone with a stake in the outcome (a user, a buyer, your team) |
+| **need** | what a stakeholder needs — *"the … needs the system to …"*, never "shall" |
+
+Look any of these up from the CLI with `cds explain <kind>` (or `cds explain` for the list).
 
 ## Quickstart
 
