@@ -216,7 +216,8 @@ def _check_conflicts(data: Graph) -> list[Finding]:
         desc = data.value(need, DCTERMS.description)
         if desc is not None and _SHALL.search(str(desc)):
             findings.append(Finding(Severity.WARNING, "NeedFormShall", str(need),
-                "need uses 'shall' — needs use need-form, not requirement-form"))
+                "need uses 'shall' — write it in need-form instead, "
+                "e.g. 'the <stakeholder> needs the system to …' (requirements come later)"))
         if not any(data.objects(need, CDS.forStakeholder)):
             findings.append(Finding(Severity.WARNING, "NeedWithoutStakeholder", str(need),
                 "need is not linked to any stakeholder (orphan need)"))
