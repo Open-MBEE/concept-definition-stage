@@ -16,6 +16,7 @@ from cds.core.authoring import (
     create_queue_item,
     create_record,
     create_synthesis,
+    edit_record,
     list_records,
     project_graph,
     remove_record,
@@ -39,8 +40,8 @@ def test_reauthor_replaces_not_appends(tmp_path: Path) -> None:
     create_synthesis(project, Synthesis(slug="cd", title="CD"))
     create_record(project, Statement(slug="g", kind="goal", label="V1",
                                      description="first", synthesis="cd"))
-    create_record(project, Statement(slug="g", kind="goal", label="V2",
-                                     description="second", synthesis="cd"))
+    edit_record(project, Statement(slug="g", kind="goal", label="V2",
+                                   description="second", synthesis="cd"))
     g = project_graph(project)
     s = record_iri(project.base_iri, "goal", "g")
     assert list(g.objects(s, RDFS.label)) == [Literal("V2")]  # single, latest wins
@@ -52,8 +53,8 @@ def test_reauthored_record_verifies_clean(tmp_path: Path) -> None:
     create_synthesis(project, Synthesis(slug="cd", title="CD"))
     create_record(project, Statement(slug="g", kind="goal", label="A",
                                      description="x", synthesis="cd"))
-    create_record(project, Statement(slug="g", kind="goal", label="B",
-                                     description="y", synthesis="cd"))
+    edit_record(project, Statement(slug="g", kind="goal", label="B",
+                                   description="y", synthesis="cd"))
     assert verify(project_graph(project)).passed
 
 

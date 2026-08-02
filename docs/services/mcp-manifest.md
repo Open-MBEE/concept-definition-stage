@@ -14,10 +14,10 @@ mounted over HTTP by the facilitator service (`cds-serve`) — one whitelist, tw
 |---|---|---|---|---|
 | `cds_commit` | candidate write | `—` | `cds.mcp.tools` | Merge staging into canonical (K2 gate; requires cds-reviewer). |
 | `cds_compile` | read-only | `—` | `cds.mcp.tools` | Compile the staging graph to a Markdown brief; preview only. |
-| `cds_edit` | candidate write | `kind, slug, label, description, synthesis, **kind-specific fields` | `cds.mcp.tools` | Upsert an existing record (candidate; merges into staging). |
+| `cds_edit` | candidate write | `kind, slug, label, description, synthesis, **kind-specific fields` | `cds.mcp.tools` | Edit an EXISTING staged record in place (scratch mode); refuses an absent slug — use cds_new to create one. |
 | `cds_explain` | read-only | `name` | `cds.mcp.tools` | Explain a cds concept or record kind (read-only guidance). |
 | `cds_list` | read-only | `kind` | `cds.mcp.tools` | List records of a kind in the session staging project (slug, label). |
-| `cds_new` | candidate write | `kind, slug, label, description, synthesis, **kind-specific fields` | `cds.mcp.tools` | Create a record of a kind (candidate into staging). |
+| `cds_new` | candidate write | `kind, slug, label, description, synthesis, **kind-specific fields` | `cds.mcp.tools` | Create a NEW record of a kind (candidate into staging); refuses an existing slug — use cds_edit to change one. |
 | `cds_park_add` | candidate write | `slug, label, description='', note=''` | `cds.mcp.tools` | Park an out-of-scope idea (kept, not dropped). |
 | `cds_queue_add` | candidate write | `slug, question, description=''` | `cds.mcp.tools` | File a retrieval item — the mandated dead-end on unsecured canon. |
 | `cds_queue_set` | candidate write | `slug, status, locator=None` | `cds.mcp.tools` | Advance a retrieval item's status (pending/provided/verified). |
