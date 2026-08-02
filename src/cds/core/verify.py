@@ -267,7 +267,17 @@ def _check_conflicts(data: Graph) -> list[Finding]:
     Adapts ant-rdf's ``_check_crossrefs`` shape — iterate a curated set of relations, cross-check an
     index built from the graph, and emit findings in the same shape SHACL produces. All are surfaced
     (T2/T3), not gate-failing; they flag rather than block, per the elicitation ethos.
+
+    Record-level checks run over the **current view** (ADR-9): superseded/retracted records
+    are history, not live statements — a supersession must not read as a DuplicateStatement.
+    Link *targets* resolve against the FULL graph (a link to a non-current record is not
+    dangling); a current record referencing a retracted one is surfaced as
+    ``ReferenceToRetracted`` (T2), with the lifecycle links themselves exempt.
     """
+    from cds.core.view import current_view
+
+    full = data
+    data = current_view(data)
     findings: list[Finding] = []
     needs = list(data.subjects(RDF.type, CDS_TERM["need"]))
 
@@ -305,14 +315,17 @@ def _check_conflicts(data: Graph) -> list[Finding]:
 
     # dangling references: a project-internal link whose target record doesn't exist. Matched by
     # slug (not exact IRI), so a link built with a hard-coded target kind still resolves.
-    existing = {str(s).rsplit("/", 1)[-1] for s in data.subjects(RDF.type, CDS.Instance)}
-    existing |= {str(s).rsplit("/", 1)[-1] for s in data.subjects(RDF.type, CDS.Synthesis)}
+    # Targets come from the FULL graph: linking to a superseded/retracted record is not dangling.
+    existing = {str(s).rsplit("/", 1)[-1] for s in full.subjects(RDF.type, CDS.Instance)}
+    existing |= {str(s).rsplit("/", 1)[-1] for s in full.subjects(RDF.type, CDS.Synthesis)}
     marks = tuple(f"/{kind}/" for kind in (*KIND_TERM, "synthesis"))
     link_props = (CDS.forStakeholder, CDS.servesGoal, CDS.refines, CDS.addresses,
                   CDS.supersedes, CDS.supersededBy, CDS.inSynthesis)
+    # referential integrity is checked over the FULL graph — a non-current record's dangling
+    # marker (e.g. supersededBy pointing nowhere) is still a defect of the record.
     seen: set[tuple[str, str]] = set()
     for prop in link_props:
-        for subj, obj in data.subject_objects(prop):
+        for subj, obj in full.subject_objects(prop):
             text = str(obj)
             if not isinstance(obj, URIRef) or not any(m in text for m in marks):
                 continue  # external IRI (e.g. a cited source) — not a project link
@@ -321,6 +334,17 @@ def _check_conflicts(data: Graph) -> list[Finding]:
             seen.add((str(subj), text))
             findings.append(Finding(Severity.WARNING, "DanglingReference", str(subj),
                 f"links to a record that doesn't exist: {'/'.join(text.rsplit('/', 2)[-2:])}"))
+
+    # a CURRENT record leaning on a RETRACTED one (lifecycle links exempt — they are history)
+    content_links = tuple(p for p in link_props if p not in (CDS.supersedes, CDS.supersededBy))
+    for prop in content_links:
+        for subj, obj in data.subject_objects(prop):
+            if not isinstance(obj, URIRef):
+                continue
+            if (obj, CDS.retracted, Literal(True)) in full:
+                findings.append(Finding(Severity.WARNING, "ReferenceToRetracted", str(subj),
+                    f"references retracted record {'/'.join(str(obj).rsplit('/', 2)[-2:])} — "
+                    "update the link or retract this record too"))
 
     return findings
 
