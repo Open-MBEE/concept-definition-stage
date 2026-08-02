@@ -20,11 +20,54 @@ import inspect
 from dataclasses import asdict, is_dataclass
 from typing import Any, get_type_hints
 
-from pydantic import BaseModel, ConfigDict, ValidationError, create_model
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, create_model
 
+from cds.core.authoring import (
+    AlreadyRetractedError,
+    RecordExistsError,
+    RecordNotFoundError,
+)
 from cds.core.workspace import Project
 from cds.mcp import server as mcp_server
 from cds.mcp import tools as mcp_tools
+
+#: Per-field schema descriptions (LARP#2: the contract should be self-serve).
+_FIELD_DESCRIPTIONS: dict[str, str] = {
+    "kind": "Record kind: mission, goal, objective, driver, constraint, moe, problem, "
+            "opportunity, stakeholder, need, or position.",
+    "slug": "Short kebab-case id for this record (e.g. 'reach-a-human').",
+    "label": "Short human name.",
+    "description": "The content statement (for a position: the stance rationale).",
+    "synthesis": "Slug of the parent mapping (create it first with cds_synthesis).",
+    "title": "Human title of the mapping.",
+    "cites": "Source IRIs for provenance.",
+    "supersedes": "Record(s) this one replaces in the durable record — bare slug "
+                  "(same kind) or full IRI; the old record is marked superseded, not deleted.",
+    "for_stakeholder": "need → stakeholder slug(s).",
+    "serves_goal": "need → goal slug(s).",
+    "refines": "objective → goal slug(s).",
+    "addresses": "goal → problem/opportunity slug(s).",
+    "segment": "stakeholder segment/perspective.",
+    "interest": "stakeholder interest.",
+    "influence": "stakeholder influence.",
+    "characterizes": "position → '<kind>/<slug>' of the record this stance reads "
+                     "(e.g. 'objective/coverage').",
+    "held_by": "position → stakeholder slug holding the stance.",
+    "stance": "position → one of: supports, opposes, prioritizes, constrains, reads-as.",
+    "invariance": "position → what this reading holds constant.",
+    "reason": "Why (recorded verbatim, append-only).",
+    "question": "The open question to resolve later.",
+    "status": "Retrieval status: pending, provided, or verified.",
+    "locator": "Where the answer was found.",
+    "note": "Free-form note.",
+    "between": "IRIs of the records in tension.",
+    "waiver_id": "IRI identifying this waiver (append-only ledger entry).",
+    "rule": "The verify rule (check name) being waived — see the oracle's /rules.",
+    "focus": "Optional focus node the waiver is scoped to.",
+    "by": "Operator IRI accepting the waiver.",
+    "check_conflicts": "Also run the cross-record consistency checks.",
+    "include_history": "Append the 'Superseded & retracted' section (off by default).",
+}
 
 
 def _kind_specific_fields() -> dict[str, tuple[Any, Any]]:
@@ -41,7 +84,8 @@ def _kind_specific_fields() -> dict[str, tuple[Any, Any]]:
             if fname in handled or fname in out:
                 continue
             default = None if finfo.default is PydanticUndefined else finfo.default
-            out[fname] = (finfo.annotation, default)
+            out[fname] = (finfo.annotation,
+                          Field(default, description=_FIELD_DESCRIPTIONS.get(fname)))
     return out
 
 
@@ -58,7 +102,8 @@ def _request_model(spec: mcp_tools.ToolSpec) -> type[BaseModel]:
             continue
         annotation = hints.get(name, object)
         default = ... if param.default is inspect.Parameter.empty else param.default
-        fields[name] = (annotation, default)
+        fields[name] = (annotation,
+                        Field(default, description=_FIELD_DESCRIPTIONS.get(name)))
     if open_extras:
         fields.update(_kind_specific_fields())
     config = ConfigDict(extra="allow" if open_extras else "forbid")
@@ -94,13 +139,19 @@ def build_app(project: Project) -> Any:
                 result = spec.fn(project, **payload.model_dump())
             except PermissionError as exc:
                 raise HTTPException(status_code=403, detail=str(exc)) from exc
+            except (RecordExistsError, AlreadyRetractedError) as exc:  # conflicts
+                raise HTTPException(status_code=409, detail=str(exc)) from exc
+            except RecordNotFoundError as exc:
+                raise HTTPException(status_code=404, detail=str(exc)) from exc
             except NotImplementedError as exc:
                 raise HTTPException(status_code=501, detail=str(exc)) from exc
             except ValidationError as exc:
                 errors = exc.errors(include_url=False, include_context=False,
                                     include_input=False)
                 raise HTTPException(status_code=422, detail=errors) from exc
-            except (ValueError, KeyError) as exc:
+            except KeyError as exc:  # absent target (e.g. discard/queue on a missing slug)
+                raise HTTPException(status_code=404, detail=str(exc)) from exc
+            except ValueError as exc:
                 raise HTTPException(status_code=422, detail=str(exc)) from exc
             return _jsonable(result)
 

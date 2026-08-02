@@ -59,10 +59,17 @@ def test_bad_turtle_is_400_with_reason(client: TestClient) -> None:
     assert r.json()["detail"]
 
 
-def test_rules_lists_named_shapes(client: TestClient) -> None:
+def test_rules_carry_tier_and_message(client: TestClient) -> None:
+    # LARP#2 G-8: /rules is the remediation cross-reference — names alone don't cut it.
     rules = client.get("/rules").json()["rules"]
-    assert rules == sorted(rules)
-    assert len(rules) > 0
+    assert rules == sorted(rules, key=lambda r: r["rule"])
+    assert len(rules) >= 20
+    by_name = {r["rule"]: r for r in rules}
+    assert by_name["NeedFormShall"]["tier"] == "T2"
+    assert by_name["instanceHasLabel"]["tier"] == "T1"
+    assert by_name["instanceHasLabel"]["message"]  # sh:message surfaces
+    assert all(r["tier"] in {"T1", "T2", "T3"} for r in rules)
+    assert "DivergingPositions" in by_name  # conflict checks included
 
 
 def test_healthz(client: TestClient) -> None:
