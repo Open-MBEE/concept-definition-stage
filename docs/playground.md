@@ -161,11 +161,34 @@ uv run python -c "from pathlib import Path; from cds.mcp.provenance import Audit
 
 Your session dir gets its own `audit.jsonl` too — every tool call, refusals included.
 
+### 8. Play — talk to the facilitator (P4): bring your own LLM
+
+Set the ADR-8 triplet (any OpenAI-compatible endpoint — hosted or local Ollama/vLLM) and
+restart `cds-serve`:
+
+```bash
+CDS_LLM_BASE_URL="https://api.example/v1" CDS_LLM_MODEL="your-model" CDS_LLM_API_KEY="sk-…" uv run cds-serve --canonical /tmp/cds-canonical --role cds-reviewer --port 8800
+```
+
+```bash
+curl -s -X POST http://127.0.0.1:8800/chat -H 'Content-Type: application/json' -d '{"message":"Set up a mapping for my drone-delivery pilot with a city-council stakeholder and one need about auditable spending."}'
+```
+
+The response shows the reply plus every tool the model **executed** and every request it
+was **refused** — the model only ever reaches the whitelisted tools (never `cds_commit`;
+committing stays yours), and if you bait it for verbatim canon it must file a retrieval
+item and stop (`"escalated": true`): after `cds_queue_add`, further writes that turn are
+refused mechanically. Without the triplet, `/chat` answers 503 and everything else works —
+the LLM is an affordance, not the substance. Run the scored eval against your model:
+
+```bash
+CDS_LLM_BASE_URL="…" CDS_LLM_MODEL="…" CDS_LLM_API_KEY="…" uv run pytest tests/eval -v
+```
+
 ### What lands next here
 
 | Phase | New playground moves |
 |---|---|
-| P4 | chat with the AICC facilitator (BYO-LLM triplet) |
 | P5/P6 | the Voilà web app; login via Keycloak |
 
 ## Related docs
