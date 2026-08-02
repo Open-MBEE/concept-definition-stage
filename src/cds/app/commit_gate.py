@@ -207,11 +207,15 @@ def commit(
         details = "; ".join(f"{f.rule} on {f.focus}" for f in result.violations[:5])
         raise CommitBlockedError(f"unwaived T1 violations block the commit: {details}")
 
-    # the plan is an artifact, not a screen — written unconditionally, named by its hash
+    # the plan is an artifact, not a screen — the write is attempted on every commit, but
+    # the FIRST plan recorded for a content hash is the record (B2, live-QA 2026-08-02:
+    # a no-op re-commit shares the hash and would clobber the real plan with empty
+    # buckets, leaving the human-readable trail contradicting git/audit/provenance).
     plans_dir = canonical.root / "concept-definition" / "changeplans"
     plans_dir.mkdir(parents=True, exist_ok=True)
-    (plans_dir / f"{executed.content_hash[:12]}.md").write_text(
-        render_plan(executed), encoding="utf-8")
+    plan_path = plans_dir / f"{executed.content_hash[:12]}.md"
+    if not plan_path.exists():  # append-only, same guard as the provenance record
+        plan_path.write_text(render_plan(executed), encoding="utf-8")
 
     if not executed.empty:
         _write_provenance(canonical, staging_project, executed, model=model)

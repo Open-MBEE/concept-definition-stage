@@ -222,3 +222,21 @@ def test_content_hash_is_stable(tmp_path: Path) -> None:
     h1 = commit_gate.plan_commit(session, canonical).content_hash
     h2 = commit_gate.plan_commit(session, canonical).content_hash
     assert h1 == h2 and len(h1) == len(hashlib.sha256(b"").hexdigest())
+
+
+def test_noop_recommit_preserves_the_changeplan_record(tmp_path: Path) -> None:
+    """B2 (live-QA 2026-08-02): a no-op re-commit shares the content hash, so it wrote an
+    empty-buckets plan over the real one — the human-readable record then contradicted
+    git/audit/provenance. The first plan written for a hash is the record."""
+    canonical = _canonical(tmp_path)
+    session = _session(tmp_path, canonical)
+    create_record(session, Statement(slug="fresh", kind="goal", label="Fresh",
+                                     description="Brand new.", synthesis="cd"))
+    executed = commit_gate.commit(session, canonical, approver_roles=REVIEWER)
+    plan_path = (canonical.root / "concept-definition" / "changeplans"
+                 / f"{executed.content_hash[:12]}.md")
+    original = plan_path.read_text(encoding="utf-8")
+    assert "goal/fresh" in original  # the real plan enumerates the add
+
+    commit_gate.commit(session, canonical, approver_roles=REVIEWER)  # no-op
+    assert plan_path.read_text(encoding="utf-8") == original
