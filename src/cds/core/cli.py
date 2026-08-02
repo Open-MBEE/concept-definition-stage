@@ -624,6 +624,40 @@ def rm(
 
 
 @app.command()
+def audit(
+    fmt: Annotated[str, typer.Option(
+        "--format", help="Output format: md (table) or csv.")] = "md",
+    out: Annotated[Path | None, typer.Option(
+        help="Write the ledger to a file instead of stdout.")] = None,
+    file: Annotated[Path | None, typer.Option(
+        help="Explicit audit.jsonl path; defaults to this project's ledger.")] = None,
+) -> None:
+    """Render the audit trail as a scannable ledger: one row per event, each row
+    chain-checked, under an overall verdict banner."""
+    from cds.core.workspace import load_project
+
+    # Call-time seam (same pattern as cds_commit -> commit_gate): the ledger machinery
+    # lives with the provenance layer; the CLI only renders its report (D2).
+    from cds.mcp.provenance import AuditLog, render_ledger
+
+    if file is None:
+        project = load_project()
+        candidates = (project.root / "concept-definition" / "audit.jsonl",
+                      project.root / "audit.jsonl")
+        file = next((p for p in candidates if p.exists()), None)
+    if file is None or not file.exists():
+        typer.echo("no audit ledger here yet: events appear once tools run or a "
+                   "reviewer commits.")
+        return
+    text = render_ledger(AuditLog(file), fmt=fmt)
+    if out is not None:
+        out.write_text(text, encoding="utf-8")
+        typer.secho(f"wrote {out}", fg=typer.colors.GREEN)
+    else:
+        typer.echo(text)
+
+
+@app.command()
 def build() -> None:
     """Compile YAML term sources into the canonical ``concept-definition.ttl`` (deterministic)."""
     from cds.core.verify import verify as run_verify
