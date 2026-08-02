@@ -773,6 +773,10 @@ def compile(
         typer.Option(help="Append the 'Superseded & retracted' history section (ADR-9; "
                           "off by default — the model, not the document, is canon)."),
     ] = False,
+    synthesis: Annotated[
+        str | None,
+        typer.Option(help="Scope the brief to one mapping (no cross-synthesis bleed)."),
+    ] = None,
 ) -> None:
     """Compile the mapping to a deterministic, human-readable Markdown brief."""
     from cds.core.authoring import project_graph
@@ -781,7 +785,7 @@ def compile(
 
     project = load_project()
     md = compile_brief(project_graph(project), base=project.base_iri,
-                       include_history=include_history)
+                       include_history=include_history, synthesis=synthesis)
     out = output if output is not None else project.briefs_dir / "concept-definition.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(md, encoding="utf-8")

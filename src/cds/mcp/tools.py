@@ -146,9 +146,13 @@ def cds_verify(project: Project, check_conflicts: bool = True) -> VerifyResult:
     return _ORACLE.check(_staging_graph(project), check_conflicts=check_conflicts)
 
 
-@_tool("cds_compile", "Compile the staging graph to a Markdown brief; preview only.")
-def cds_compile(project: Project) -> str:
-    return compile_mod.compile_brief(_staging_graph(project), base=project.base_iri)
+@_tool("cds_compile", "Compile the staging graph to a Markdown brief; preview only. "
+                      "Scope to one mapping with synthesis=<slug>; include_history adds "
+                      "the superseded/retracted appendix.")
+def cds_compile(project: Project, synthesis: str | None = None,
+                include_history: bool = False) -> str:
+    return compile_mod.compile_brief(_staging_graph(project), base=project.base_iri,
+                                     synthesis=synthesis, include_history=include_history)
 
 
 # ------------------------------------------------------------------- candidate writes (staging)

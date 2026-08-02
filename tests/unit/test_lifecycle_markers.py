@@ -163,6 +163,51 @@ def test_brief_renders_current_view_only(tmp_path: Path) -> None:
     assert "Superseded & retracted" not in brief  # appendix OFF by default (owner decision)
 
 
+def test_compile_scopes_to_a_synthesis(tmp_path: Path) -> None:
+    """LARP#2 G-5: no cross-synthesis bleed when a synthesis is named."""
+    from cds.core.authoring import create_record
+    from cds.core.compile import compile_brief
+    from cds.core.model.instances import Statement
+
+    project = _project(tmp_path)
+    create_synthesis(project, Synthesis(slug="alpha", title="Alpha"))
+    create_synthesis(project, Synthesis(slug="beta", title="Beta"))
+    create_record(project, Statement(slug="a-goal", kind="goal", label="Alpha goal",
+                                     description="In alpha.", synthesis="alpha"))
+    create_record(project, Statement(slug="b-goal", kind="goal", label="Beta goal",
+                                     description="In beta.", synthesis="beta"))
+    scoped = compile_brief(project_graph(project), base=project.base_iri, synthesis="alpha")
+    assert "Alpha goal" in scoped and "Beta goal" not in scoped
+    assert scoped.startswith("# Alpha")
+    everything = compile_brief(project_graph(project), base=project.base_iri)
+    assert "Alpha goal" in everything and "Beta goal" in everything  # default unchanged
+
+
+def test_show_surfaces_lifecycle_state(tmp_path: Path) -> None:
+    """LARP#2 G-6: append-only must be inspectable, not taken on faith."""
+    from cds.core.authoring import (
+        create_record,
+        mark_superseded,
+        retract_record,
+        show_record,
+    )
+    from cds.core.model.instances import Statement, record_iri
+
+    project = _project(tmp_path)
+    create_synthesis(project, Synthesis(slug="cd", title="CD"))
+    create_record(project, Statement(slug="old", kind="goal", label="Old",
+                                     description="Was replaced.", synthesis="cd"))
+    create_record(project, Statement(slug="new", kind="goal", label="New",
+                                     description="Replacement.", synthesis="cd"))
+    mark_superseded(project, "goal", "old", by=record_iri(project.base_iri, "goal", "new"))
+    retract_record(project, "goal", "old", reason="rolled into new")
+    lines = "\n".join(show_record(project, "goal", "old") or [])
+    assert "retracted" in lines and "rolled into new" in lines
+    assert "supersededBy" in lines and "new" in lines
+    current = "\n".join(show_record(project, "goal", "new") or [])
+    assert "retracted" not in current
+
+
 def test_brief_history_appendix_behind_flag(tmp_path: Path) -> None:
     from cds.core.authoring import mark_superseded, retract_record
     from cds.core.compile import compile_brief

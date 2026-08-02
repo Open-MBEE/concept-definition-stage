@@ -62,7 +62,24 @@
       },
       "cds_compile_args": {
         "additionalProperties": false,
-        "properties": {},
+        "properties": {
+          "include_history": {
+            "default": false,
+            "title": "Include History",
+            "type": "boolean"
+          },
+          "synthesis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Synthesis"
+          }
+        },
         "title": "cds_compile_args",
         "type": "object"
       },
@@ -766,7 +783,7 @@
     },
     "/tools/cds_compile": {
       "post": {
-        "description": "Compile the staging graph to a Markdown brief; preview only.",
+        "description": "Compile the staging graph to a Markdown brief; preview only. Scope to one mapping with synthesis=<slug>; include_history adds the superseded/retracted appendix.",
         "operationId": "cds_compile",
         "requestBody": {
           "content": {

@@ -252,10 +252,18 @@ def show_record(project: Project, kind: str, slug: str) -> list[str] | None:
     desc = graph.value(s, DCTERMS.description)
     lines.append(f"  label:       {label}")
     lines.append(f"  description: {desc}")
-    for pred in ("forStakeholder", "servesGoal", "refines", "addresses", "supersedes", "cites"):
+    for pred in ("forStakeholder", "servesGoal", "refines", "addresses", "supersedes", "cites",
+                 "characterizes", "heldBy", "stance"):
         targets = sorted(str(o).rsplit("/", 1)[-1] for o in graph.objects(s, CDS[pred]))
         if targets:
             lines.append(f"  {pred}: {', '.join(targets)}")
+    # lifecycle state (ADR-9/G-6): append-only must be inspectable, not taken on faith
+    if (s, CDS.retracted, None) in graph:
+        reason = graph.value(s, CDS.retractionReason)
+        lines.append("  retracted:   true" + (f" — {reason}" if reason is not None else ""))
+    superseded_by = sorted(str(o).rsplit("/", 1)[-1] for o in graph.objects(s, CDS.supersededBy))
+    if superseded_by:
+        lines.append(f"  supersededBy: {', '.join(superseded_by)}")
     return lines
 
 
