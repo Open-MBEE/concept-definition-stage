@@ -270,6 +270,7 @@ _CONFLICT_RULE_SEVERITIES: dict[str, Severity] = {
     "SynthesisWithoutNeeds": Severity.INFO,
     "DanglingReference": Severity.WARNING,
     "ReferenceToRetracted": Severity.WARNING,
+    "DivergingPositions": Severity.INFO,
 }
 
 
@@ -348,7 +349,8 @@ def _check_conflicts(data: Graph) -> list[Finding]:
     existing |= {str(s).rsplit("/", 1)[-1] for s in full.subjects(RDF.type, CDS.Synthesis)}
     marks = tuple(f"/{kind}/" for kind in (*KIND_TERM, "synthesis"))
     link_props = (CDS.forStakeholder, CDS.servesGoal, CDS.refines, CDS.addresses,
-                  CDS.supersedes, CDS.supersededBy, CDS.inSynthesis)
+                  CDS.supersedes, CDS.supersededBy, CDS.inSynthesis,
+                  CDS.characterizes, CDS.heldBy)
     # referential integrity is checked over the FULL graph — a non-current record's dangling
     # marker (e.g. supersededBy pointing nowhere) is still a defect of the record.
     seen: set[tuple[str, str]] = set()
@@ -362,6 +364,24 @@ def _check_conflicts(data: Graph) -> list[Finding]:
             seen.add((str(subj), text))
             findings.append(Finding(Severity.WARNING, "DanglingReference", str(subj),
                 f"links to a record that doesn't exist: {'/'.join(text.rsplit('/', 2)[-2:])}"))
+
+    # positions diverging on the same target (X2-lite, ADR-9 R7): a FINDING, never a
+    # violation — perspectives may validly conflict; both are retained and surfaced.
+    by_target: dict[str, list[tuple[str, str]]] = defaultdict(list)
+    for pos in data.subjects(RDF.type, CDS.Position):
+        target = data.value(pos, CDS.characterizes)
+        stance = data.value(pos, CDS.stance)
+        if target is None or stance is None:
+            continue
+        holder = data.value(pos, CDS.heldBy)
+        holder_name = str(holder).rsplit("/", 1)[-1] if holder is not None else "?"
+        by_target[str(target)].append((holder_name, str(stance)))
+    for target_iri, entries in sorted(by_target.items()):
+        stances = {st for _h, st in entries}
+        if len(entries) > 1 and len(stances) > 1:
+            detail = "; ".join(f"{h}: {st}" for h, st in sorted(entries))
+            findings.append(Finding(Severity.INFO, "DivergingPositions", target_iri,
+                f"perspectives diverge — {detail} (all retained; divergence is valid)"))
 
     # a CURRENT record leaning on a RETRACTED one (lifecycle links exempt — they are history)
     content_links = tuple(p for p in link_props if p not in (CDS.supersedes, CDS.supersededBy))

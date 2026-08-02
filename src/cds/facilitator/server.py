@@ -32,11 +32,11 @@ def _kind_specific_fields() -> dict[str, tuple[Any, Any]]:
     explicitly so the OpenAPI contract never lies by omission (LARP F-1)."""
     from pydantic_core import PydanticUndefined
 
-    from cds.core.model.instances import KIND_TERM, model_for_kind
+    from cds.core.model.instances import AUTHORABLE_KINDS, model_for_kind
 
     handled = {"slug", "kind", "label", "description", "synthesis"}
     out: dict[str, tuple[Any, Any]] = {}
-    for kind in sorted(KIND_TERM):
+    for kind in sorted(AUTHORABLE_KINDS):
         for fname, finfo in model_for_kind(kind).model_fields.items():
             if fname in handled or fname in out:
                 continue

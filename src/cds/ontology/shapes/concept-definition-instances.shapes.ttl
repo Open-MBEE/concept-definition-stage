@@ -56,6 +56,34 @@ cds:LifecycleMarkerShape a sh:NodeShape ;
     sh:property cds:retractedMarkerWellFormed ;
     sh:property cds:retractionReasonWellFormed .
 
+# ADR-9 R7 — positions: a stance must name its holder, its subject, and exactly one stance.
+# NO shape constrains positions on the same target to agree: divergence is valid (X2-lite).
+
+cds:positionCharacterizes a sh:PropertyShape ;
+    sh:path cds:characterizes ;
+    sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "a position must characterize a record (cds:characterizes)" .
+
+cds:positionHeldBy a sh:PropertyShape ;
+    sh:path cds:heldBy ;
+    sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "a position must name its holder (cds:heldBy a stakeholder)" .
+
+cds:positionStance a sh:PropertyShape ;
+    sh:path cds:stance ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "a position takes exactly one stance (supports/opposes/prioritizes/constrains/reads-as)" .
+
+cds:PositionShape a sh:NodeShape ;
+    sh:targetClass cds:Position ;
+    sh:property cds:positionCharacterizes ;
+    sh:property cds:positionHeldBy ;
+    sh:property cds:positionStance .
+
 cds:synthesisHasLabel a sh:PropertyShape ;
     sh:path rdfs:label ;
     sh:minCount 1 ;

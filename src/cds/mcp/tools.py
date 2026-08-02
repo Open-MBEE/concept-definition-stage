@@ -126,11 +126,13 @@ def cds_explain(project: Project, name: str) -> list[str]:
 
 @_tool("cds_list", "List records of a kind in the session staging project (slug, label).")
 def cds_list(project: Project, kind: str) -> list[tuple[str, str]]:
-    from cds.core.model.instances import KIND_TERM
+    from cds.core.model.instances import AUTHORABLE_KINDS
 
-    if kind not in KIND_TERM:
+    if kind not in AUTHORABLE_KINDS:
         # F-6: the error teaches the vocabulary instead of leaking a KeyError
-        raise ValueError(f"unknown kind {kind!r}; expected one of {', '.join(KIND_TERM)}")
+        raise ValueError(
+            f"unknown kind {kind!r}; expected one of {', '.join(AUTHORABLE_KINDS)}"
+        )
     return list_records(project, kind)
 
 
