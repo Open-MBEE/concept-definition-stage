@@ -150,9 +150,27 @@ def upsert_record(project: Project, rec: Record) -> URIRef:
 
     The primitive behind :func:`create_record`/:func:`edit_record`; also used directly by
     the commit gate (approver-confirmed revisions) and by fixtures/migrations.
+
+    Authored ``supersedes`` targets that are project-local existing records get the inverse
+    ``cds:supersededBy`` marker appended **eagerly** (ADR-9): the scratch graph and the
+    gate-merged graph read identically, and the superseded record leaves the current view
+    the moment its replacement is authored.
     """
     _merge_into(_kind_file(project, rec.kind), record_to_graph(rec, base=project.base_iri), project)
-    return record_iri(project.base_iri, rec.kind, rec.slug)
+    s = record_iri(project.base_iri, rec.kind, rec.slug)
+    for target in rec.supersedes:
+        iri = target if "://" in target else str(record_iri(project.base_iri, rec.kind, target))
+        if not iri.startswith(project.base_iri):
+            continue  # external reference — nothing local to mark
+        rel = iri[len(project.base_iri):]
+        tkind, _, tslug = rel.partition("/")
+        if not tslug or not _record_exists(project, tkind, tslug):
+            continue  # dangling target — surfaced by verify, not silently marked
+        graph = _load(_kind_file(project, tkind))
+        old = record_iri(project.base_iri, tkind, tslug)
+        if (old, CDS.supersededBy, s) not in graph:
+            mark_superseded(project, tkind, tslug, by=s)
+    return s
 
 
 def remove_record(project: Project, kind: str, slug: str) -> bool:

@@ -221,7 +221,11 @@ def record_to_graph(rec: Record, *, base: str) -> Graph:
     for cite in sorted(rec.cites):
         g.add((s, CDS.cites, URIRef(cite)))
     for superseded in sorted(rec.supersedes):
-        g.add((s, CDS.supersedes, URIRef(superseded)))
+        # a bare slug resolves to a same-kind record (G-2: one reference rule everywhere);
+        # a full IRI passes through untouched
+        target = URIRef(superseded) if "://" in superseded \
+            else record_iri(base, rec.kind, superseded)
+        g.add((s, CDS.supersedes, target))
 
     if isinstance(rec, Goal):
         for slug in sorted(rec.addresses):
