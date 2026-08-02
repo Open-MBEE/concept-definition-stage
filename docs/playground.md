@@ -132,11 +132,39 @@ The response is the executed **ChangePlan** (adds / revisions / supersessions / 
 *without* `--role cds-reviewer` to feel the K2 refusal. Records citing an unverified source
 are **held out** — committed later, never fabricated around.
 
+### 7. Play — provenance & audit (P3): who did what, verifiably
+
+After a commit, the canonical root carries the full accountability trail:
+
+```bash
+cat /tmp/cds-canonical/concept-definition/changeplans/*.md
+```
+
+```bash
+cat /tmp/cds-canonical/concept-definition/provenance/*.ttl
+```
+
+```bash
+cat /tmp/cds-canonical/concept-definition/audit.jsonl
+```
+
+The provenance graph links every committed subject to its commit activity
+(`prov:wasGeneratedBy` / `wasInvalidatedBy` / `wasRevisionOf`), the activity to its
+approver (and, when an LLM mediated, the model as a `prov:SoftwareAgent` that
+`actedOnBehalfOf` the human — the human stays accountable). The audit log is
+**hash-chained JSONL**: each line carries the SHA-256 of the previous one, so editing
+history breaks the chain — verify it:
+
+```bash
+uv run python -c "from pathlib import Path; from cds.mcp.provenance import AuditLog; print(AuditLog(Path('/tmp/cds-canonical/concept-definition/audit.jsonl')).verify_chain())"
+```
+
+Your session dir gets its own `audit.jsonl` too — every tool call, refusals included.
+
 ### What lands next here
 
 | Phase | New playground moves |
 |---|---|
-| P3 | inspect PROV-O provenance + replay the audit log |
 | P4 | chat with the AICC facilitator (BYO-LLM triplet) |
 | P5/P6 | the Voilà web app; login via Keycloak |
 
