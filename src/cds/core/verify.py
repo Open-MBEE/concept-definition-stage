@@ -309,7 +309,7 @@ def _check_conflicts(data: Graph) -> list[Finding]:
     existing |= {str(s).rsplit("/", 1)[-1] for s in data.subjects(RDF.type, CDS.Synthesis)}
     marks = tuple(f"/{kind}/" for kind in (*KIND_TERM, "synthesis"))
     link_props = (CDS.forStakeholder, CDS.servesGoal, CDS.refines, CDS.addresses,
-                  CDS.supersedes, CDS.inSynthesis)
+                  CDS.supersedes, CDS.supersededBy, CDS.inSynthesis)
     seen: set[tuple[str, str]] = set()
     for prop in link_props:
         for subj, obj in data.subject_objects(prop):
