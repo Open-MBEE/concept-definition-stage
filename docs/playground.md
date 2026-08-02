@@ -161,6 +161,13 @@ uv run python -c "from pathlib import Path; from cds.mcp.provenance import Audit
 
 Your session dir gets its own `audit.jsonl` too — every tool call, refusals included.
 
+For the human-scannable version, render the ledger: one row per event, each row
+chain-checked, under an overall verdict banner (`--format csv` for spreadsheets):
+
+```bash
+uv run cds audit --file /tmp/cds-canonical/concept-definition/audit.jsonl
+```
+
 ### 8. Play — talk to the facilitator (P4): bring your own LLM
 
 Set the ADR-8 triplet (any OpenAI-compatible endpoint — hosted or local Ollama/vLLM) and

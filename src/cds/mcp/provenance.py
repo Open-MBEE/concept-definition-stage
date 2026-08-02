@@ -123,3 +123,88 @@ class AuditLog:
                 return False
             prev = self._digest(line)
         return True
+
+    def entries(self) -> list[dict[str, Any]]:
+        """The events with a per-row chain verdict (D2, live-QA 2026-08-02).
+
+        Each entry: ``seq``, ``ts``, ``event`` (as recorded), and ``chain_ok`` — whether
+        this line's ``seq``/``prev`` are consistent with everything before it. A doctored
+        line breaks its successor's verdict (its recorded ``prev`` no longer matches).
+        """
+        out: list[dict[str, Any]] = []
+        prev = self._GENESIS
+        for i, line in enumerate(self._lines()):
+            record = json.loads(line)
+            ok = record.get("seq") == i and record.get("prev") == prev
+            out.append({"seq": record.get("seq", i), "ts": record.get("ts", ""),
+                        "event": record.get("event", {}), "chain_ok": ok})
+            prev = self._digest(line)
+        return out
+
+
+def _ledger_rows(log: AuditLog) -> list[dict[str, str]]:
+    seen_hashes: set[str] = set()
+    rows: list[dict[str, str]] = []
+    for entry in log.entries():
+        event = entry["event"]
+        action = str(event.get("action", "?"))
+        if action == "commit":
+            counts = (f"+{event.get('adds', 0)} ~{event.get('revisions', 0)} "
+                      f"^{event.get('supersessions', 0)} -{event.get('retractions', 0)} "
+                      f"held {event.get('held', 0)}")
+            actor = str(event.get("approver", ""))
+        else:
+            counts = str(event.get("status", ""))
+            actor = str(event.get("tool", ""))
+        full_hash = str(event.get("content_hash", ""))
+        note = ""
+        if full_hash:
+            if full_hash in seen_hashes:
+                note = "repeat hash (no new changes)"
+            seen_hashes.add(full_hash)
+        if event.get("include_unverified"):
+            joined = ", ".join(str(x) for x in event["include_unverified"])
+            note = (note + "; " if note else "") + f"included unverified: {joined}"
+        rows.append({
+            "seq": str(entry["seq"]), "ts": str(entry["ts"]), "action": action,
+            "actor": actor, "changes": counts, "hash": full_hash[:12],
+            "chain": "ok" if entry["chain_ok"] else "BROKEN", "note": note,
+        })
+    return rows
+
+
+_LEDGER_COLUMNS = ("seq", "ts", "action", "actor", "changes", "hash", "chain", "note")
+
+
+def render_ledger(log: AuditLog, fmt: str = "md") -> str:
+    """The audit trail as a scannable report (D2): a table with a per-row chain verdict
+    under an overall banner. The hash chain stays the formal guarantee; this is the view
+    a human can eyeball. ``fmt``: ``md`` (default) or ``csv``."""
+    rows = _ledger_rows(log)
+    if fmt == "csv":
+        import csv
+        import io
+
+        buf = io.StringIO()
+        writer = csv.writer(buf, lineterminator="\n")
+        writer.writerow(_LEDGER_COLUMNS)
+        for row in rows:
+            writer.writerow([row[c] for c in _LEDGER_COLUMNS])
+        return buf.getvalue()
+    if fmt != "md":
+        raise ValueError(f"unknown ledger format {fmt!r}; expected md or csv")
+
+    intact = log.verify_chain()
+    banner = ("VERIFIED: chain intact" if intact
+              else "WARNING: chain broken, this ledger has been altered")
+    lines = [f"# Audit ledger ({banner})", ""]
+    header = " | ".join(_LEDGER_COLUMNS)
+    lines.append(f"| {header} |")
+    lines.append("|" + "---|" * len(_LEDGER_COLUMNS))
+    for row in rows:
+        lines.append("| " + " | ".join(row[c] for c in _LEDGER_COLUMNS) + " |")
+    lines.append("")
+    lines.append(f"{len(rows)} event(s). Every row's chain cell is checked against the "
+                 "hash of the previous line; verify independently with "
+                 "AuditLog(path).verify_chain().")
+    return "\n".join(lines) + "\n"
