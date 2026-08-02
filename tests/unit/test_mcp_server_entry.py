@@ -30,3 +30,16 @@ def test_build_server_serves_exactly_the_whitelist(tmp_path: Path) -> None:
     srv = server.build_server(_staging(tmp_path))
     served = {t.name for t in anyio.run(srv.list_tools)}
     assert served == set(server.WHITELIST)
+
+
+def test_sdk_schema_exposes_link_fields(tmp_path: Path) -> None:
+    """B1 (live-QA 2026-08-02): the served schema must expose the link fields as real
+    parameters — not one opaque ``fields`` object the SDK can never populate."""
+    pytest.importorskip("mcp", reason="mcp extra not installed")
+    import anyio
+
+    srv = server.build_server(_staging(tmp_path))
+    new = next(t for t in anyio.run(srv.list_tools) if t.name == "cds_new")
+    props = set(new.input_schema.get("properties", {}))
+    assert "for_stakeholder" in props and "serves_goal" in props
+    assert "fields" not in props

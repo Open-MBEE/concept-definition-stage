@@ -46,14 +46,23 @@ def list_tools() -> list[str]:
 def _bind_project(fn: Any, project: Project) -> Any:
     """Close over ``project`` and re-sign the wrapper so the SDK derives the arg schema
     from the tool's remaining (client-facing) parameters. (Audit happens at the registry —
-    every invocation path is logged identically.)"""
+    every invocation path is logged identically.)
+
+    Annotations are resolved to real types here: the tools module uses postponed
+    annotations, and the SDK would otherwise try to evaluate strings like ``StanceName``
+    in THIS module's globals (B1 follow-on, live-QA 2026-08-02)."""
+    from typing import get_type_hints
+
+    hints = get_type_hints(fn)
     sig = inspect.signature(fn)
-    params = [p for name, p in sig.parameters.items() if name != "project"]
+    params = [p.replace(annotation=hints.get(name, p.annotation))
+              for name, p in sig.parameters.items() if name != "project"]
 
     def bound(*args: Any, **kwargs: Any) -> Any:
         return fn(project, *args, **kwargs)
 
     bound.__signature__ = sig.replace(parameters=params)  # type: ignore[attr-defined]
+    bound.__annotations__ = {k: v for k, v in hints.items() if k != "project"}
     bound.__doc__ = fn.__doc__
     bound.__name__ = getattr(fn, "__name__", "tool")
     return bound
