@@ -234,7 +234,8 @@ def new(
         typer.secho(
             f"{kind} {slug!r} already exists. `cds edit {kind} {slug} …` to change it, or "
             f"`cds new {kind} <new-slug> --supersedes {slug}` to replace it in the durable "
-            f"record, or `cds rm {kind} {slug}` to discard the draft.",
+            f"record, or `cds rm {kind} {slug}` to discard the draft. "
+            f"`cds explain changes` compares the options.",
             fg=typer.colors.RED, err=True,
         )
         raise typer.Exit(2) from None

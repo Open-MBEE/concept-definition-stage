@@ -191,8 +191,20 @@ def build_app(project: Project, llm: Any = None) -> Any:
         }
 
     @app.get("/manifest")
-    def manifest() -> dict[str, list[str]]:
-        return {"tools": served}
+    def manifest() -> dict[str, Any]:
+        # staged_count: drafts are in-memory-session-only until a reviewer commits
+        # (live-QA 2026-08-02, Step 2) — a UI shows "N staged" so nobody assumes
+        # in-progress work is persisted.
+        from rdflib import RDF
+
+        from cds.core.authoring import project_graph
+        from cds.core.namespaces import CDS
+
+        g = project_graph(project)
+        staged = set(g.subjects(RDF.type, CDS.Instance))
+        staged |= set(g.subjects(RDF.type, CDS.Synthesis))
+        return {"tools": served, "staged_count": len(staged),
+                "staging_note": usertext.STAGED_COUNT_NOTE}
 
     @app.get("/healthz")
     def healthz() -> dict[str, str]:

@@ -69,6 +69,26 @@ _USAGE: dict[str, str] = {
 }
 
 
+#: U3 (live-QA 2026-08-02): one chooser for "which kind of change is this?" so the
+#: modes are obvious at the moment of choice, not spread across separate entries.
+_CHANGES_CHOOSER: list[str] = [
+    "Which kind of change is this?  (changes)",
+    "",
+    "  Fix wording or links in a draft or record you own:",
+    "      cds edit <kind> <slug> ...            (revises in place; restate every field)",
+    "  Replace a committed record with a better statement, keeping history:",
+    "      cds new <kind> <new-slug> --supersedes <old-slug> ...",
+    "      (the old record leaves the current view but is preserved forever)",
+    "  Retire a committed record without a replacement:",
+    "      cds retract <kind> <slug> --reason '...'",
+    "  Throw away a draft that was never committed:",
+    "      cds rm <kind> <slug>",
+    "",
+    "  Rule of thumb: drafts are yours to edit or rm freely; once a record is",
+    "  committed, prefer supersede or retract so the durable record keeps its history.",
+]
+
+
 @cache
 def _term_index() -> dict[str, object]:
     from cds.stages.concept_definition.build import load_terms
@@ -84,6 +104,8 @@ def _usage_for(kind: str) -> str:
 
 def explain(name: str) -> list[str] | None:
     """Display lines explaining a kind or term slug, or ``None`` if unknown."""
+    if name in ("changes", "revise", "modes"):
+        return list(_CHANGES_CHOOSER)
     slug = KIND_TERM.get(name, name)
     term = _term_index().get(slug)
     gloss = _GLOSS.get(name) or _GLOSS.get(slug)
@@ -118,6 +140,6 @@ def glossary() -> list[str]:
         slug = KIND_TERM.get(kind, kind)
         label = getattr(idx.get(slug), "pref_label", None) or slug
         lines.append(f"  {kind:11s} {label}: {_GLOSS.get(kind, '')}")
-    lines += ["", "Changing your mind: `cds explain retract | supersede | discard` (ADR-9).",
-              "Run `cds explain <kind>` for detail on any one."]
+    lines += ["", "Changing your mind: `cds explain changes` compares edit, supersede, "
+              "retract, and rm.", "Run `cds explain <kind>` for detail on any one."]
     return lines

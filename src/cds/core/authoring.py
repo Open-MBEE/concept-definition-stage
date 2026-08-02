@@ -132,8 +132,9 @@ def create_record(project: Project, rec: Record) -> URIRef:
     """Author a NEW instance record; refuses an existing slug (scratch mode, ADR-9/F-2)."""
     if _record_exists(project, rec.kind, rec.slug):
         raise RecordExistsError(
-            f"{rec.kind} {rec.slug!r} already exists — edit it, or create a new slug "
-            f"with supersedes={rec.slug!r} to replace it in the durable record"
+            f"{rec.kind} {rec.slug!r} already exists. Edit it, or create a new slug "
+            f"with supersedes={rec.slug!r} to replace it in the durable record "
+            f"(`cds explain changes` compares the options)"
         )
     return upsert_record(project, rec)
 
@@ -275,7 +276,7 @@ def show_record(project: Project, kind: str, slug: str) -> list[str] | None:
     # lifecycle state (ADR-9/G-6): append-only must be inspectable, not taken on faith
     if (s, CDS.retracted, None) in graph:
         reason = graph.value(s, CDS.retractionReason)
-        lines.append("  retracted:   true" + (f" — {reason}" if reason is not None else ""))
+        lines.append("  retracted:   true" + (f" ({reason})" if reason is not None else ""))
     superseded_by = sorted(str(o).rsplit("/", 1)[-1] for o in graph.objects(s, CDS.supersededBy))
     if superseded_by:
         lines.append(f"  supersededBy: {', '.join(superseded_by)}")

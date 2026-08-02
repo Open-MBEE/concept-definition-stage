@@ -978,12 +978,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": {
-                    "items": {
-                      "type": "string"
-                    },
-                    "type": "array"
-                  },
+                  "additionalProperties": true,
                   "title": "Response Manifest Manifest Get",
                   "type": "object"
                 }
