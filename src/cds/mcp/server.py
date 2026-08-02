@@ -93,6 +93,26 @@ def main() -> None:
                     "writes are candidates into the session staging project.",
     )
     ap.add_argument("--project", type=Path, default=None,
-                    help="Staging project root (default: CDS_PROJECT / cwd discovery).")
+                    help="Explicit staging root (default: fresh session when --canonical "
+                         "is given, else CDS_PROJECT / cwd discovery).")
+    ap.add_argument("--canonical", type=Path, default=None,
+                    help="Canonical record root — enables the overlay read model and the "
+                         "commit gate (K2).")
+    ap.add_argument("--role", action="append", default=None,
+                    help="Grant a role to this session (repeatable), e.g. cds-reviewer.")
+    ap.add_argument("--approver", default=None,
+                    help="Approver IRI recorded on committed change plans.")
     args = ap.parse_args()
-    build_server(load_project(explicit=args.project)).run()
+    from cds.mcp import staging, tools
+
+    canon = load_project(explicit=args.canonical) if args.canonical is not None else None
+    tools.SESSION.canonical = canon
+    tools.SESSION.roles = frozenset(args.role or ())
+    tools.SESSION.approver = args.approver
+    if args.project is not None:
+        session = load_project(explicit=args.project)
+    elif canon is not None:
+        session = staging.new_session_project(canon.base_iri)
+    else:
+        session = load_project()
+    build_server(session).run()
