@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from cds.core.workspace import Project
@@ -30,6 +31,29 @@ def _w() -> Any:
 def build_synthesis(project: Project, *, slug: str, title: str) -> str:
     """Convenience used by the app's first-run flow and tests."""
     return str(mcp_tools.TOOLS["cds_synthesis"].fn(project, slug=slug, title=title))
+
+
+def bootstrap_session() -> Project:
+    """The deployed app's entry: bind IDENTITY-derived roles into the session (K2/N2).
+
+    The spawner (deploy/jupyterhub_config.py) injects ``CDS_ROLES`` (from the user's OIDC
+    realm roles), ``CDS_APPROVER`` (the user's agent IRI) and optionally ``CDS_CANONICAL``
+    (the analysis repo mount). Roles come from the identity provider — never from the UI.
+    Locally, with none of these set, you get an unbound scratch session.
+    """
+    import json
+    import os
+
+    from cds.core.workspace import load_project
+    from cds.mcp import staging
+
+    canonical_path = os.environ.get("CDS_CANONICAL")
+    canonical = load_project(explicit=Path(canonical_path)) if canonical_path else None
+    mcp_tools.SESSION.canonical = canonical
+    mcp_tools.SESSION.roles = frozenset(json.loads(os.environ.get("CDS_ROLES", "[]")))
+    mcp_tools.SESSION.approver = os.environ.get("CDS_APPROVER")
+    base = canonical.base_iri if canonical is not None else "https://cds.example/app/"
+    return staging.new_session_project(base)
 
 
 class RecordForm:

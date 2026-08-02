@@ -1,0 +1,42 @@
+{
+  "realm": "dsg",
+  "enabled": true,
+  "registrationAllowed": false,
+  "resetPasswordAllowed": true,
+  "bruteForceProtected": true,
+  "roles": {
+    "realm": [
+      {"name": "cds-facilitator-user", "description": "Runs the AICC interview; produces candidates; parks/queues/tensions. Cannot commit."},
+      {"name": "cds-reviewer", "description": "Approves commits (K2); resolves tensions; adds T2/T3 waivers with reason."},
+      {"name": "cds-canon-steward", "description": "Secures/verifies authorities and sources (pending→provided→verified); manages the held-canon store."},
+      {"name": "cds-admin", "description": "Operates the deployment; sets licenses; manages realm and secrets."}
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "cds-hub",
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["https://${CDS_APP_HOST}/hub/oauth_callback"],
+      "webOrigins": ["https://${CDS_APP_HOST}"],
+      "defaultClientScopes": ["openid", "profile", "email", "roles"],
+      "protocolMappers": [
+        {
+          "name": "realm-roles-claim",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "claim.name": "realm_roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ]
+}

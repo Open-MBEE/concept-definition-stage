@@ -46,5 +46,7 @@ architecture/factoring
 :maxdepth: 1
 :caption: Project
 
+hosting-local
+hosting-web
 contributing
 ```
