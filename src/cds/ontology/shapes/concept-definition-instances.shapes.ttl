@@ -2,6 +2,7 @@
 @prefix cds:     <https://w3id.org/cds#> .
 @prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
 
 # Shapes for a user's authored concept-definition INSTANCES (not the reference vocabulary).
 # Every record carries the cds:Instance marker; the mapping container is a cds:Synthesis.
@@ -32,6 +33,28 @@ cds:InstanceShape a sh:NodeShape ;
     sh:property cds:instanceHasLabel ;
     sh:property cds:instanceHasDescription ;
     sh:property cds:instanceInSynthesis .
+
+# ADR-9 lifecycle markers — one shape guards the append-only invariant: the marker is a
+# single boolean (a second value means someone tried to flip or re-mark it in place).
+
+cds:retractedMarkerWellFormed a sh:PropertyShape ;
+    sh:path cds:retracted ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:severity sh:Violation ;
+    sh:message "cds:retracted is an append-only marker: at most one xsd:boolean value (ADR-9)" .
+
+cds:retractionReasonWellFormed a sh:PropertyShape ;
+    sh:path cds:retractionReason ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:severity sh:Violation ;
+    sh:message "cds:retractionReason: at most one string (ADR-9)" .
+
+cds:LifecycleMarkerShape a sh:NodeShape ;
+    sh:targetSubjectsOf cds:retracted ;
+    sh:property cds:retractedMarkerWellFormed ;
+    sh:property cds:retractionReasonWellFormed .
 
 cds:synthesisHasLabel a sh:PropertyShape ;
     sh:path rdfs:label ;

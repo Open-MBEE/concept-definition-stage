@@ -51,6 +51,7 @@ _CLASSES: tuple[tuple[str, URIRef | None, URIRef], ...] = (
     ("VerificationActivity", PROV.Activity, REQUIRED),
     ("LifecycleModel", None, AVAILABLE),
     ("Waiver", None, AVAILABLE),
+    ("Instance", None, AVAILABLE),
 )
 
 # (local name, domain, range or None, framework role) — value is a resource
@@ -68,6 +69,8 @@ _OBJECT_PROPS: tuple[tuple[str, URIRef, URIRef | None, URIRef], ...] = (
     ("verificationMethod", CDS.VerificationActivity, SKOS.Concept, REQUIRED),
     ("wasVerifiedBy", CDS.Source, CDS.VerificationActivity, REQUIRED),
     ("waivesFocus", CDS.Waiver, None, AVAILABLE),
+    ("supersedes", CDS.Instance, CDS.Instance, AVAILABLE),
+    ("supersededBy", CDS.Instance, CDS.Instance, AVAILABLE),
 )
 
 # (local name, domain, xsd range, framework role) — value is a literal
@@ -84,6 +87,8 @@ _DATA_PROPS: tuple[tuple[str, URIRef, URIRef, URIRef], ...] = (
     ("reproducible", DCTERMS.LicenseDocument, XSD.boolean, AVAILABLE),
     ("waivesRule", CDS.Waiver, XSD.string, AVAILABLE),
     ("waiverReason", CDS.Waiver, XSD.string, AVAILABLE),
+    ("retracted", CDS.Instance, XSD.boolean, AVAILABLE),
+    ("retractionReason", CDS.Instance, XSD.string, AVAILABLE),
 )
 
 # rdfs:comment per term — kept out of the tuples to stay readable
@@ -120,6 +125,14 @@ _COMMENTS: dict[str, str] = {
     "reproducible": "Whether a custom license permits reproduction/redistribution.",
     "waivesRule": "The verify rule (check name) a waiver accepts.",
     "waiverReason": "Why a waiver was consciously accepted.",
+    "Instance": "An authored concept-definition record — a reified statement in a mapping.",
+    "supersedes": "This record replaces the referenced record in the durable record (ADR-9); "
+                  "authored on the NEW record.",
+    "supersededBy": "Materialized inverse of cds:supersedes, appended to the OLD record at "
+                    "commit (ADR-9); the old record's content is never removed.",
+    "retracted": "Append-only retirement marker (ADR-9): the record is withdrawn from the "
+                 "current view; its content triples are preserved.",
+    "retractionReason": "Why a record was retracted (append-only, ADR-9).",
 }
 
 
@@ -153,6 +166,8 @@ def core_vocab_graph() -> Graph:
         _declare_property(g, name, OWL.ObjectProperty, domain, range_, role)
     for name, domain, range_, role in _DATA_PROPS:
         _declare_property(g, name, OWL.DatatypeProperty, domain, range_, role)
+    # ADR-9 lifecycle markers: supersededBy is the materialized inverse of supersedes.
+    g.add((CDS.supersededBy, OWL.inverseOf, CDS.supersedes))
 
     g += controlled_vocab_graph()
     return g
