@@ -597,6 +597,9 @@ def _committed_at_head(project: object, kind: str, slug: str) -> bool:
 def rm(
     kind: Annotated[str, typer.Argument(help="Record kind.")],
     slug: Annotated[str, typer.Argument(help="Record slug.")],
+    yes: Annotated[bool, typer.Option(
+        "--yes", "-y", help="Skip the confirmation for committed records "
+        "(scripts, non-interactive runs).")] = False,
 ) -> None:
     """Delete a record from the WORKING COPY (scratch mode, ADR-9); see `retract` for the
     append-only retirement that preserves the durable record."""
@@ -604,12 +607,14 @@ def rm(
     from cds.core.workspace import load_project
 
     project = load_project()
-    if _committed_at_head(project, kind, slug):
+    if _committed_at_head(project, kind, slug) and not yes:
+        # D1 (live-QA 2026-08-02): warn, ask, proceed on Y; --yes bypasses
         typer.secho(
             f"note: {kind} {slug!r} is part of the committed record — deleting here will "
             "rewrite history at your next commit; `cds retract` keeps it with a marker.",
             fg=typer.colors.YELLOW,
         )
+        typer.confirm(f"Delete {kind} {slug!r} anyway?", abort=True)
     if remove_record(project, kind, slug):
         typer.secho(f"removed {kind} {slug}", fg=typer.colors.GREEN)
     else:
