@@ -68,8 +68,8 @@ def test_commit_refused_in_p1(staging: Project) -> None:
     with pytest.raises(PermissionError) as exc:
         _run("cds_commit", staging)
     msg = str(exc.value)
-    # F-7: refusal speaks to the user, not the roadmap — role, safety, and next step
-    assert "cds-reviewer" in msg and "staging" in msg
+    # F-7: refusal speaks to the user, not the roadmap — safety, then the next step
+    assert "safely in the session" in msg and "reviewer" in msg
 
 
 def test_list_unknown_kind_teaches_the_kinds(staging: Project) -> None:

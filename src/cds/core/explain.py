@@ -15,21 +15,21 @@ from cds.core.model.instances import AUTHORABLE_KINDS, KIND_TERM
 
 #: Plain-language, one-line glosses (our words, not the canon) for each authorable kind.
 _GLOSS: dict[str, str] = {
-    "mission": "The primary purpose of the effort — why it exists, in a line.",
+    "mission": "The primary purpose of the effort: why it exists, in a line.",
     "goal": "A broad intended outcome. Goals are broad; objectives make them measurable.",
     "objective": "A specific, measurable version of a goal (link it with --refines <goal>).",
     "problem": "The pain or gap that motivates the effort.",
     "opportunity": "A favorable opening the effort seizes.",
     "driver": "An external force pushing the effort (a market, a mandate, a trend).",
     "constraint": "A hard boundary the solution must respect (budget, law, physics).",
-    "moe": "A measure of effectiveness — how you'd know it's succeeding, operationally.",
+    "moe": "A measure of effectiveness: how you'd know it's succeeding, operationally.",
     "stakeholder": "Anyone with a right, share, claim, or interest in the outcome.",
     "need": (
-        "What a stakeholder needs, in *need-form* — 'the <stakeholder> needs the system to…', "
+        "What a stakeholder needs, in *need-form*: 'the <stakeholder> needs the system to…', "
         "never 'shall' (requirements come in a later stage)."
     ),
     "position": (
-        "A stakeholder's stance on another record — supports / opposes / prioritizes / "
+        "A stakeholder's stance on another record: supports / opposes / prioritizes / "
         "constrains / reads-as. Divergent positions are valid and retained; verify surfaces "
         "them as a finding, never an error."
     ),
@@ -43,7 +43,7 @@ _GLOSS: dict[str, str] = {
         "is marked superseded (append-only) and leaves the current view; nothing is deleted."
     ),
     "discard": (
-        "Delete a draft from the working copy (scratch mode) — safe before anything is "
+        "Delete a draft from the working copy (scratch mode); safe before anything is "
         "committed; for committed records use retract instead."
     ),
 }
@@ -105,7 +105,7 @@ def explain(name: str) -> list[str] | None:
     grounding = getattr(term, "grounding", None) if term is not None else None
     if source:
         url = grounding[0].target if grounding else None
-        lines.append(f"Authority:  {source}" + (f" — {url}" if url else ""))
+        lines.append(f"Authority:  {source}" + (f" ({url})" if url else ""))
         lines.append("(cds cites the authority; it does not reproduce restricted canon text.)")
     return lines
 
@@ -117,7 +117,7 @@ def glossary() -> list[str]:
     for kind in AUTHORABLE_KINDS:
         slug = KIND_TERM.get(kind, kind)
         label = getattr(idx.get(slug), "pref_label", None) or slug
-        lines.append(f"  {kind:11s} {label} — {_GLOSS.get(kind, '')}")
+        lines.append(f"  {kind:11s} {label}: {_GLOSS.get(kind, '')}")
     lines += ["", "Changing your mind: `cds explain retract | supersede | discard` (ADR-9).",
               "Run `cds explain <kind>` for detail on any one."]
     return lines

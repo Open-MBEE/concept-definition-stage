@@ -50,7 +50,7 @@ def _root(
 
 @app.command()
 def guide() -> None:
-    """Print the getting-started guide — the first-session walkthrough."""
+    """Print the getting-started guide: the first-session walkthrough."""
     from cds.core.workspace import package_dir
 
     text = (package_dir() / "assets" / "guide" / "getting-started.md").read_text(encoding="utf-8")
@@ -101,7 +101,7 @@ def init(
         typer.Option(help="Overwrite existing scaffolded files."),
     ] = False,
 ) -> None:
-    """Scaffold a CDS data root here — cds.toml, data dirs, and the model-facing assets."""
+    """Scaffold a CDS data root here: cds.toml, data dirs, and the model-facing assets."""
     from cds.core.init import init_project
 
     result = init_project(path, name=name, force=force)
@@ -126,7 +126,7 @@ def synthesis(
     title: Annotated[str, typer.Option(help="Human title of the concept-definition mapping.")],
     description: Annotated[str, typer.Option(help="One-line description of the mapping.")] = "",
 ) -> None:
-    """Start (or update) a mapping — the container your mission/goals/needs belong to."""
+    """Start (or update) a mapping: the container your mission/goals/needs belong to."""
     from cds.core.authoring import create_synthesis
     from cds.core.model.instances import Synthesis
     from cds.core.workspace import load_project
@@ -232,14 +232,14 @@ def new(
         iri = create_record(project, rec)
     except RecordExistsError:
         typer.secho(
-            f"{kind} {slug!r} already exists — `cds edit {kind} {slug} …` to change it, or "
+            f"{kind} {slug!r} already exists. `cds edit {kind} {slug} …` to change it, or "
             f"`cds new {kind} <new-slug> --supersedes {slug}` to replace it in the durable "
             f"record, or `cds rm {kind} {slug}` to discard the draft.",
             fg=typer.colors.RED, err=True,
         )
         raise typer.Exit(2) from None
     # echo the stored fields so a correction is visible (not just the IRI)
-    typer.secho(f"{kind} {rec.slug} — {rec.label}", fg=typer.colors.GREEN)
+    typer.secho(f"{kind} {rec.slug}: {rec.label}", fg=typer.colors.GREEN)
     typer.echo(f"  {rec.description}")
     typer.echo(f"  {iri}")
 
@@ -283,7 +283,7 @@ def edit(
         str | None, typer.Option(help="position → what this reading holds constant.")
     ] = None,
 ) -> None:
-    """Edit an EXISTING record in place — scratch-mode correction (ADR-9); see also `retract`."""
+    """Edit an EXISTING record in place: scratch-mode correction (ADR-9); see also `retract`."""
     from cds.core.authoring import RecordNotFoundError, edit_record
     from cds.core.model.instances import AUTHORABLE_KINDS, model_for_kind
     from cds.core.workspace import load_project
@@ -312,10 +312,10 @@ def edit(
     try:
         iri = edit_record(project, rec)
     except RecordNotFoundError:
-        typer.secho(f"no {kind} {slug!r} to edit — `cds new {kind} {slug} …` to create it.",
+        typer.secho(f"no {kind} {slug!r} to edit; `cds new {kind} {slug} …` to create it.",
                     fg=typer.colors.RED, err=True)
         raise typer.Exit(2) from None
-    typer.secho(f"{kind} {rec.slug} — {rec.label} (edited)", fg=typer.colors.GREEN)
+    typer.secho(f"{kind} {rec.slug}: {rec.label} (edited)", fg=typer.colors.GREEN)
     typer.echo(f"  {rec.description}")
     typer.echo(f"  {iri}")
 
@@ -326,7 +326,7 @@ def retract(
     slug: Annotated[str, typer.Argument(help="Record slug.")],
     reason: Annotated[str | None, typer.Option(help="Why the record is retired.")] = None,
 ) -> None:
-    """Retire a record with an APPEND-ONLY marker (ADR-9) — it leaves the current view,
+    """Retire a record with an APPEND-ONLY marker (ADR-9): it leaves the current view,
     but its content and history are preserved in the record."""
     from cds.core.authoring import (
         AlreadyRetractedError,
@@ -345,12 +345,12 @@ def retract(
     except AlreadyRetractedError:
         typer.secho(f"{kind} {slug!r} is already retracted", fg=typer.colors.RED, err=True)
         raise typer.Exit(2) from None
-    typer.secho(f"retracted {kind} {slug}" + (f" — {reason}" if reason else ""),
+    typer.secho(f"retracted {kind} {slug}" + (f" ({reason})" if reason else ""),
                 fg=typer.colors.GREEN)
     referrers = [r for r in find_referrers(project, iri) if r != iri]
     if referrers:
         names = ", ".join("/".join(str(r).rsplit("/", 2)[-2:]) for r in referrers)
-        typer.secho(f"  still referenced by: {names} — update those links or retract them too "
+        typer.secho(f"  still referenced by: {names}; update those links or retract them too "
                     "(surfaced by `cds verify` as ReferenceToRetracted).",
                     fg=typer.colors.YELLOW)
 
@@ -480,7 +480,7 @@ def tension_add(
 def tension_resolve(
     slug: Annotated[str, typer.Argument(help="Tension id to mark resolved.")],
 ) -> None:
-    """Mark a tension resolved — it drops out of the compiled brief."""
+    """Mark a tension resolved: it drops out of the compiled brief."""
     from cds.core.authoring import set_tension_status
     from cds.core.model.notes import TensionStatus
     from cds.core.workspace import load_project
@@ -532,7 +532,7 @@ def _rm_or_exit(removed: bool, kind: str, slug: str) -> None:
 def list_(
     kind: Annotated[str, typer.Argument(help="Record kind to list (mission, goal, need, …).")],
 ) -> None:
-    """List the records of a kind (slug — label), for reviewing what's captured."""
+    """List the records of a kind (slug: label), for reviewing what's captured."""
     from cds.core.authoring import list_records
     from cds.core.model.instances import KIND_TERM
     from cds.core.workspace import load_project
@@ -553,7 +553,7 @@ def show(
     kind: Annotated[str, typer.Argument(help="Record kind.")],
     slug: Annotated[str, typer.Argument(help="Record slug.")],
 ) -> None:
-    """Show one record's stored fields — read-back for reflecting content to the human."""
+    """Show one record's stored fields: read-back for reflecting content to the human."""
     from cds.core.authoring import show_record
     from cds.core.workspace import load_project
 
@@ -610,7 +610,7 @@ def rm(
     if _committed_at_head(project, kind, slug) and not yes:
         # D1 (live-QA 2026-08-02): warn, ask, proceed on Y; --yes bypasses
         typer.secho(
-            f"note: {kind} {slug!r} is part of the committed record — deleting here will "
+            f"note: {kind} {slug!r} is part of the committed record. Deleting here will "
             "rewrite history at your next commit; `cds retract` keeps it with a marker.",
             fg=typer.colors.YELLOW,
         )
@@ -689,15 +689,15 @@ def _report_and_exit(result: VerifyResult) -> None:
     """Print tri-severity findings and exit non-zero iff the gate failed (any unwaived T1)."""
     colour = {"T1": typer.colors.RED, "T2": typer.colors.YELLOW, "T3": typer.colors.BLUE}
     for f in result.findings:
-        typer.secho(f"  [{f.tier}] {f.focus} — {f.message}", fg=colour[f.tier], err=True)
+        typer.secho(f"  [{f.tier}] {f.focus}: {f.message}", fg=colour[f.tier], err=True)
     if result.passed:
         typer.secho(
-            f"verify OK — {len(result.warnings)} warning(s), {len(result.infos)} lint.",
+            f"verify OK: {len(result.warnings)} warning(s), {len(result.infos)} lint.",
             fg=typer.colors.GREEN,
         )
         raise typer.Exit(0)
     typer.secho(
-        f"verify FAILED — {len(result.violations)} Tier-1 violation(s).", fg=typer.colors.RED
+        f"verify FAILED: {len(result.violations)} Tier-1 violation(s).", fg=typer.colors.RED
     )
     raise typer.Exit(1)
 
@@ -776,7 +776,7 @@ def compile(
     include_history: Annotated[
         bool,
         typer.Option(help="Append the 'Superseded & retracted' history section (ADR-9; "
-                          "off by default — the model, not the document, is canon)."),
+                          "off by default; the model, not the document, is canon)."),
     ] = False,
     synthesis: Annotated[
         str | None,
