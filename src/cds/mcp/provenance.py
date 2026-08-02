@@ -61,6 +61,8 @@ def stamp(
     g = Graph()
     g.add((activity, RDF.type, PROV.Activity))
     g.add((activity, CDS.sessionId, Literal(session)))
+    # explicit negative assertion (auditor K-6): absence of a model is a claim, not a gap
+    g.add((activity, CDS.llmMediated, Literal(model is not None)))
     if version is not None:
         g.add((activity, CDS.toolVersion, Literal(version)))
     user_iri = URIRef(user)
@@ -95,9 +97,14 @@ class AuditLog:
         return [ln for ln in self.path.read_text(encoding="utf-8").splitlines() if ln]
 
     def append(self, event: dict[str, object]) -> None:
+        from datetime import UTC, datetime
+
         lines = self._lines()
         prev = self._digest(lines[-1]) if lines else self._GENESIS
-        record = {"seq": len(lines), "prev": prev, "event": event}
+        # a wall-clock timestamp is a fact OF the event (auditor K-4) — the determinism
+        # discipline governs the record build, not the event ledger
+        record = {"seq": len(lines), "prev": prev,
+                  "ts": datetime.now(UTC).isoformat(timespec="seconds"), "event": event}
         line = json.dumps(record, sort_keys=True)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self.path.open("a", encoding="utf-8") as fh:  # append mode ONLY

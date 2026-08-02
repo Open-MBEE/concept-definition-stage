@@ -150,7 +150,9 @@ def render_plan(plan: ChangePlan) -> str:
     supers = "\n".join(f"- {old} → {new}" for old, new in plan.supersessions) or "- (none)"
     return (
         "# Change plan\n\n"
-        f"content-hash: `{plan.content_hash}`\n\n"
+        f"content-hash: `{plan.content_hash}`\n"
+        "(preimage: SHA-256 over the staging graph serialized as sorted N-Triples — "
+        "recomputable by any auditor from the staged instance files)\n\n"
         f"approver: {plan.approver or '(unrecorded)'}\n\n"
         f"## Adds\n{names(plan.adds)}\n\n"
         f"## Revisions (approver-confirmed, same IRI; prior bytes preserved by git)\n"

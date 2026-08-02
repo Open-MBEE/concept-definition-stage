@@ -116,6 +116,34 @@ def _committed_world(
     return canonical, session, (plan1, plan2)
 
 
+def test_direct_tool_calls_are_audited_in_session(tmp_path: Path) -> None:
+    """Auditor K-5 regression: audit lives at the registry — even in-process tool calls
+    leave a replayable per-session trail."""
+    from cds.mcp import staging, tools
+
+    session = staging.new_session_project("https://cds.example/k5/", root=tmp_path / "s")
+    tools.TOOLS["cds_synthesis"].fn(session, slug="m", title="M")
+    tools.TOOLS["cds_list"].fn(session, "goal")
+    audit = provenance.AuditLog(session.root / "audit.jsonl")
+    events = audit.replay()
+    assert [e["event"]["tool"] for e in events] == ["cds_synthesis", "cds_list"]
+    assert audit.verify_chain() is True
+
+
+def test_stamp_asserts_llm_mediation_either_way() -> None:
+    """Auditor K-6: 'no model' is a claim, never an evidence gap."""
+    from rdflib import Literal
+
+    from cds.core.namespaces import CDS
+
+    a = "https://x/activity/commit-1"
+    with_model = provenance.stamp([], user="https://x/u", session="s",
+                                  model="m", activity_iri=a)
+    assert (URIRef(a), CDS.llmMediated, Literal(True)) in with_model
+    without = provenance.stamp([], user="https://x/u", session="s", activity_iri=a)
+    assert (URIRef(a), CDS.llmMediated, Literal(False)) in without
+
+
 def test_commit_writes_provenance_file(tmp_path: Path) -> None:
     canonical, _session, (plan1, _plan2) = _committed_world(tmp_path)
     prov_dir = canonical.root / "concept-definition" / "provenance"

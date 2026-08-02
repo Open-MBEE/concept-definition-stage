@@ -132,10 +132,6 @@ def build_app(project: Project) -> Any:
         version="0.1.0",
     )
 
-    from cds.mcp.provenance import AuditLog
-
-    audit = AuditLog(project.root / "audit.jsonl")  # session-scoped, hash-chained (K4.2)
-
     def _invoke(spec: mcp_tools.ToolSpec, payload: BaseModel) -> Any:
         try:
             return spec.fn(project, **payload.model_dump())
@@ -166,15 +162,10 @@ def build_app(project: Project) -> Any:
     def _register(spec: mcp_tools.ToolSpec) -> None:
         model = _request_model(spec)
 
+        # tool-call auditing happens at the REGISTRY (cds.mcp.tools), so every
+        # invocation path is logged identically — the transport adds nothing here
         def endpoint(payload: BaseModel) -> Any:
-            try:
-                result = _invoke(spec, payload)
-            except HTTPException as exc:
-                audit.append({"action": "tool", "tool": spec.name,
-                              "status": str(exc.status_code)})
-                raise
-            audit.append({"action": "tool", "tool": spec.name, "status": "ok"})
-            return _jsonable(result)
+            return _jsonable(_invoke(spec, payload))
 
         # Postponed annotations would leave the payload annotation as a string FastAPI
         # cannot resolve to this dynamic model — stamp the real class on at runtime.

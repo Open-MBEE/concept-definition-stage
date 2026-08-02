@@ -331,6 +331,15 @@ cds:licenseText
     rdfs:label "licenseText" ;
     rdfs:range xsd:string .
 
+cds:llmMediated
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    cds:frameworkRole cds:Available ;
+    rdfs:comment "Whether an LLM mediated this activity — an explicit assertion either way, so 'no model' is a claim, never an evidence gap (K4)." ;
+    rdfs:domain prov:Activity ;
+    rdfs:label "llmMediated" ;
+    rdfs:range xsd:boolean .
+
 cds:locator
     a owl:DatatypeProperty,
         rdf:Property ;

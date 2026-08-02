@@ -101,7 +101,8 @@ def test_openapi_declares_kind_specific_fields(client: TestClient) -> None:
 
 
 def test_every_tool_call_is_audited(client: TestClient, tmp_path: Path) -> None:
-    """REQ-K4.2 on the transport: tool calls land in the session's hash-chained audit."""
+    """REQ-K4.2 at the registry: tool calls land in the session's hash-chained audit
+    regardless of transport (auditor finding K-5), refusals included."""
     from cds.mcp.provenance import AuditLog
 
     client.post("/tools/cds_synthesis", json={"slug": "m1", "title": "M"})
@@ -110,7 +111,8 @@ def test_every_tool_call_is_audited(client: TestClient, tmp_path: Path) -> None:
     events = audit.replay()
     tools_called = [(e["event"]["tool"], e["event"]["status"]) for e in events]
     assert ("cds_synthesis", "ok") in tools_called
-    assert ("cds_commit", "403") in tools_called
+    assert ("cds_commit", "PermissionError") in tools_called
+    assert all("ts" in e for e in events)  # wall-clock is a fact of the event (K-4)
     assert audit.verify_chain() is True
 
 

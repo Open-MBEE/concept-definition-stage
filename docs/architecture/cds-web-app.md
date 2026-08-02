@@ -435,6 +435,7 @@ Local-LLM hosting (T8b) falls out of P1+P4: `pip install "cds[mcp]"` + a local m
 | **D7 — Multiplicity / named graphs, next-stage (T5) handoff** | Out of app scope | not required to ship | When T5 (System Requirements) consumes the conformed integrated set |
 | **D8 — HTTP `ConformanceOracle` client** | `InProcessOracle` only; the oracle service exists but its consumers are in-process | no out-of-process consumer yet | P5/P6: the app tier (or another service) needs the oracle over the network — implement the client behind the same `cds.contracts` Protocol |
 | **D9 — Flexo-backed model-datastore service** | `ModelStore` contract + local git-TTL reference only | ROADMAP T6 owns the live Flexo round-trip; creds-gated | T6 acceptance (Starforge Layer-1 round-trip green) — then `FlexoHttpClient` serves as the store behind the same contract |
+| **D10 — Cryptographic identity binding & external anchoring** | Approver IRIs are unauthenticated assertions; the audit chain, changeplans, provenance, and git history are mutually consistent but self-referential (P3 auditor findings K-1/K-2: a writer with directory access could rewrite all layers coherently) | Pre-P6 there is no identity provider to bind keys to; the dsg lineage's Ed25519 signer + signed-tag pattern is the known target | **P6 auth** (Keycloak identities → signed approvals, signed git tags) or an external-assurance requirement — then anchor the chain head externally (remote clone / published digest) and sign changeplans |
 
 ---
 
