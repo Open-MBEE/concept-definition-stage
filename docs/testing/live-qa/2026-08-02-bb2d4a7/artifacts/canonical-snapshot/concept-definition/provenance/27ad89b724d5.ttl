@@ -1,0 +1,33 @@
+@prefix cds: <https://w3id.org/cds#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://cds.example/canon/activity/commit-27ad89b724d5>
+    a prov:Activity ;
+    cds:changePlanHash "27ad89b724d520aabc36cb5a9f51a59bcb62c5efd6787e3383e719ceb6c8ffed" ;
+    cds:llmMediated "false"^^xsd:boolean ;
+    cds:sessionId "cds-session-35any9x5" ;
+    cds:toolVersion "0.1.0" ;
+    prov:wasAssociatedWith <https://example.org/zargham> .
+
+<https://cds.example/canon/objective/coverage>
+    prov:wasGeneratedBy <https://cds.example/canon/activity/commit-27ad89b724d5> .
+
+<https://cds.example/canon/position/council-cov>
+    prov:wasGeneratedBy <https://cds.example/canon/activity/commit-27ad89b724d5> .
+
+<https://cds.example/canon/position/residents-cov>
+    prov:wasGeneratedBy <https://cds.example/canon/activity/commit-27ad89b724d5> .
+
+<https://cds.example/canon/stakeholder/council>
+    prov:wasGeneratedBy <https://cds.example/canon/activity/commit-27ad89b724d5> .
+
+<https://cds.example/canon/stakeholder/residents>
+    prov:wasGeneratedBy <https://cds.example/canon/activity/commit-27ad89b724d5> .
+
+<https://cds.example/canon/synthesis/pilot>
+    prov:wasGeneratedBy <https://cds.example/canon/activity/commit-27ad89b724d5> .
+
+<https://example.org/zargham>
+    a prov:Agent .
