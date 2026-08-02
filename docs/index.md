@@ -16,6 +16,7 @@ New here? Start with **[Getting started](getting-started.md)**.
 
 getting-started
 user-guide
+playground
 ```
 
 ```{toctree}
