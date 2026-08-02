@@ -27,13 +27,14 @@ from cds.core.authoring import (
     create_record,
     create_synthesis,
     create_tension,
+    edit_record,
     list_records,
     project_graph,
     set_queue_status,
     set_tension_status,
     show_record,
 )
-from cds.core.model.instances import Synthesis, model_for_kind
+from cds.core.model.instances import Record, Synthesis, model_for_kind
 from cds.core.model.notes import (
     ParkedItem,
     RetrievalItem,
@@ -121,13 +122,12 @@ def cds_compile(project: Project) -> str:
 # ------------------------------------------------------------------- candidate writes (staging)
 
 
-def _upsert(project: Project, kind: str, slug: str, label: str, description: str,
-            synthesis: str, fields: dict[str, object]) -> str:
+def _validated_record(kind: str, slug: str, label: str, description: str,
+                      synthesis: str, fields: dict[str, object]) -> Record:
     """Pydantic (``model_for_kind``) is the structural guardrail — bad args raise an error."""
     payload: dict[str, object] = {"slug": slug, "kind": kind, "label": label,
                                   "description": description, "synthesis": synthesis, **fields}
-    rec = model_for_kind(kind).model_validate(payload)
-    return str(create_record(project, rec))
+    return model_for_kind(kind).model_validate(payload)
 
 
 @_tool("cds_synthesis", "Create/update the Synthesis (candidate into staging).", writes=True)
@@ -136,18 +136,20 @@ def cds_synthesis(project: Project, slug: str, title: str, description: str = ""
                                                    description=description)))
 
 
-@_tool("cds_new", "Create a record of a kind (candidate into staging).", writes=True)
+@_tool("cds_new", "Create a NEW record of a kind (candidate into staging); refuses an "
+                  "existing slug — use cds_edit to change one.", writes=True)
 def cds_new(project: Project, kind: str, slug: str, label: str, description: str,
             synthesis: str, **fields: object) -> str:
-    return _upsert(project, kind, slug, label, description, synthesis, fields)
+    rec = _validated_record(kind, slug, label, description, synthesis, fields)
+    return str(create_record(project, rec))
 
 
-@_tool("cds_edit", "Upsert an existing record (candidate; merges into staging).", writes=True)
+@_tool("cds_edit", "Edit an EXISTING staged record in place (scratch mode); refuses an "
+                   "absent slug — use cds_new to create one.", writes=True)
 def cds_edit(project: Project, kind: str, slug: str, label: str, description: str,
              synthesis: str, **fields: object) -> str:
-    # Same core call as cds_new (create_record upserts); a distinct tool name because *edit*
-    # is a distinct intent — it is what facilitator prompts and the audit log key on.
-    return _upsert(project, kind, slug, label, description, synthesis, fields)
+    rec = _validated_record(kind, slug, label, description, synthesis, fields)
+    return str(edit_record(project, rec))
 
 
 # --------------------------------------------------------------------------- session ledgers

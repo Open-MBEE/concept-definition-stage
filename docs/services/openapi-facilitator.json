@@ -534,7 +534,7 @@
     },
     "/tools/cds_edit": {
       "post": {
-        "description": "Upsert an existing record (candidate; merges into staging).",
+        "description": "Edit an EXISTING staged record in place (scratch mode); refuses an absent slug \u2014 use cds_new to create one.",
         "operationId": "cds_edit",
         "requestBody": {
           "content": {
@@ -651,7 +651,7 @@
     },
     "/tools/cds_new": {
       "post": {
-        "description": "Create a record of a kind (candidate into staging).",
+        "description": "Create a NEW record of a kind (candidate into staging); refuses an existing slug \u2014 use cds_edit to change one.",
         "operationId": "cds_new",
         "requestBody": {
           "content": {

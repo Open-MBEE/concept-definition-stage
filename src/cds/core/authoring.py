@@ -7,6 +7,15 @@ into one file (``instances/<kind>.ttl``); the container lives in ``instances/syn
 
 All writes funnel through here and :mod:`cds.core.workspace` — the single I/O choke point kept
 for a future remote (Flexo/MMS) backend and a pyoxigraph store.
+
+**Mutation modes (ADR-9).** These functions operate on a *working copy* — the user's project
+dir or a session staging root — which is **scratch**: :func:`create_record` (refuses an
+existing slug), :func:`edit_record` (requires one), :func:`upsert_record` (the explicit
+old-style replace, used by the commit gate and fixtures), and the ``remove_*`` deletions are
+all legitimate there. The **append-only** primitives — :func:`retract_record`,
+:func:`mark_superseded` — only ever add triples (lifecycle markers); they express
+durable-record intent and never remove content. The commit gate (P2) is the sole crossing
+from scratch into the durable record.
 """
 
 from __future__ import annotations
@@ -57,6 +66,18 @@ def _prefixes(project: Project) -> dict[str, str]:
     return {**_BASE_PREFIXES, "proj": project.base_iri}
 
 
+class RecordExistsError(KeyError):
+    """``create`` on a slug that already exists — use ``edit`` (or supersede) instead (F-2)."""
+
+
+class RecordNotFoundError(KeyError):
+    """``edit``/``retract`` on a record that does not exist."""
+
+
+class AlreadyRetractedError(KeyError):
+    """A second retraction of the same record — the marker is append-once (no reason rewrite)."""
+
+
 def _merge_into(target: Path, addition: Graph, project: Project) -> None:
     """Upsert a record: parse-if-exists → **replace** the subject's triples → deterministic write.
 
@@ -102,16 +123,93 @@ def create_synthesis(project: Project, syn: Synthesis) -> URIRef:
     return synthesis_iri(project.base_iri, syn.slug)
 
 
+def _record_exists(project: Project, kind: str, slug: str) -> bool:
+    graph = _load(_kind_file(project, kind))
+    return (record_iri(project.base_iri, kind, slug), None, None) in graph
+
+
 def create_record(project: Project, rec: Record) -> URIRef:
-    """Author (upsert) a single instance record into its per-kind file; returns its IRI."""
+    """Author a NEW instance record; refuses an existing slug (scratch mode, ADR-9/F-2)."""
+    if _record_exists(project, rec.kind, rec.slug):
+        raise RecordExistsError(
+            f"{rec.kind} {rec.slug!r} already exists — edit it, or create a new slug "
+            f"with supersedes={rec.slug!r} to replace it in the durable record"
+        )
+    return upsert_record(project, rec)
+
+
+def edit_record(project: Project, rec: Record) -> URIRef:
+    """Edit an EXISTING record in place (scratch mode); refuses an absent slug."""
+    if not _record_exists(project, rec.kind, rec.slug):
+        raise RecordNotFoundError(f"no {rec.kind} {rec.slug!r} to edit — create it first")
+    return upsert_record(project, rec)
+
+
+def upsert_record(project: Project, rec: Record) -> URIRef:
+    """Replace-or-create a record unconditionally — the explicit upsert.
+
+    The primitive behind :func:`create_record`/:func:`edit_record`; also used directly by
+    the commit gate (approver-confirmed revisions) and by fixtures/migrations.
+    """
     _merge_into(_kind_file(project, rec.kind), record_to_graph(rec, base=project.base_iri), project)
     return record_iri(project.base_iri, rec.kind, rec.slug)
 
 
 def remove_record(project: Project, kind: str, slug: str) -> bool:
-    """Delete a record; returns False if it didn't exist."""
+    """Delete a record from the WORKING COPY (scratch mode); returns False if absent.
+
+    In the durable record deletion does not exist — use :func:`retract_record` there.
+    """
     return _remove_subject(
         _kind_file(project, kind), record_iri(project.base_iri, kind, slug), project
+    )
+
+
+def _append_marker_triples(project: Project, kind: str, additions: Graph) -> None:
+    """APPEND-ONLY write: union marker triples into the kind file — nothing is removed."""
+    target = _kind_file(project, kind)
+    graph = _load(target)
+    graph += additions
+    target.write_text(canonical_turtle(graph, prefixes=_prefixes(project)), encoding="utf-8")
+
+
+def retract_record(
+    project: Project, kind: str, slug: str, *, reason: str | None = None
+) -> URIRef:
+    """Retire a record with an append-only marker (ADR-9): content triples are preserved."""
+    s = record_iri(project.base_iri, kind, slug)
+    graph = _load(_kind_file(project, kind))
+    if (s, None, None) not in graph:
+        raise RecordNotFoundError(f"no {kind} {slug!r} to retract")
+    if (s, CDS.retracted, Literal(True)) in graph:
+        raise AlreadyRetractedError(f"{kind} {slug!r} is already retracted")
+    marker = Graph()
+    marker.add((s, CDS.retracted, Literal(True)))
+    if reason is not None:
+        marker.add((s, CDS.retractionReason, Literal(reason)))
+    _append_marker_triples(project, kind, marker)
+    return s
+
+
+def mark_superseded(project: Project, kind: str, slug: str, *, by: URIRef) -> None:
+    """Append the materialized inverse marker ``cds:supersededBy`` to the OLD record (ADR-9)."""
+    s = record_iri(project.base_iri, kind, slug)
+    graph = _load(_kind_file(project, kind))
+    if (s, None, None) not in graph:
+        raise RecordNotFoundError(f"no {kind} {slug!r} to mark superseded")
+    marker = Graph()
+    marker.add((s, CDS.supersededBy, by))
+    _append_marker_triples(project, kind, marker)
+
+
+def find_referrers(project: Project, target: URIRef) -> list[URIRef]:
+    """Subjects anywhere in the project that link to ``target`` — the retraction/discard
+    pre-check (lineage pattern): callers warn with this list rather than dangling silently."""
+    graph = project_graph(project)
+    return sorted(
+        {s for s, _p, o in graph.triples((None, None, target))
+         if isinstance(s, URIRef) and s != target},
+        key=str,
     )
 
 
