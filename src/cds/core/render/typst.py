@@ -32,7 +32,7 @@ def _term_block(term: TermView) -> str:
             lines.append(f"SEBoK attribution: {_escape(term.definition_source)}")
     elif term.citation is not None:
         # license-restricted: cite the authoritative source, do NOT reproduce the text
-        lines.append(f'Definition withheld under the report license — see #link("{term.citation}")')
+        lines.append(f'Definition withheld under the report license; see #link("{term.citation}")')
     if term.citation is not None:
         lines.append(f"Source: #link(\"{term.citation}\")")
     anchor = term.sysml_anchor if term.sysml_anchor is not None else "canon-only"
@@ -57,7 +57,12 @@ def typst_document(view: SchemeView) -> str:
             "",
             f"= {_escape(view.title)}",
             "",
-            f"Text license: {_escape(view.text_license)}. {_escape(canon_note)}",
+            f"Text license: {_escape(view.text_license)}. {_escape(canon_note)}"
+            + (
+                f" Noncommercial use attested by {_escape(view.attested_by)}; "
+                "the propagated license above governs this document."
+                if view.attested_by is not None else ""
+            ),
             "",
         ]
     )

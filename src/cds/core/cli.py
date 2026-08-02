@@ -778,17 +778,39 @@ def render(
         str,
         typer.Option(help="Report text license; non-SEBoK-compatible -> cite-only (no verbatim)."),
     ] = "CC-BY-NC-SA-4.0",
+    attest_noncommercial: Annotated[
+        str | None,
+        typer.Option(help="Attest noncommercial use (give your name or IRI): unlocks "
+                          "verbatim canon and relicenses the output CC BY-NC-SA. The "
+                          "attestation is recorded, hash-chained, next to the views."),
+    ] = None,
+    attest_context: Annotated[
+        str,
+        typer.Option(help="Context for the attestation, e.g. 'ABET senior design'."),
+    ] = "",
+    skip_pdf: Annotated[
+        bool,
+        typer.Option("--skip-pdf", help="Write the Typst source only (no typst CLI needed)."),
+    ] = False,
 ) -> None:
     """Render the scheme to a deterministic Typst -> PDF reference document (license-keyed View)."""
+    from cds.core.licenses import Attestation
     from cds.core.render.typst import render_pdf, typst_document
     from cds.core.render.view import scheme_view
     from cds.core.workspace import find_data_root
     from cds.stages.concept_definition.build import build_concept_definition_graph
 
+    attestation = None
+    if attest_noncommercial is not None:
+        attestation = Attestation(attester=attest_noncommercial, context=attest_context)
+        typer.secho("Noncommercial attestation (recorded with this render):",
+                    fg=typer.colors.BLUE)
+        typer.echo(f"  {attestation.statement}")
     view = scheme_view(
         build_concept_definition_graph(),
         title="Concept Definition Vocabulary",
         text_license=text_license,
+        attestation=attestation,
     )
     # Write into the user's project when one is resolvable; otherwise the CDS repo (maintainer use).
     project = find_data_root()
@@ -797,9 +819,23 @@ def render(
     views_dir.mkdir(parents=True, exist_ok=True)
     typ = views_dir / "concept-definition.typ"
     typ.write_text(typst_document(view))
-    pdf = render_pdf(view, views_dir / "concept-definition.pdf")
+    if attestation is not None:
+        # a legal assertion is audited like an approver act: who, context, statement,
+        # what it unlocked; hash-chained so it cannot be quietly rewritten (D3a)
+        from cds.mcp.provenance import AuditLog  # call-time seam, as in `cds audit`
+
+        AuditLog(views_dir / "attestations.jsonl").append({
+            "action": "attest-noncommercial", "attester": attestation.attester,
+            "context": attestation.context, "statement": attestation.statement,
+            "requested_license": text_license, "effective_license": view.text_license,
+            "artifact": typ.name,
+        })
+    out: Path = typ
+    if not skip_pdf:
+        out = render_pdf(view, views_dir / "concept-definition.pdf")
     mode = "verbatim canon" if view.renders_restricted_canon else "cite-only"
-    typer.secho(f"rendered {pdf} ({mode}; text license {view.text_license})", fg=typer.colors.GREEN)
+    typer.secho(f"rendered {out} ({mode}; text license {view.text_license})",
+                fg=typer.colors.GREEN)
 
 
 @app.command()

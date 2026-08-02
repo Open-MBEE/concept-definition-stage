@@ -77,3 +77,26 @@ This is the standard pattern for standards-body documents where redistribution i
 The verbatim definitions materialized in `ontology/concept-definition.ttl` are covered by the
 source authority's license (see `THIRD_PARTY_LICENSES.md`). The tooling (Python, SHACL shapes,
 CLI) is Apache-2.0.
+
+## Seeing the standard: cite-only floor, attestation, propagation
+
+You can never be fully blinded from a standard by license settings ("you cannot follow
+engineering best practices if you cannot see them"). Three layers:
+
+1. **Cite-only floor (always available).** Under any text license, every term still
+   renders with its label, structure, and a citation to the strongest grounding target,
+   so you always know where the authoritative text lives.
+2. **Noncommercial attestation (low-friction opt-in).** If your use is noncommercial
+   (for example an accredited student design project), attest it and get the verbatim:
+
+   ```bash
+   cds render --attest-noncommercial "https://example.org/you" --attest-context "ABET senior design"
+   ```
+
+   The attestation is a recorded legal assertion: who, context, and the statement are
+   appended to a hash-chained `views/attestations.jsonl` alongside the rendered files.
+   (The attestation wording is a draft pending legal review.)
+3. **License propagation (automatic).** Any output that embeds SEBoK verbatim, attested
+   or not, is stamped CC BY-NC-SA at rest, whatever license you requested, so the
+   derivative is correctly licensed instead of mislabeled permissive. NonCommercial is
+   cleared by your attestation; ShareAlike is cleared by construction.
