@@ -462,7 +462,8 @@ def cds_waive(project: Project, waiver_id: str, rule: str, reason: str,
 @_tool("cds_commit", "Merge staging into canonical through the K2 gate (requires the "
                      "cds-reviewer role bound at server start); returns the executed "
                      "change plan.", mode=ToolMode.COMMIT)
-def cds_commit(project: Project) -> dict[str, object]:
+def cds_commit(project: Project,
+               include_unverified: list[str] | None = None) -> dict[str, object]:
     if SESSION.canonical is None:
         raise PermissionError(  # F-7: the refusal speaks to the user, not the roadmap
             "committing requires the cds-reviewer role and a canonical record bound at "
@@ -477,7 +478,8 @@ def cds_commit(project: Project) -> dict[str, object]:
     try:
         plan = commit(project, SESSION.canonical,
                       approver_roles=SESSION.roles, approver=SESSION.approver,
-                      model=SESSION.model)
+                      model=SESSION.model,
+                      include_unverified=tuple(include_unverified or ()))
     except CommitBlockedError as exc:
         # a verification-blocked commit is a teachable client-state error (H-1/H-7),
         # never an unmapped internal error
@@ -490,4 +492,5 @@ def cds_commit(project: Project) -> dict[str, object]:
         "supersessions": [[str(old), str(new)] for old, new in plan.supersessions],
         "retractions": [str(s) for s in plan.retractions],
         "held": [str(s) for s in plan.held],
+        "held_unverified": [str(s) for s in plan.held_unverified],
     }
