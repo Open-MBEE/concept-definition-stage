@@ -70,7 +70,22 @@
       },
       "cds_commit_args": {
         "additionalProperties": false,
-        "properties": {},
+        "properties": {
+          "include_unverified": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Include Unverified"
+          }
+        },
         "title": "cds_commit_args",
         "type": "object"
       },
