@@ -116,6 +116,31 @@ def test_every_tool_call_is_audited(client: TestClient, tmp_path: Path) -> None:
     assert audit.verify_chain() is True
 
 
+def test_chat_503_without_llm(client: TestClient) -> None:
+    r = client.post("/chat", json={"message": "hello"})
+    assert r.status_code == 503
+    assert "CDS_LLM_BASE_URL" in r.json()["detail"]  # the ADR-8 hint
+
+
+def test_chat_drives_tools_with_scripted_backend(tmp_path: Path) -> None:
+    from cds.facilitator.decode import AssistantTurn, ScriptedBackend, ToolCall
+
+    proj = Project(root=tmp_path / "chat-session", base_iri="https://cds.example/p4/")
+    proj.instances_dir.mkdir(parents=True)
+    backend = ScriptedBackend([
+        AssistantTurn(tool_calls=(ToolCall(name="cds_synthesis",
+                                           arguments={"slug": "m", "title": "M"}),)),
+        AssistantTurn(text="Mapping created."),
+    ])
+    chat_client = TestClient(build_app(proj, llm=backend))
+    r = chat_client.post("/chat", json={"message": "start a mapping called M"})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["reply"] == "Mapping created."
+    assert body["executed"][0]["tool"] == "cds_synthesis"
+    assert body["escalated"] is False
+
+
 def test_committed_openapi_is_current() -> None:
     from cds.facilitator.export_openapi import openapi_json
 
