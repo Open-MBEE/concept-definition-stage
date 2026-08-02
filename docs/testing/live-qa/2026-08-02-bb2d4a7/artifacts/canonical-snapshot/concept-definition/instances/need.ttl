@@ -1,0 +1,15 @@
+@prefix cds: <https://w3id.org/cds#> .
+@prefix cdsterm: <https://w3id.org/cds/term/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix proj: <https://cds.example/canon/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://cds.example/canon/need/sebok-need>
+    a cds:Instance,
+        cdsterm:need ;
+    cds:inSynthesis <https://cds.example/canon/synthesis/sebok-need> ;
+    dcterms:description "Reference entry — the SEBoK conception of 'need'. SOURCING NOTE: SEBoK has no standalone 'Need' glossary term; it treats need within 'Stakeholder Needs and Requirements' (https://sebokwiki.org/wiki/Stakeholder_Needs_and_Requirements_(glossary)). The source page could not be retrieved to quote verbatim (HTTP 403), so this is a CITED PARAPHRASE, not a verbatim quote. Per SEBoK: stakeholder needs are elicited from the needs, wants, desires, expectations, and perceived constraints of identified stakeholders; they concentrate on the system's purpose and behavior and are described in the context of the operational environment and conditions. Stakeholder requirements are subsequently transformed from these stakeholder needs into structured, objectively adequate, more formal statements. (SEBoK's guidance to phrase needs as 'the stakeholders need the system to…', without 'shall', is what this system's need-form encodes.)" ;
+    rdfs:label "SEBoK conception of 'need'" .

@@ -1,0 +1,21 @@
+@prefix cds: <https://w3id.org/cds#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://cds.example/canon/activity/commit-887474113fb1>
+    a prov:Activity ;
+    cds:changePlanHash "887474113fb1759e63f491a344a16d23828397dfcc729b57c5797d259465a358" ;
+    cds:llmMediated "false"^^xsd:boolean ;
+    cds:sessionId "cds-session-v1a345zc" ;
+    cds:toolVersion "0.1.0" ;
+    prov:wasAssociatedWith <urn:cds:agent:unattributed> .
+
+<https://cds.example/canon/need/sebok-need>
+    prov:wasGeneratedBy <https://cds.example/canon/activity/commit-887474113fb1> .
+
+<https://cds.example/canon/synthesis/sebok-need>
+    prov:wasGeneratedBy <https://cds.example/canon/activity/commit-887474113fb1> .
+
+<urn:cds:agent:unattributed>
+    a prov:Agent .

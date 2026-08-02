@@ -1,0 +1,170 @@
+warning: `VIRTUAL_ENV=/opt/anaconda3` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Downloading voila (4.3MiB)
+ Downloaded voila
+Installed 84 packages in 432ms
+[Voila] Using /var/folders/_z/k9fkf53x4q7dm02s4lr__qq00000gn/T to store connection files
+[Voila] Storing connection files in /var/folders/_z/k9fkf53x4q7dm02s4lr__qq00000gn/T/voila_j9dv8go_.
+[Voila] Serving static files from /Users/z/.cache/uv/archive-v0/XoOVdzXviIs63nysnl_-x/lib/python3.12/site-packages/voila/static.
+[Voila] Voilà is running at:
+http://localhost:8890/
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 492.72ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 6.62ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 5.31ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 5.54ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 5.78ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 5.05ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.64ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 5.16ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 5.99ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 5.18ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.82ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.85ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.34ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.23ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.65ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.62ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 5.53ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 5.12ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 5.05ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.94ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 5.48ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.82ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 5.37ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.04ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.93ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.24ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.54ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.91ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 3.83ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.95ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 5.34ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.47ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 5.00ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.59ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.59ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.57ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 5.02ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 5.82ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.86ms
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] WARNING | Native kernel (python3) is not available
+500 GET / (127.0.0.1): No Jupyter kernel for language 'python' found
+500 GET / (127.0.0.1) 4.84ms
+[Voila] Handle signal 15.

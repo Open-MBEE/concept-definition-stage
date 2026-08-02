@@ -1,0 +1,17 @@
+@prefix cds: <https://w3id.org/cds#> .
+@prefix cdsterm: <https://w3id.org/cds/term/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix proj: <https://cds.example/canon/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://cds.example/canon/synthesis/pilot>
+    a cds:Synthesis ;
+    rdfs:label "Drone pilot" .
+
+<https://cds.example/canon/synthesis/sebok-need>
+    a cds:Synthesis ;
+    dcterms:description "Rationale for the sebok-need reference record. SEBoK has no standalone 'Need' glossary term; it treats need within 'Stakeholder Needs and Requirements' (https://sebokwiki.org/wiki/Stakeholder_Needs_and_Requirements_(glossary)). That page could not be retrieved to quote verbatim (HTTP 403 to WebFetch; web.archive.org also unreachable), so the entry is a CITED PARAPHRASE, not a verbatim quote as originally requested." ;
+    rdfs:label "SEBoK 'need' — reference entry, sourcing note" .

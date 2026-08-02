@@ -1,0 +1,28 @@
+@prefix cds: <https://w3id.org/cds#> .
+@prefix cdsterm: <https://w3id.org/cds/term/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix proj: <https://cds.example/canon/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://cds.example/canon/position/council-cov>
+    a cds:Instance,
+        cds:Position ;
+    cds:characterizes <https://cds.example/canon/objective/coverage> ;
+    cds:heldBy <https://cds.example/canon/stakeholder/council> ;
+    cds:inSynthesis <https://cds.example/canon/synthesis/pilot> ;
+    cds:stance "prioritizes" ;
+    dcterms:description "Coverage justifies the budget." ;
+    rdfs:label "Council on coverage" .
+
+<https://cds.example/canon/position/residents-cov>
+    a cds:Instance,
+        cds:Position ;
+    cds:characterizes <https://cds.example/canon/objective/coverage> ;
+    cds:heldBy <https://cds.example/canon/stakeholder/residents> ;
+    cds:inSynthesis <https://cds.example/canon/synthesis/pilot> ;
+    cds:stance "opposes" ;
+    dcterms:description "Blanket coverage means constant noise." ;
+    rdfs:label "Residents on coverage" .

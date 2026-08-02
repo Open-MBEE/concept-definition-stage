@@ -1,0 +1,22 @@
+@prefix cds: <https://w3id.org/cds#> .
+@prefix cdsterm: <https://w3id.org/cds/term/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix proj: <https://cds.example/canon/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://cds.example/canon/stakeholder/council>
+    a cds:Instance,
+        cdsterm:stakeholder ;
+    cds:inSynthesis <https://cds.example/canon/synthesis/pilot> ;
+    dcterms:description "Funds the pilot." ;
+    rdfs:label "City council" .
+
+<https://cds.example/canon/stakeholder/residents>
+    a cds:Instance,
+        cdsterm:stakeholder ;
+    cds:inSynthesis <https://cds.example/canon/synthesis/pilot> ;
+    dcterms:description "Live under the flight paths." ;
+    rdfs:label "Residents" .
