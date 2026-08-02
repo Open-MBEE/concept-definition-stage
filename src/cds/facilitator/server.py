@@ -132,35 +132,48 @@ def build_app(project: Project) -> Any:
         version="0.1.0",
     )
 
+    from cds.mcp.provenance import AuditLog
+
+    audit = AuditLog(project.root / "audit.jsonl")  # session-scoped, hash-chained (K4.2)
+
+    def _invoke(spec: mcp_tools.ToolSpec, payload: BaseModel) -> Any:
+        try:
+            return spec.fn(project, **payload.model_dump())
+        except PermissionError as exc:
+            raise HTTPException(status_code=403, detail=str(exc)) from exc
+        except (RecordExistsError, AlreadyRetractedError) as exc:  # conflicts
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        except RecordNotFoundError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+        except NotImplementedError as exc:
+            raise HTTPException(status_code=501, detail=str(exc)) from exc
+        except ValidationError as exc:
+            errors = exc.errors(include_url=False, include_context=False,
+                                include_input=False)
+            raise HTTPException(status_code=422, detail=errors) from exc
+        except KeyError as exc:  # absent target (e.g. discard/queue on a missing slug)
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        except HTTPException:
+            raise
+        except Exception as exc:  # last resort: structured, never a bare 500 (H-7)
+            raise HTTPException(
+                status_code=500,
+                detail=f"internal error ({type(exc).__name__}): {exc}",
+            ) from exc
+
     def _register(spec: mcp_tools.ToolSpec) -> None:
         model = _request_model(spec)
 
         def endpoint(payload: BaseModel) -> Any:
             try:
-                result = spec.fn(project, **payload.model_dump())
-            except PermissionError as exc:
-                raise HTTPException(status_code=403, detail=str(exc)) from exc
-            except (RecordExistsError, AlreadyRetractedError) as exc:  # conflicts
-                raise HTTPException(status_code=409, detail=str(exc)) from exc
-            except RecordNotFoundError as exc:
-                raise HTTPException(status_code=404, detail=str(exc)) from exc
-            except NotImplementedError as exc:
-                raise HTTPException(status_code=501, detail=str(exc)) from exc
-            except ValidationError as exc:
-                errors = exc.errors(include_url=False, include_context=False,
-                                    include_input=False)
-                raise HTTPException(status_code=422, detail=errors) from exc
-            except KeyError as exc:  # absent target (e.g. discard/queue on a missing slug)
-                raise HTTPException(status_code=404, detail=str(exc)) from exc
-            except ValueError as exc:
-                raise HTTPException(status_code=422, detail=str(exc)) from exc
-            except HTTPException:
+                result = _invoke(spec, payload)
+            except HTTPException as exc:
+                audit.append({"action": "tool", "tool": spec.name,
+                              "status": str(exc.status_code)})
                 raise
-            except Exception as exc:  # last resort: structured, never a bare 500 (H-7)
-                raise HTTPException(
-                    status_code=500,
-                    detail=f"internal error ({type(exc).__name__}): {exc}",
-                ) from exc
+            audit.append({"action": "tool", "tool": spec.name, "status": "ok"})
             return _jsonable(result)
 
         # Postponed annotations would leave the payload annotation as a string FastAPI

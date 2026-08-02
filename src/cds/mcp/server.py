@@ -43,14 +43,25 @@ def list_tools() -> list[str]:
     return served
 
 
-def _bind_project(fn: Any, project: Project) -> Any:
+def _bind_project(fn: Any, project: Project, tool_name: str) -> Any:
     """Close over ``project`` and re-sign the wrapper so the SDK derives the arg schema
-    from the tool's remaining (client-facing) parameters."""
+    from the tool's remaining (client-facing) parameters. Every call is appended to the
+    session's hash-chained audit log (K4.2), refusals included."""
+    from cds.mcp.provenance import AuditLog
+
+    audit = AuditLog(project.root / "audit.jsonl")
     sig = inspect.signature(fn)
     params = [p for name, p in sig.parameters.items() if name != "project"]
 
     def bound(*args: Any, **kwargs: Any) -> Any:
-        return fn(project, *args, **kwargs)
+        try:
+            result = fn(project, *args, **kwargs)
+        except Exception as exc:
+            audit.append({"action": "tool", "tool": tool_name,
+                          "status": type(exc).__name__})
+            raise
+        audit.append({"action": "tool", "tool": tool_name, "status": "ok"})
+        return result
 
     bound.__signature__ = sig.replace(parameters=params)  # type: ignore[attr-defined]
     bound.__doc__ = fn.__doc__
@@ -76,7 +87,7 @@ def build_server(project: Project) -> Any:
     list_tools()  # manifest drift guard — refuse to build a non-whitelist server
     srv = MCPServer("cds")
     for spec in tools.TOOLS.values():
-        srv.add_tool(_bind_project(spec.fn, project), name=spec.name,
+        srv.add_tool(_bind_project(spec.fn, project, spec.name), name=spec.name,
                      description=spec.description)
     return srv
 

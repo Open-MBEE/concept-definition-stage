@@ -94,6 +94,10 @@ _DATA_PROPS: tuple[tuple[str, URIRef, URIRef, URIRef], ...] = (
     ("retractionReason", CDS.Instance, XSD.string, AVAILABLE),
     ("stance", CDS.Position, XSD.string, AVAILABLE),
     ("invarianceCriterion", CDS.Position, XSD.string, AVAILABLE),
+    ("sessionId", PROV.Activity, XSD.string, AVAILABLE),
+    ("toolVersion", PROV.Activity, XSD.string, AVAILABLE),
+    ("modelId", PROV.SoftwareAgent, XSD.string, AVAILABLE),
+    ("changePlanHash", PROV.Activity, XSD.string, AVAILABLE),
 )
 
 # rdfs:comment per term — kept out of the tuples to stay readable
@@ -146,6 +150,11 @@ _COMMENTS: dict[str, str] = {
               "constrains / reads-as.",
     "invarianceCriterion": "What a position's reading holds constant (lineage-compatible "
                            "with ant-rdf's invariance criterion).",
+    "sessionId": "The authoring-session identifier a commit activity ran under (K4).",
+    "toolVersion": "The cds version that performed an activity (K4).",
+    "modelId": "The LLM model id that mediated an activity — attributed, never "
+               "accountable (the human agent it actedOnBehalfOf is).",
+    "changePlanHash": "The ChangePlan content hash a commit activity executed (K4/ADR-9).",
 }
 
 
