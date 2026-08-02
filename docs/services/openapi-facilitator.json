@@ -66,6 +66,25 @@
         "title": "cds_compile_args",
         "type": "object"
       },
+      "cds_discard_args": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "slug"
+        ],
+        "title": "cds_discard_args",
+        "type": "object"
+      },
       "cds_edit_args": {
         "additionalProperties": true,
         "properties": {
@@ -243,6 +262,36 @@
           "status"
         ],
         "title": "cds_queue_set_args",
+        "type": "object"
+      },
+      "cds_retract_args": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "slug"
+        ],
+        "title": "cds_retract_args",
         "type": "object"
       },
       "cds_show_args": {
@@ -532,6 +581,45 @@
         "summary": "Cds Compile"
       }
     },
+    "/tools/cds_discard": {
+      "post": {
+        "description": "Delete a staged candidate or ledger item from the working copy \u2014 scratch only, can never touch canonical state.",
+        "operationId": "cds_discard",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/cds_discard_args"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Cds Discard"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cds Discard"
+      }
+    },
     "/tools/cds_edit": {
       "post": {
         "description": "Edit an EXISTING staged record in place (scratch mode); refuses an absent slug \u2014 use cds_new to create one.",
@@ -803,6 +891,45 @@
           }
         },
         "summary": "Cds Queue Set"
+      }
+    },
+    "/tools/cds_retract": {
+      "post": {
+        "description": "Stage an append-only retraction (ADR-9): the record leaves the current view; its content and history are preserved.",
+        "operationId": "cds_retract",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/cds_retract_args"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Cds Retract"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cds Retract"
       }
     },
     "/tools/cds_show": {

@@ -69,6 +69,61 @@ def test_commit_refused_in_p1(staging: Project) -> None:
         _run("cds_commit", staging)
 
 
+def test_discard_removes_staged_candidate_and_reports_referrers(staging: Project) -> None:
+    _run("cds_synthesis", staging, slug="m1", title="M")
+    _run("cds_new", staging, kind="stakeholder", slug="ops", label="Ops",
+         description="Operator.", synthesis="m1")
+    _run("cds_new", staging, kind="need", slug="n", label="N",
+         description="Ops needs uptime.", synthesis="m1", for_stakeholder=["ops"])
+    result = _run("cds_discard", staging, kind="stakeholder", slug="ops")
+    assert result["discarded"] == "ops"
+    assert any(r.endswith("/need/n") for r in result["referrers"])  # warned, not silent
+    assert _run("cds_list", staging, "stakeholder") == []
+
+
+def test_discard_covers_ledgers(staging: Project) -> None:
+    _run("cds_park_add", staging, slug="later", label="Later")
+    _run("cds_queue_add", staging, slug="q1", question="Find canon")
+    _run("cds_tension_add", staging, slug="t1", label="T")
+    for kind, slug in (("parked", "later"), ("queue", "q1"), ("tension", "t1")):
+        assert _run("cds_discard", staging, kind=kind, slug=slug)["discarded"] == slug
+
+
+def test_discard_absent_raises(staging: Project) -> None:
+    with pytest.raises(KeyError):
+        _run("cds_discard", staging, kind="goal", slug="ghost")
+
+
+def test_retract_tool_appends_marker(staging: Project) -> None:
+    from rdflib import Literal
+
+    from cds.core.authoring import project_graph
+    from cds.core.namespaces import CDS
+
+    _run("cds_synthesis", staging, slug="m1", title="M")
+    _run("cds_new", staging, kind="goal", slug="g", label="G",
+         description="A goal.", synthesis="m1")
+    before = (staging.instances_dir / "goal.ttl").read_text(encoding="utf-8")
+    result = _run("cds_retract", staging, kind="goal", slug="g", reason="scope cut")
+    assert result["retracted"].endswith("/goal/g")
+    after = (staging.instances_dir / "goal.ttl").read_text(encoding="utf-8")
+    for line in before.splitlines():
+        assert line in after  # append-only: content preserved
+    g = project_graph(staging)
+    assert (None, CDS.retracted, Literal(True)) in g
+
+
+def test_tool_modes_form_the_deontic_table(staging: Project) -> None:
+    modes = {name: spec.mode.value for name, spec in tools.TOOLS.items()}
+    assert modes["cds_explain"] == "read" and modes["cds_verify"] == "read"
+    assert modes["cds_new"] == "scratch" and modes["cds_discard"] == "scratch"
+    assert modes["cds_retract"] == "append" and modes["cds_waive"] == "append"
+    assert modes["cds_commit"] == "commit"
+    assert all(spec.mode is not None for spec in tools.TOOLS.values())
+    # back-compat: writes == (mode != read)
+    assert not tools.TOOLS["cds_list"].writes and tools.TOOLS["cds_new"].writes
+
+
 def test_waive_appends_and_t1_guard(staging: Project) -> None:
     # The guard: a waiver selecting a live T1 finding must be refused (T1 is never waivable).
     from cds.core.verify import Finding, Severity

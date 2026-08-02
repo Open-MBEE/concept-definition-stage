@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from enum import StrEnum
 
 from rdflib import Graph
 
@@ -54,24 +55,43 @@ from cds.core.verify import (
 from cds.core.workspace import Project
 
 
+class ToolMode(StrEnum):
+    """The deontic mode of a tool (ADR-9) — served in the manifest.
+
+    READ observes; SCRATCH mutates the working copy (create/edit/discard — nothing durable);
+    APPEND expresses durable-record intent by only ever adding triples (retract, waive);
+    COMMIT is the sole scratch→durable boundary.
+    """
+
+    READ = "read"
+    SCRATCH = "scratch"
+    APPEND = "append"
+    COMMIT = "commit"
+
+
 @dataclass(frozen=True)
 class ToolSpec:
-    """One whitelisted tool: its name, callable, human description, and write/read effect."""
+    """One whitelisted tool: its name, callable, human description, and deontic mode."""
 
     name: str
     fn: Callable[..., object]
     description: str
-    writes: bool
+    mode: ToolMode
+
+    @property
+    def writes(self) -> bool:
+        """Back-compat effect flag: anything other than READ writes somewhere."""
+        return self.mode is not ToolMode.READ
 
 
 TOOLS: dict[str, ToolSpec] = {}
 
 
 def _tool(
-    name: str, description: str, *, writes: bool = False
+    name: str, description: str, *, mode: ToolMode = ToolMode.READ
 ) -> Callable[[Callable[..., object]], Callable[..., object]]:
     def register(fn: Callable[..., object]) -> Callable[..., object]:
-        TOOLS[name] = ToolSpec(name=name, fn=fn, description=description, writes=writes)
+        TOOLS[name] = ToolSpec(name=name, fn=fn, description=description, mode=mode)
         return fn
 
     return register
@@ -130,14 +150,15 @@ def _validated_record(kind: str, slug: str, label: str, description: str,
     return model_for_kind(kind).model_validate(payload)
 
 
-@_tool("cds_synthesis", "Create/update the Synthesis (candidate into staging).", writes=True)
+@_tool("cds_synthesis", "Create/update the Synthesis (candidate into staging).",
+       mode=ToolMode.SCRATCH)
 def cds_synthesis(project: Project, slug: str, title: str, description: str = "") -> str:
     return str(create_synthesis(project, Synthesis(slug=slug, title=title,
                                                    description=description)))
 
 
 @_tool("cds_new", "Create a NEW record of a kind (candidate into staging); refuses an "
-                  "existing slug — use cds_edit to change one.", writes=True)
+                  "existing slug — use cds_edit to change one.", mode=ToolMode.SCRATCH)
 def cds_new(project: Project, kind: str, slug: str, label: str, description: str,
             synthesis: str, **fields: object) -> str:
     rec = _validated_record(kind, slug, label, description, synthesis, fields)
@@ -145,31 +166,73 @@ def cds_new(project: Project, kind: str, slug: str, label: str, description: str
 
 
 @_tool("cds_edit", "Edit an EXISTING staged record in place (scratch mode); refuses an "
-                   "absent slug — use cds_new to create one.", writes=True)
+                   "absent slug — use cds_new to create one.", mode=ToolMode.SCRATCH)
 def cds_edit(project: Project, kind: str, slug: str, label: str, description: str,
              synthesis: str, **fields: object) -> str:
     rec = _validated_record(kind, slug, label, description, synthesis, fields)
     return str(edit_record(project, rec))
 
 
+@_tool("cds_discard", "Delete a staged candidate or ledger item from the working copy — "
+                      "scratch only, can never touch canonical state.", mode=ToolMode.SCRATCH)
+def cds_discard(project: Project, kind: str, slug: str) -> dict[str, object]:
+    from cds.core.authoring import (
+        find_referrers,
+        remove_parked,
+        remove_queue_item,
+        remove_record,
+        remove_tension,
+    )
+    from cds.core.model.instances import record_iri
+
+    if kind == "parked":
+        removed = remove_parked(project, slug)
+        referrers: list[str] = []
+    elif kind == "queue":
+        removed = remove_queue_item(project, slug)
+        referrers = []
+    elif kind == "tension":
+        removed = remove_tension(project, slug)
+        referrers = []
+    else:
+        target = record_iri(project.base_iri, kind, slug)
+        referrers = [str(r) for r in find_referrers(project, target) if r != target]
+        removed = remove_record(project, kind, slug)
+    if not removed:
+        raise KeyError(f"no {kind} {slug!r} to discard")
+    return {"discarded": slug, "referrers": referrers}
+
+
+@_tool("cds_retract", "Stage an append-only retraction (ADR-9): the record leaves the "
+                      "current view; its content and history are preserved.",
+       mode=ToolMode.APPEND)
+def cds_retract(project: Project, kind: str, slug: str,
+                reason: str | None = None) -> dict[str, object]:
+    from cds.core.authoring import find_referrers, retract_record
+
+    iri = retract_record(project, kind, slug, reason=reason)
+    referrers = [str(r) for r in find_referrers(project, iri) if r != iri]
+    return {"retracted": str(iri), "referrers": referrers}
+
+
 # --------------------------------------------------------------------------- session ledgers
 
 
 @_tool("cds_queue_add", "File a retrieval item — the mandated dead-end on unsecured canon.",
-       writes=True)
+       mode=ToolMode.SCRATCH)
 def cds_queue_add(project: Project, slug: str, question: str, description: str = "") -> str:
     return str(create_queue_item(project, RetrievalItem(slug=slug, question=question,
                                                         description=description)))
 
 
 @_tool("cds_queue_set", "Advance a retrieval item's status (pending/provided/verified).",
-       writes=True)
+       mode=ToolMode.SCRATCH)
 def cds_queue_set(project: Project, slug: str, status: str,
                   locator: str | None = None) -> None:
     set_queue_status(project, slug, RetrievalStatus(status), locator=locator)
 
 
-@_tool("cds_park_add", "Park an out-of-scope idea (kept, not dropped).", writes=True)
+@_tool("cds_park_add", "Park an out-of-scope idea (kept, not dropped).", mode=ToolMode.SCRATCH)
 def cds_park_add(project: Project, slug: str, label: str, description: str = "",
                  note: str = "") -> str:
     return str(create_parked(project, ParkedItem(slug=slug, label=label,
@@ -177,14 +240,14 @@ def cds_park_add(project: Project, slug: str, label: str, description: str = "",
 
 
 @_tool("cds_tension_add", "Record a named tension between records (surfaced, not hidden).",
-       writes=True)
+       mode=ToolMode.SCRATCH)
 def cds_tension_add(project: Project, slug: str, label: str, description: str = "",
                     between: list[str] | None = None) -> str:
     return str(create_tension(project, Tension(slug=slug, label=label, description=description,
                                                between=between or [])))
 
 
-@_tool("cds_tension_resolve", "Mark a tension resolved.", writes=True)
+@_tool("cds_tension_resolve", "Mark a tension resolved.", mode=ToolMode.SCRATCH)
 def cds_tension_resolve(project: Project, slug: str) -> None:
     set_tension_status(project, slug, TensionStatus.RESOLVED)
 
@@ -220,7 +283,7 @@ def _append_waiver(project: Project, addition: Graph) -> None:
 
 
 @_tool("cds_waive", "Waive a T2/T3 finding with a reason (append-only; T1 refused).",
-       writes=True)
+       mode=ToolMode.APPEND)
 def cds_waive(project: Project, waiver_id: str, rule: str, reason: str,
               focus: str | None = None, by: str | None = None) -> str:
     result = _ORACLE.check(_staging_graph(project), check_conflicts=True)
@@ -231,7 +294,7 @@ def cds_waive(project: Project, waiver_id: str, rule: str, reason: str,
 
 
 @_tool("cds_commit", "Merge staging into canonical (K2 gate; requires cds-reviewer).",
-       writes=True)
+       mode=ToolMode.COMMIT)
 def cds_commit(project: Project) -> None:
     # The sole path to canonical state. Registered (it is in the K1 whitelist) but the
     # approver-gated merge + full verify is P2's commit gate — until then it refuses.

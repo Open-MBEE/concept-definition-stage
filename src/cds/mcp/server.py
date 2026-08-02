@@ -17,6 +17,7 @@ WHITELIST: tuple[str, ...] = (
     "cds_explain", "cds_list", "cds_show",
     "cds_verify", "cds_compile",
     "cds_synthesis", "cds_new", "cds_edit",
+    "cds_discard", "cds_retract",
     "cds_queue_add", "cds_queue_set", "cds_park_add",
     "cds_tension_add", "cds_tension_resolve",
     "cds_waive", "cds_commit",
