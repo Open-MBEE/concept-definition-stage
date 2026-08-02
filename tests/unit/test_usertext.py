@@ -123,3 +123,32 @@ def test_explain_reads_plainly() -> None:
     for term in (*AUTHORABLE_KINDS, "retract", "supersede", "discard", "verify"):
         for line in explain_mod.explain(term) or []:
             _assert_plain(line, f"explain {term}")
+
+
+def test_explain_changes_is_a_chooser() -> None:
+    """U3 (live-QA 2026-08-02): 'is there a good reason to have two modes and if so
+    let's make it really obvious when each is appropriate.' One topic answers
+    'which kind of change is this?' for every mode."""
+    from cds.core import explain as explain_mod
+
+    lines = explain_mod.explain("changes")
+    assert lines is not None
+    text = "\n".join(lines)
+    for verb in ("edit", "supersede", "retract", "rm"):
+        assert verb in text, f"chooser must cover {verb}"
+    for line in lines:
+        _assert_plain(line, "explain changes")
+
+
+def test_collision_hint_points_at_the_chooser(staging: Project) -> None:
+    from cds.core.authoring import RecordExistsError
+    from cds.mcp import tools as mcp_tools
+
+    run = mcp_tools.TOOLS
+    run["cds_synthesis"].fn(staging, slug="m1", title="Mapping One")
+    run["cds_new"].fn(staging, kind="goal", slug="g", label="Fast",
+                      description="Fast delivery.", synthesis="m1")
+    with pytest.raises(RecordExistsError) as exc:
+        run["cds_new"].fn(staging, kind="goal", slug="g", label="Other",
+                          description="Different.", synthesis="m1")
+    assert "changes" in str(exc.value)  # the hint teaches where the chooser lives

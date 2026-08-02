@@ -286,7 +286,8 @@ def cds_new(project: Project, kind: str, slug: str, label: str, description: str
     if _in_canonical_current(kind, slug):  # existence consults the overlay union (P2-a)
         raise RecordExistsError(
             f"{kind} {slug!r} already exists in the canonical record. Use cds_edit to "
-            f"revise it, or a new slug with supersedes={slug!r} to replace it"
+            f"revise it, or a new slug with supersedes={slug!r} to replace it "
+            f"(cds_explain 'changes' compares the options)"
         )
     return str(create_record(project, rec))
 

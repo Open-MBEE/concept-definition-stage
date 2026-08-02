@@ -146,3 +146,15 @@ def test_committed_openapi_is_current() -> None:
 
     committed = Path(__file__).parents[2] / "docs" / "services" / "openapi-facilitator.json"
     assert committed.read_text(encoding="utf-8") == openapi_json()  # determinism gate
+
+
+def test_manifest_reports_staged_count(client: TestClient) -> None:
+    """Live-QA 2026-08-02 (Step 2): staging is in-memory until commit; a session crash
+    loses it. The service reports how much uncommitted work a session holds so a UI can
+    show 'N staged' instead of letting the user assume drafts persist."""
+    assert client.get("/manifest").json()["staged_count"] == 0
+    client.post("/tools/cds_synthesis", json={"slug": "m1", "title": "Mapping"})
+    client.post("/tools/cds_new", json={
+        "kind": "stakeholder", "slug": "ops", "label": "Operator",
+        "description": "Runs the system.", "synthesis": "m1"})
+    assert client.get("/manifest").json()["staged_count"] == 2
