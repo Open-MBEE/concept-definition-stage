@@ -6,9 +6,9 @@ the tool's first argument. ``cds_commit`` — the sole path to canonical state �
 K2 commit gate lands (P2).
 
 This module is the **transport-neutral registry** (see docs/architecture/factoring.md): it is
-mounted by both the MCP server (``cds.mcp.server``) and the REST service (``cds.service.app``)
-and must never import a transport SDK (``mcp``, ``fastapi``) — that rule is enforced by
-``tests/unit/test_factoring.py``.
+mounted by both the MCP server (``cds.mcp.server``, stdio) and the facilitator service
+(``cds.facilitator.server``, HTTP) and must never import a transport SDK (``mcp``,
+``fastapi``) — that rule is enforced by ``tests/unit/test_factoring.py``.
 """
 
 from __future__ import annotations
