@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from rdflib import RDF, Graph, URIRef
 from rdflib.namespace import RDFS, SKOS
 
-from cds.core.licenses import TextLicense, sebok_renderable
+from cds.core.licenses import Attestation, TextLicense, sebok_renderable
 from cds.core.namespaces import CDS
 
 _GROUNDING_LABEL: dict[URIRef, str] = {
@@ -50,18 +50,35 @@ class TermView:
 
 @dataclass(frozen=True)
 class SchemeView:
-    """The whole scheme as the View presents it under a chosen text license."""
+    """The whole scheme as the View presents it under a chosen text license.
+
+    ``attested_by`` is set when a noncommercial attestation unlocked the verbatim (D3a);
+    in that case ``text_license`` is the PROPAGATED CC BY-NC-SA, whatever was requested —
+    the derivative is correctly licensed at rest, never mislabeled permissive (D3b).
+    """
 
     title: str
     text_license: str
     renders_restricted_canon: bool  # whether verbatim canon is embedded (vs cite-only)
     terms: tuple[TermView, ...]
+    attested_by: str | None = None
+
+
+_CITATION_PREFERENCE = (SKOS.exactMatch, SKOS.closeMatch, SKOS.broadMatch,
+                        SKOS.narrowMatch, SKOS.relatedMatch, RDFS.subClassOf)
 
 
 def _citation_for(g: Graph, term: URIRef) -> str | None:
-    """The authoritative source to cite — prefer the exact-match grounding target."""
-    target = g.value(term, SKOS.exactMatch)
-    return str(target) if target is not None else None
+    """The authoritative source to cite: the strongest grounding target available.
+
+    Cite-only is the always-available floor (D4, live-QA 2026-08-02) — a term whose only
+    grounding is a close/broad/related match still cites it, so a reader under a
+    permissive license is pointed at the source, never left blind."""
+    for pred in _CITATION_PREFERENCE:
+        targets = sorted(str(o) for o in g.objects(term, pred))
+        if targets:
+            return targets[0]
+    return None
 
 
 def scheme_view(
@@ -69,13 +86,23 @@ def scheme_view(
     *,
     title: str,
     text_license: str = TextLicense.CC_BY_NC_SA,
+    attestation: Attestation | None = None,
 ) -> SchemeView:
     """Project the built scheme graph into a license-resolved View.
 
     When ``text_license`` is not SEBoK-compatible, the restricted verbatim definitions are withheld
-    and the View carries citations only — never the text.
+    and the View carries citations only — never the text. A noncommercial ``attestation``
+    (D3, live-QA 2026-08-02) unlocks the verbatim and COERCES the effective license to
+    CC BY-NC-SA: the attester cleared NonCommercial by taking responsibility; the
+    propagation clears ShareAlike by construction. Recording the attestation (who/when,
+    hash-chained) is the caller's obligation — see ``cds render``.
     """
     renders = sebok_renderable(text_license)
+    attested_by: str | None = None
+    if attestation is not None:
+        renders = True
+        attested_by = attestation.attester
+        text_license = TextLicense.CC_BY_NC_SA.value  # SA propagated, never mislabeled
     terms: list[TermView] = []
     for term in graph.subjects(RDF.type, CDS.Term):
         if not isinstance(term, URIRef):
@@ -112,4 +139,5 @@ def scheme_view(
         text_license=str(text_license),
         renders_restricted_canon=renders,
         terms=tuple(terms),
+        attested_by=attested_by,
     )

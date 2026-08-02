@@ -13,6 +13,8 @@ _aka Approving Authorities_
 
 #quote(block: true)[The approving authorities include stakeholders that are responsible for formally certifying, qualifying, and approving the system for use in its operational environment by its intended users.]
 
+Source: #link("https://sebokwiki.org/wiki/Stakeholder_(glossary)")
+
 SysML anchor: canon-only
 
 === Capability
@@ -89,11 +91,15 @@ SysML anchor: canon-only
 
 #quote(block: true)[Goals are elaborated from the mission statement to communicate what must be achieved to result in a successful mission. Goals allow the organization to divide the mission statement into manageable pieces and promote a shared understanding between the project team and the business operations level stakeholders of what needs to be done to achieve the mission.]
 
+Source: #link("https://sebokwiki.org/wiki/Mission_(glossary)")
+
 SysML anchor: canon-only
 
 === Integrated Set of Needs
 
 #quote(block: true)[A need set is a structured set of agreed-to need expressions for the entity (enterprise/business unit/system/subsystem/system element/process) and its external interfaces. Within the NRM, GtNR, GtVV, and this Guide this set of needs is referred to as an Integrated Set of Needs. This Integrated Set of Needs is well-formed, having the characteristics defined in this Guide, communicating the scope of effort to which the system of interest will be validated against.]
+
+Source: #link("https://sebokwiki.org/wiki/Stakeholder_Needs_and_Requirements_(glossary)")
 
 SysML anchor: canon-only
 
@@ -165,6 +171,8 @@ SysML anchor: canon-only
 
 #quote(block: true)[A need statement is the result of a formal transformation of one or more sources or lifecycle concepts into an agreed-to expectation for an entity to perform some function or possess some quality within specified constraints with acceptable risk.]
 
+Source: #link("https://sebokwiki.org/wiki/Need_(glossary)")
+
 SysML anchor: canon-only
 
 === Need Statement
@@ -173,11 +181,15 @@ SysML anchor: canon-only
 
 SEBoK attribution: INCOSE GtWR 2023
 
+Source: #link("https://sebokwiki.org/wiki/Need_(glossary)")
+
 SysML anchor: canon-only
 
 === Objective
 
 #quote(block: true)[Objectives are elaborated from the goals to provide more details concerning what must be done that will result in the goals and mission to be achieved.]
+
+Source: #link("https://sebokwiki.org/wiki/Mission_(glossary)")
 
 SysML anchor: canon-only
 
@@ -215,6 +227,8 @@ SysML anchor: canon-only
 
 #quote(block: true)[A requirement statement is the result of a formal transformation of one or more sources, needs, or higher-level requirements into an agreed-to obligation for an entity to perform some function or possess some quality within specified constraints with acceptable risk.]
 
+Source: #link("https://sebokwiki.org/wiki/Requirement_(glossary)")
+
 SysML anchor: canon-only
 
 === Risk
@@ -241,6 +255,8 @@ SysML anchor: canon-only
 
 #quote(block: true)[A solution class refers to the means of achieving a solution. Examples include development of a new system, modifying or upgrading an existing system, leveraging multiple existing systems, or generating operational changes.]
 
+Source: #link("https://sebokwiki.org/wiki/Solution_(glossary)")
+
 SysML anchor: canon-only
 
 === Stakeholder
@@ -266,6 +282,8 @@ SysML anchor: https://www.omg.org/spec/SysML/2.0/RequirementDefinition
 === Stakeholder Register
 
 #quote(block: true)[An approach for recording the list of stakeholders is to use a stakeholder register that includes key information for each stakeholder and how they are involved with the SoI.]
+
+Source: #link("https://sebokwiki.org/wiki/Stakeholder_(glossary)")
 
 SysML anchor: canon-only
 
