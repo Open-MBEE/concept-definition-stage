@@ -60,3 +60,15 @@ def test_app_image_builds() -> None:  # pragma: no cover — environment-gated
         capture_output=True, text=True, timeout=1200,
     )
     assert build.returncode == 0, build.stderr[-2000:]
+
+
+def test_app_extra_carries_a_kernel() -> None:
+    """B3 (live-QA 2026-08-02): Voila 500'd with "No Jupyter kernel" — ipykernel was
+    missing from the app extra (and the documented run command), so neither
+    `uv sync --extra app` nor the container install could serve the notebook."""
+    import tomllib
+
+    pyproject = tomllib.loads(
+        (DEPLOY.parent / "pyproject.toml").read_text(encoding="utf-8"))
+    app_extra = " ".join(pyproject["project"]["optional-dependencies"]["app"])
+    assert "ipykernel" in app_extra

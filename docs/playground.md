@@ -185,11 +185,24 @@ the LLM is an affordance, not the substance. Run the scored eval against your mo
 CDS_LLM_BASE_URL="…" CDS_LLM_MODEL="…" CDS_LLM_API_KEY="…" uv run pytest tests/eval -v
 ```
 
+### The web app shell (P5), locally
+
+```bash
+uv run --with voila,ipywidgets,ipykernel voila --no-browser --port 8890 \
+  src/cds/app/notebook/concept_definition_app.ipynb
+```
+
+`ipykernel` is required (the page 500s with "No Jupyter kernel" without it); the first
+run cold-installs the three packages, so allow a minute or two before the page serves.
+Installing the packaged app instead (`uv sync --extra app`) brings the kernel with it.
+The served page has no code cells and no execute path; candidates stage in the session
+and the Commit button follows the same K2 rules as every other surface.
+
 ### What lands next here
 
 | Phase | New playground moves |
 |---|---|
-| P5/P6 | the Voilà web app; login via Keycloak |
+| P6 | login via Keycloak (see [web hosting](hosting-web.md)) |
 
 ## Related docs
 
