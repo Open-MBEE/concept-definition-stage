@@ -126,6 +126,44 @@ def test_commit_is_deterministic_and_idempotent(tmp_path: Path) -> None:
     assert snapshot == again  # byte-identical — re-commit is a no-op (N3.1)
 
 
+def test_revision_of_committed_record_commits(tmp_path: Path) -> None:
+    """LARP#3 H-1 (critical): the edit→commit loop is the core P2 workflow.
+
+    The verify preview must use the OVERLAY union (staged shadow wins per subject), not a
+    naive graph sum — otherwise a revised subject carries two labels and trips maxCount 1.
+    """
+    canonical = _canonical(tmp_path)
+    session = _session(tmp_path, canonical)
+    from rdflib import RDFS
+
+    upsert_record(session, Statement(slug="keep", kind="goal", label="Keep v2",
+                                     description="Revised in session.", synthesis="cd"))
+    plan = commit_gate.commit(session, canonical, approver_roles=REVIEWER)
+    assert record_iri(canonical.base_iri, "goal", "keep") in plan.revisions
+    g = project_graph(canonical)
+    assert list(g.objects(record_iri(canonical.base_iri, "goal", "keep"),
+                          RDFS.label)) == [Literal("Keep v2")]
+
+
+def test_blocked_commit_leaves_canonical_untouched(tmp_path: Path) -> None:
+    """LARP#3 H-2: a refused commit must be a no-op on the durable record."""
+    canonical = _canonical(tmp_path)
+    session = _session(tmp_path, canonical)
+    create_record(session, Statement(slug="bad", kind="goal", label="Bad",
+                                     description="Will be corrupted.", synthesis="cd"))
+    from rdflib import RDFS as _RDFS
+    path = session.instances_dir / "goal.ttl"
+    graph = Graph()
+    graph.parse(path, format="turtle")
+    graph.remove((None, _RDFS.label, None))
+    path.write_text(graph.serialize(format="turtle"), encoding="utf-8")
+    before = {p.name: p.read_bytes() for p in canonical.instances_dir.glob("*.ttl")}
+    with pytest.raises(commit_gate.CommitBlockedError):
+        commit_gate.commit(session, canonical, approver_roles=REVIEWER)
+    after = {p.name: p.read_bytes() for p in canonical.instances_dir.glob("*.ttl")}
+    assert before == after
+
+
 def test_stale_plan_hash_is_refused(tmp_path: Path) -> None:
     canonical = _canonical(tmp_path)
     session = _session(tmp_path, canonical)

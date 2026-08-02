@@ -100,10 +100,11 @@ def _subject_triples(graph: Graph, subject: URIRef) -> frozenset[tuple[str, str]
 
 def plan_commit(staging: Project, canonical: Project) -> ChangePlan:
     """Diff the staging overlay against the canonical record into a :class:`ChangePlan`."""
+    from cds.mcp.staging import union_graph
+
     staged_full = project_graph(staging)
     canon = project_graph(canonical)
-    union = staged_full + canon
-    _kept, held = filter_held_out(union)
+    _kept, held = filter_held_out(union_graph(staging, canonical))
     held_in_staging = tuple(h for h in held if (h, None, None) in staged_full)
 
     adds: list[URIRef] = []
@@ -168,7 +169,8 @@ def commit(
     """Merge staging → canonical through the K2 gate; returns the executed plan."""
     if APPROVER_ROLE not in approver_roles:
         raise PermissionError(
-            "committing requires the cds-reviewer role (K2: validation is human)"
+            "committing requires the cds-reviewer role (K2: validation is human). "
+            "Your staged candidates are preserved — ask a cds-reviewer to review and commit."
         )
     if canonical is None or not isinstance(staging_project, Project):
         raise ValueError("commit needs a staging Project and a canonical Project")
@@ -185,9 +187,13 @@ def commit(
         content_hash=fresh.content_hash, approver=approver,
     )
 
-    # full verify on the would-be merged current view (the commit is the assertion, §6.4)
+    # full verify on the would-be merged current view (the commit is the assertion, §6.4).
+    # OVERLAY union — the staged shadow wins per subject; a naive graph sum would give a
+    # revised record two labels and falsely trip maxCount shapes (LARP#3 H-1).
+    from cds.mcp.staging import union_graph
+
     staged_full = project_graph(staging_project)
-    kept_staged, _ = filter_held_out(staged_full + project_graph(canonical))
+    kept_staged, _ = filter_held_out(union_graph(staging_project, canonical))
     merged_preview = current_view(kept_staged)
     result = verify(merged_preview, check_conflicts=True)
     if not result.conforms:

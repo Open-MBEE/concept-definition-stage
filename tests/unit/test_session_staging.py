@@ -151,6 +151,35 @@ def test_retract_canonical_record_via_overlay(bound: tuple[Project, Project]) ->
             Literal(True)) not in project_graph(canonical)  # intent only, pre-commit
 
 
+def test_list_excludes_staged_retraction(bound: tuple[Project, Project]) -> None:
+    """LARP#3 H-3: current-view filtering must be uniform — the session that staged a
+    retraction must not keep listing the record as if active."""
+    from typing import Any, cast
+
+    session, _ = bound
+    _tools.TOOLS["cds_retract"].fn(session, kind="goal", slug="g", reason="descoped")
+    listed = cast(Any, _tools.TOOLS["cds_list"].fn(session, "goal"))
+    assert all(slug != "g" for slug, _label in listed)
+
+
+def test_commit_tool_maps_blocked_to_valueerror(bound: tuple[Project, Project]) -> None:
+    """LARP#3 H-1/H-7: a verification-blocked commit surfaces as a teachable error,
+    never an unmapped 500."""
+    from rdflib import RDFS as _RDFS
+
+    session, _ = bound
+    _tools.TOOLS["cds_new"].fn(session, kind="goal", slug="bad", label="Bad",
+                               description="Corrupted.", synthesis="cd")
+    path = session.instances_dir / "goal.ttl"
+    from rdflib import Graph as _Graph
+    g = _Graph()
+    g.parse(path, format="turtle")
+    g.remove((None, _RDFS.label, None))
+    path.write_text(g.serialize(format="turtle"), encoding="utf-8")
+    with _pytest.raises(ValueError):
+        _tools.TOOLS["cds_commit"].fn(session)
+
+
 def test_commit_tool_end_to_end(bound: tuple[Project, Project]) -> None:
     session, canonical = bound
     _tools.TOOLS["cds_new"].fn(session, kind="goal", slug="fresh", label="Fresh",

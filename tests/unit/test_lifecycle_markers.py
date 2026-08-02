@@ -148,6 +148,23 @@ def test_reference_to_retracted_is_flagged_t2(tmp_path: Path) -> None:
     assert result.conforms is True
 
 
+def test_unresolved_citation_flagged(tmp_path: Path) -> None:
+    """LARP#3 H-5: a record citing a project-local /src/ IRI that resolves to nothing
+    must not commit silently — it is flagged T2 for the retrieval workflow."""
+    from cds.core.authoring import create_record as _create
+    from cds.core.model.instances import Statement as _Statement
+
+    project = _project(tmp_path)
+    create_synthesis(project, Synthesis(slug="cd", title="CD"))
+    _create(project, _Statement(slug="risky", kind="driver", label="Risky",
+                                description="Leans on a phantom source.", synthesis="cd",
+                                cites=["https://cds.example/demo/src/phantom"]))
+    result = verify(project_graph(project), check_conflicts=True)
+    hits = [f for f in result.findings if f.rule == "UnresolvedCitation"]
+    assert hits and hits[0].tier == "T2"
+    assert result.conforms is True  # flags, never blocks authoring
+
+
 def test_brief_renders_current_view_only(tmp_path: Path) -> None:
     from cds.core.authoring import mark_superseded, retract_record
     from cds.core.compile import compile_brief

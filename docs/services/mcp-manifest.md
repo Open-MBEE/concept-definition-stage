@@ -19,7 +19,7 @@ session working copy only; `append` expresses durable-record intent by adding tr
 | `cds_commit` | commit | `—` | `cds.mcp.tools` | Merge staging into canonical through the K2 gate (requires the cds-reviewer role bound at server start); returns the executed change plan. |
 | `cds_compile` | read | `synthesis=None, include_history=False` | `cds.mcp.tools` | Compile the staging graph to a Markdown brief; preview only. Scope to one mapping with synthesis=<slug>; include_history adds the superseded/retracted appendix. |
 | `cds_discard` | scratch | `kind, slug` | `cds.mcp.tools` | Delete a staged candidate or ledger item from the working copy — scratch only, can never touch canonical state. |
-| `cds_edit` | scratch | `kind, slug, label, description, synthesis, **kind-specific fields` | `cds.mcp.tools` | Edit an EXISTING staged record in place (scratch mode); refuses an absent slug — use cds_new to create one. |
+| `cds_edit` | scratch | `kind, slug, label, description, synthesis, **kind-specific fields` | `cds.mcp.tools` | Edit an EXISTING record (scratch mode; copies a canonical record on write). REPLACES the whole record — restate every field you want to keep, including links. Refuses an absent slug. |
 | `cds_explain` | read | `name` | `cds.mcp.tools` | Explain a cds concept or record kind (read-only guidance). |
 | `cds_list` | read | `kind` | `cds.mcp.tools` | List records of a kind visible to this session — staged candidates overlaid on the canonical current view (slug, label). |
 | `cds_new` | scratch | `kind, slug, label, description, synthesis, **kind-specific fields` | `cds.mcp.tools` | Create a NEW record of a kind (candidate into staging); refuses an existing slug — use cds_edit to change one. |
