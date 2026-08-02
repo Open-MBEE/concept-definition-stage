@@ -11,6 +11,7 @@ factories are headless-testable — they build widget trees without a display.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
@@ -56,30 +57,101 @@ def bootstrap_session() -> Project:
     return staging.new_session_project(base)
 
 
-class RecordForm:
-    """Author one record — kind-aware fields, Pydantic-gated on submit (candidates only)."""
+def staged_count(project: Project) -> int:
+    """How many records this session holds that no reviewer has committed."""
+    from rdflib import RDF
 
-    def __init__(self, project: Project) -> None:
+    from cds.core.authoring import project_graph
+    from cds.core.namespaces import CDS
+
+    g = project_graph(project)
+    staged = set(g.subjects(RDF.type, CDS.Instance))
+    staged |= set(g.subjects(RDF.type, CDS.Synthesis))
+    return len(staged)
+
+
+class RecordForm:
+    """Author one record — kind-aware fields, Pydantic-gated on submit (candidates only).
+
+    D5/S4 (live-QA 2026-08-02): establishing a record's IDENTITY (kind, slug, mapping
+    placement) and revising its CONTENT (label, statement, links) are different acts.
+    Create mode types the identity; Revise mode PICKS an existing record, locks its
+    placement, prefills its content, and submits an edit — a slug is never a text box
+    on an existing record.
+    """
+
+    def __init__(self, project: Project,
+                 on_staged: Callable[[], None] | None = None) -> None:
         from cds.core.model.instances import AUTHORABLE_KINDS
 
         w = _w()
         self.project = project
+        self.on_staged = on_staged
+        wide = w.Layout(width="95%")
+        self.mode = w.ToggleButtons(options=["Create new", "Revise existing"],
+                                    description="Mode")
         self.kind = w.Dropdown(options=list(AUTHORABLE_KINDS), description="Kind")
         self.slug = w.Text(description="Slug", placeholder="kebab-case-id")
-        self.label = w.Text(description="Label", placeholder="Short name")
+        self.existing = w.Dropdown(options=(), description="Record",
+                                   layout=w.Layout(width="95%", display="none"))
+        self.synthesis = w.Text(description="Mapping", placeholder="synthesis slug")
+        self.label = w.Text(description="Label", placeholder="Short name", layout=wide)
         self.description = w.Textarea(
             description="Statement",
             placeholder="The content statement. For a need, use need-form "
-                        "('the <stakeholder> needs …', never 'shall')")
-        self.synthesis = w.Text(description="Mapping", placeholder="synthesis slug")
+                        "('the <stakeholder> needs …', never 'shall')",
+            layout=w.Layout(width="95%", height="120px"))
         self.extra = w.Text(
             description="Links",
-            placeholder="optional k=v pairs, e.g. for_stakeholder=ops serves_goal=g1")
+            placeholder="optional k=v pairs, e.g. for_stakeholder=ops serves_goal=g1",
+            layout=wide)
         self.status = w.HTML(value="")
         self.button = w.Button(description="Stage candidate", button_style="primary")
         self.button.on_click(lambda _b: self.submit())
-        self.widget = w.VBox([self.kind, self.slug, self.label, self.description,
-                              self.synthesis, self.extra, self.button, self.status])
+        self.mode.observe(lambda _c: self._apply_mode(), names="value")
+        self.kind.observe(lambda _c: self._refresh_existing(), names="value")
+        self.existing.observe(lambda _c: self._prefill(), names="value")
+        identity = w.VBox([self.kind, self.slug, self.existing, self.synthesis])
+        content = w.VBox([self.label, self.description, self.extra])
+        self.widget = w.VBox([self.mode, w.HTML("<b>Identity</b> (authored once)"),
+                              identity, w.HTML("<b>Content</b> (freely revisable)"),
+                              content, self.button, self.status])
+        self.widget._cds_form = self  # headless-test handle
+
+    @property
+    def revising(self) -> bool:
+        return bool(self.mode.value == "Revise existing")
+
+    def _apply_mode(self) -> None:
+        revising = self.revising
+        self.slug.layout.display = "none" if revising else ""
+        self.existing.layout.display = "" if revising else "none"
+        self.synthesis.disabled = revising  # placement is identity: locked once created
+        if revising:
+            self._refresh_existing()
+
+    def _refresh_existing(self) -> None:
+        if not self.revising:
+            return
+        listed: Any = mcp_tools.TOOLS["cds_list"].fn(self.project, self.kind.value)
+        self.existing.options = tuple(slug for slug, _label in listed)
+        self._prefill()
+
+    def _prefill(self) -> None:
+        """Load the picked record's content so a revision starts from what is there."""
+        if not self.revising or not self.existing.value:
+            return
+        from rdflib import RDFS
+
+        from cds.core.model.instances import record_iri
+        from cds.core.namespaces import CDS, DCTERMS
+
+        g = mcp_tools._staging_graph(self.project)
+        s = record_iri(self.project.base_iri, self.kind.value, str(self.existing.value))
+        self.label.value = str(g.value(s, RDFS.label) or "")
+        self.description.value = str(g.value(s, DCTERMS.description) or "")
+        mapping = g.value(s, CDS.inSynthesis)
+        self.synthesis.value = str(mapping).rsplit("/", 1)[-1] if mapping else ""
 
     def _extra_fields(self) -> dict[str, object]:
         fields: dict[str, object] = {}
@@ -90,15 +162,21 @@ class RecordForm:
         return fields
 
     def submit(self) -> None:
+        revising = self.revising
+        slug = str(self.existing.value) if revising else self.slug.value
+        tool = "cds_edit" if revising else "cds_new"
         try:
-            iri = mcp_tools.TOOLS["cds_new"].fn(
-                self.project, kind=self.kind.value, slug=self.slug.value,
+            iri = mcp_tools.TOOLS[tool].fn(
+                self.project, kind=self.kind.value, slug=slug,
                 label=self.label.value, description=self.description.value,
                 synthesis=self.synthesis.value, **self._extra_fields())
         except Exception as exc:
             self.status.value = f"<b>refused:</b> {exc}"
             return
-        self.status.value = f"staged <code>{self.slug.value}</code> → {iri}"
+        verb = "revised" if revising else "staged"
+        self.status.value = f"{verb} <code>{slug}</code> → {iri}"
+        if self.on_staged is not None:
+            self.on_staged()
 
 
 @dataclass(frozen=True)
@@ -182,18 +260,29 @@ class BriefPanel:
 
 
 def build_app(project: Project) -> Any:
-    """The whole app: author → verify (advisory) → preview → commit (human)."""
+    """The whole app: compose → stage → verify (advisory) → compile → commit (human)."""
+    from cds.core.usertext import STAGED_COUNT_NOTE
+
     w = _w()
-    form = RecordForm(project)
+    banner = w.HTML()
+
+    def refresh_banner() -> None:
+        n = staged_count(project)
+        banner.value = (f"<b>{n} staged, uncommitted.</b> "
+                        f"<small>{STAGED_COUNT_NOTE}</small>")
+
+    form = RecordForm(project, on_staged=refresh_banner)
     verify_panel = VerifyPanel(project)
     brief = BriefPanel(project)
     commit_panel = CommitPanel(project)
+    refresh_banner()
     header = w.HTML(
         "<h2>Concept Definition</h2>"
         "<p>Candidates stage in your session; nothing reaches the durable record "
         "until a reviewer commits. Verification is advisory while you compose.</p>")
+    # the right column follows the flow: verify, then compile, then (last, red) commit
     return w.VBox([
-        header,
+        header, banner,
         w.HBox([form.widget, w.VBox([verify_panel.widget, brief.widget,
                                      commit_panel.widget])]),
     ])

@@ -94,3 +94,96 @@ def test_notebook_is_thin() -> None:
     assert len(code_cells) <= 2
     source = "".join("".join(c["source"]) for c in code_cells)
     assert "build_app" in source and len(source) < 500
+
+
+# ------------------------------------------- D5/S4 (live-QA 2026-08-02): identity vs content
+
+
+def _staged_goal(session: Project, form: widgets.RecordForm) -> None:
+    widgets.build_synthesis(session, slug="m1", title="M")
+    form.kind.value = "goal"
+    form.slug.value = "g1"
+    form.label.value = "A goal"
+    form.description.value = "Something worth doing."
+    form.synthesis.value = "m1"
+    form.submit()
+
+
+def test_form_has_create_and_revise_modes(session: Project) -> None:
+    form = widgets.RecordForm(session)
+    assert list(form.mode.options) == ["Create new", "Revise existing"]
+    assert form.mode.value == "Create new"
+    assert not form.slug.disabled and not form.synthesis.disabled
+
+
+def test_revise_mode_locks_identity(session: Project) -> None:
+    """Identity (slug, mapping placement) is authored once; revising content must not
+    invite rewriting it. In revise mode the record is picked, not typed, and the
+    placement is locked."""
+    form = widgets.RecordForm(session)
+    _staged_goal(session, form)
+    form.mode.value = "Revise existing"
+    assert form.synthesis.disabled  # placement locked
+    assert "g1" in tuple(form.existing.options)  # pick, don't type
+    assert not form.label.disabled and not form.description.disabled  # content free
+
+
+def test_revise_submits_an_edit_not_a_create(session: Project) -> None:
+    from rdflib import RDFS
+
+    from cds.core.authoring import project_graph
+    from cds.core.model.instances import record_iri
+
+    form = widgets.RecordForm(session)
+    _staged_goal(session, form)
+    form.mode.value = "Revise existing"
+    form.existing.value = "g1"
+    form.label.value = "A sharper goal"
+    form.submit()
+    assert "g1" in form.status.value
+    g = project_graph(session)
+    labels = [str(o) for o in g.objects(record_iri(session.base_iri, "goal", "g1"),
+                                        RDFS.label)]
+    assert labels == ["A sharper goal"]
+
+
+def test_revise_prefills_content_from_the_record(session: Project) -> None:
+    form = widgets.RecordForm(session)
+    _staged_goal(session, form)
+    form.label.value = ""
+    form.description.value = ""
+    form.mode.value = "Revise existing"
+    form.existing.value = "g1"
+    assert form.label.value == "A goal"
+    assert "worth doing" in form.description.value
+    assert form.synthesis.value == "m1"
+
+
+def test_statement_field_is_roomy(session: Project) -> None:
+    form = widgets.RecordForm(session)
+    height = form.description.layout.height
+    assert height is not None and int(height.rstrip("px")) >= 100
+
+
+def test_actions_follow_the_flow(session: Project) -> None:
+    """Compose, stage, verify, compile, commit: the buttons appear in that order."""
+    tree = _walk(widgets.build_app(session))
+    buttons = [w.description for w in tree if isinstance(w, ipywidgets.Button)]
+    stage = buttons.index("Stage candidate")
+    verify = buttons.index("Verify (advisory)")
+    compile_ = buttons.index("Compile brief")
+    commit = buttons.index("Commit to record")
+    assert stage < verify < compile_ < commit
+
+
+def test_staged_count_banner_updates(session: Project) -> None:
+    """Live-QA Step-2: staging is not durable; the app says how much uncommitted work
+    the session holds instead of implying persistence."""
+    app = widgets.build_app(session)
+    banner = next(w for w in _walk(app)
+                  if isinstance(w, ipywidgets.HTML) and "staged" in w.value)
+    assert "0" in banner.value
+    form = next(w for w in _walk(app) if isinstance(w, ipywidgets.VBox) and
+                getattr(w, "_cds_form", None) is not None)._cds_form
+    _staged_goal(session, form)
+    assert "2" in banner.value  # the mapping + the goal
