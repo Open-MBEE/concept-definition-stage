@@ -65,8 +65,38 @@ def test_ledger_tools(staging: Project) -> None:
 
 
 def test_commit_refused_in_p1(staging: Project) -> None:
-    with pytest.raises(PermissionError):
+    with pytest.raises(PermissionError) as exc:
         _run("cds_commit", staging)
+    msg = str(exc.value)
+    # F-7: refusal speaks to the user, not the roadmap — role, safety, and next step
+    assert "cds-reviewer" in msg and "staging" in msg
+
+
+def test_list_unknown_kind_teaches_the_kinds(staging: Project) -> None:
+    with pytest.raises(ValueError) as exc:
+        _run("cds_list", staging, "synthesis")
+    assert "need" in str(exc.value)  # F-6: the error lists valid kinds, not a raw KeyError
+
+
+def test_explain_unknown_name_suggests(staging: Project) -> None:
+    lines = _run("cds_explain", staging, "getting-started")
+    assert lines is not None  # F-11: never a bare null
+    joined = "\n".join(lines)
+    assert "need" in joined and "stakeholder" in joined  # an index to try
+
+
+def test_waive_unknown_rule_refused(staging: Project) -> None:
+    with pytest.raises(ValueError) as exc:  # F-3: no dead waivers in an append-only ledger
+        _run("cds_waive", staging, waiver_id="https://x/w", rule="NoSuchRule", reason="typo")
+    assert "NoSuchRule" in str(exc.value)
+
+
+def test_waive_t1_class_rule_refused_even_without_live_finding(staging: Project) -> None:
+    # instanceHasLabel is a sh:Violation property shape — T1-class, never waivable (F-3),
+    # even when no live finding currently matches it.
+    with pytest.raises(PermissionError):
+        _run("cds_waive", staging, waiver_id="https://x/w", rule="instanceHasLabel",
+             reason="just testing")
 
 
 def test_discard_removes_staged_candidate_and_reports_referrers(staging: Project) -> None:

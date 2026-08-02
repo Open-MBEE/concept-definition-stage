@@ -50,6 +50,7 @@ from cds.core.verify import (
     Severity,
     VerifyResult,
     Waiver,
+    rule_severities,
     waiver_to_graph,
 )
 from cds.core.workspace import Project
@@ -115,12 +116,21 @@ _ORACLE: ConformanceOracle = InProcessOracle()
 
 
 @_tool("cds_explain", "Explain a cds concept or record kind (read-only guidance).")
-def cds_explain(project: Project, name: str) -> list[str] | None:
-    return explain_mod.explain(name)
+def cds_explain(project: Project, name: str) -> list[str]:
+    lines = explain_mod.explain(name)
+    if lines is not None:
+        return lines
+    # F-11: never a bare null — teach what IS explainable
+    return [f"unknown term {name!r} — explainable names:"] + explain_mod.glossary()
 
 
 @_tool("cds_list", "List records of a kind in the session staging project (slug, label).")
 def cds_list(project: Project, kind: str) -> list[tuple[str, str]]:
+    from cds.core.model.instances import KIND_TERM
+
+    if kind not in KIND_TERM:
+        # F-6: the error teaches the vocabulary instead of leaking a KeyError
+        raise ValueError(f"unknown kind {kind!r}; expected one of {', '.join(KIND_TERM)}")
     return list_records(project, kind)
 
 
@@ -286,6 +296,11 @@ def _append_waiver(project: Project, addition: Graph) -> None:
        mode=ToolMode.APPEND)
 def cds_waive(project: Project, waiver_id: str, rule: str, reason: str,
               focus: str | None = None, by: str | None = None) -> str:
+    known = rule_severities()
+    if rule not in known:  # F-3: no dead waivers in an append-only ledger
+        raise ValueError(f"unknown rule {rule!r} — known rules: {', '.join(sorted(known))}")
+    if known[rule] is Severity.VIOLATION:  # F-3: T1-class refused even without a live finding
+        raise PermissionError(f"T1 is never waivable: {rule} is a Violation-class rule")
     result = _ORACLE.check(_staging_graph(project), check_conflicts=True)
     refuse_if_waives_t1(result.findings, rule=rule, focus=focus)
     w = Waiver(id=waiver_id, rule=rule, reason=reason, focus=focus, by=by)
@@ -298,6 +313,8 @@ def cds_waive(project: Project, waiver_id: str, rule: str, reason: str,
 def cds_commit(project: Project) -> None:
     # The sole path to canonical state. Registered (it is in the K1 whitelist) but the
     # approver-gated merge + full verify is P2's commit gate — until then it refuses.
-    raise PermissionError(
-        "cds_commit is gated: the K2 commit gate (approver role + full verify) lands in P2"
+    raise PermissionError(  # F-7: the refusal speaks to the user, not the roadmap
+        "committing requires the cds-reviewer role and an approved change plan; the commit "
+        "gate is not enabled in this build. Your candidates remain safely in session "
+        "staging — nothing is lost. Ask a reviewer to commit once the gate is available."
     )

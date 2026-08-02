@@ -260,6 +260,34 @@ def _findings(report: Graph) -> tuple[Finding, ...]:
 
 _SHALL = re.compile(r"\bshall\b", re.IGNORECASE)
 
+#: The cross-record conflict checks and the severities they emit (keep in sync with
+#: ``_check_conflicts`` below — these are not SHACL shapes, so they are enumerated here).
+_CONFLICT_RULE_SEVERITIES: dict[str, Severity] = {
+    "NeedFormShall": Severity.WARNING,
+    "NeedWithoutStakeholder": Severity.WARNING,
+    "NeedServesNoGoal": Severity.INFO,
+    "DuplicateStatement": Severity.WARNING,
+    "SynthesisWithoutNeeds": Severity.INFO,
+    "DanglingReference": Severity.WARNING,
+    "ReferenceToRetracted": Severity.WARNING,
+}
+
+
+def rule_severities(shapes: Graph | None = None) -> dict[str, Severity]:
+    """Every known rule name → its severity: the named SHACL shapes (default Violation per
+    the SHACL spec) plus the conflict checks. The waiver gate's ground truth — a waiver
+    naming an unknown rule is a dead waiver; one naming a Violation-class rule is refused."""
+    shapes = shapes if shapes is not None else load_shapes()
+    out: dict[str, Severity] = dict(_CONFLICT_RULE_SEVERITIES)
+    for cls in (SH.NodeShape, SH.PropertyShape):
+        for s in shapes.subjects(RDF.type, cls):
+            if not isinstance(s, URIRef):
+                continue
+            sev = shapes.value(s, SH.severity)
+            out[_local_name(str(s))] = _FROM_SHACL.get(sev, Severity.VIOLATION) if sev \
+                else Severity.VIOLATION
+    return out
+
 
 def _check_conflicts(data: Graph) -> list[Finding]:
     """Cross-record consistency checks over an *instance* graph (not expressible per-record SHACL).
