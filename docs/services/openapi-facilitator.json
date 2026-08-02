@@ -121,30 +121,49 @@
         "type": "object"
       },
       "cds_edit_args": {
-        "additionalProperties": true,
+        "additionalProperties": false,
         "properties": {
           "addresses": {
-            "default": [],
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "goal \u2192 problem/opportunity slug(s).",
-            "items": {
-              "type": "string"
-            },
-            "title": "Addresses",
-            "type": "array"
+            "title": "Addresses"
           },
           "characterizes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "position \u2192 '<kind>/<slug>' of the record this stance reads (e.g. 'objective/coverage').",
-            "title": "Characterizes",
-            "type": "string"
+            "title": "Characterizes"
           },
           "cites": {
-            "default": [],
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "Source IRIs for provenance.",
-            "items": {
-              "type": "string"
-            },
-            "title": "Cites",
-            "type": "array"
+            "title": "Cites"
           },
           "description": {
             "description": "The content statement (for a position: the stance rationale).",
@@ -152,18 +171,31 @@
             "type": "string"
           },
           "for_stakeholder": {
-            "default": [],
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "need \u2192 stakeholder slug(s).",
-            "items": {
-              "type": "string"
-            },
-            "title": "For Stakeholder",
-            "type": "array"
+            "title": "For Stakeholder"
           },
           "held_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "position \u2192 stakeholder slug holding the stance.",
-            "title": "Held By",
-            "type": "string"
+            "title": "Held By"
           },
           "influence": {
             "anyOf": [
@@ -212,13 +244,19 @@
             "type": "string"
           },
           "refines": {
-            "default": [],
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "objective \u2192 goal slug(s).",
-            "items": {
-              "type": "string"
-            },
-            "title": "Refines",
-            "type": "array"
+            "title": "Refines"
           },
           "segment": {
             "anyOf": [
@@ -233,13 +271,19 @@
             "title": "Segment"
           },
           "serves_goal": {
-            "default": [],
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "need \u2192 goal slug(s).",
-            "items": {
-              "type": "string"
-            },
-            "title": "Serves Goal",
-            "type": "array"
+            "title": "Serves Goal"
           },
           "slug": {
             "description": "Short kebab-case id for this record (e.g. 'reach-a-human').",
@@ -247,25 +291,38 @@
             "type": "string"
           },
           "stance": {
-            "description": "position \u2192 one of: supports, opposes, prioritizes, constrains, reads-as.",
-            "enum": [
-              "supports",
-              "opposes",
-              "prioritizes",
-              "constrains",
-              "reads-as"
+            "anyOf": [
+              {
+                "enum": [
+                  "supports",
+                  "opposes",
+                  "prioritizes",
+                  "constrains",
+                  "reads-as"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
             ],
-            "title": "Stance",
-            "type": "string"
+            "description": "position \u2192 one of: supports, opposes, prioritizes, constrains, reads-as.",
+            "title": "Stance"
           },
           "supersedes": {
-            "default": [],
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "Record(s) this one replaces in the durable record \u2014 bare slug (same kind) or full IRI; the old record is marked superseded, not deleted.",
-            "items": {
-              "type": "string"
-            },
-            "title": "Supersedes",
-            "type": "array"
+            "title": "Supersedes"
           },
           "synthesis": {
             "description": "Slug of the parent mapping (create it first with cds_synthesis).",
@@ -313,30 +370,49 @@
         "type": "object"
       },
       "cds_new_args": {
-        "additionalProperties": true,
+        "additionalProperties": false,
         "properties": {
           "addresses": {
-            "default": [],
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "goal \u2192 problem/opportunity slug(s).",
-            "items": {
-              "type": "string"
-            },
-            "title": "Addresses",
-            "type": "array"
+            "title": "Addresses"
           },
           "characterizes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "position \u2192 '<kind>/<slug>' of the record this stance reads (e.g. 'objective/coverage').",
-            "title": "Characterizes",
-            "type": "string"
+            "title": "Characterizes"
           },
           "cites": {
-            "default": [],
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "Source IRIs for provenance.",
-            "items": {
-              "type": "string"
-            },
-            "title": "Cites",
-            "type": "array"
+            "title": "Cites"
           },
           "description": {
             "description": "The content statement (for a position: the stance rationale).",
@@ -344,18 +420,31 @@
             "type": "string"
           },
           "for_stakeholder": {
-            "default": [],
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "need \u2192 stakeholder slug(s).",
-            "items": {
-              "type": "string"
-            },
-            "title": "For Stakeholder",
-            "type": "array"
+            "title": "For Stakeholder"
           },
           "held_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "position \u2192 stakeholder slug holding the stance.",
-            "title": "Held By",
-            "type": "string"
+            "title": "Held By"
           },
           "influence": {
             "anyOf": [
@@ -404,13 +493,19 @@
             "type": "string"
           },
           "refines": {
-            "default": [],
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "objective \u2192 goal slug(s).",
-            "items": {
-              "type": "string"
-            },
-            "title": "Refines",
-            "type": "array"
+            "title": "Refines"
           },
           "segment": {
             "anyOf": [
@@ -425,13 +520,19 @@
             "title": "Segment"
           },
           "serves_goal": {
-            "default": [],
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "need \u2192 goal slug(s).",
-            "items": {
-              "type": "string"
-            },
-            "title": "Serves Goal",
-            "type": "array"
+            "title": "Serves Goal"
           },
           "slug": {
             "description": "Short kebab-case id for this record (e.g. 'reach-a-human').",
@@ -439,25 +540,38 @@
             "type": "string"
           },
           "stance": {
-            "description": "position \u2192 one of: supports, opposes, prioritizes, constrains, reads-as.",
-            "enum": [
-              "supports",
-              "opposes",
-              "prioritizes",
-              "constrains",
-              "reads-as"
+            "anyOf": [
+              {
+                "enum": [
+                  "supports",
+                  "opposes",
+                  "prioritizes",
+                  "constrains",
+                  "reads-as"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
             ],
-            "title": "Stance",
-            "type": "string"
+            "description": "position \u2192 one of: supports, opposes, prioritizes, constrains, reads-as.",
+            "title": "Stance"
           },
           "supersedes": {
-            "default": [],
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "Record(s) this one replaces in the durable record \u2014 bare slug (same kind) or full IRI; the old record is marked superseded, not deleted.",
-            "items": {
-              "type": "string"
-            },
-            "title": "Supersedes",
-            "type": "array"
+            "title": "Supersedes"
           },
           "synthesis": {
             "description": "Slug of the parent mapping (create it first with cds_synthesis).",
