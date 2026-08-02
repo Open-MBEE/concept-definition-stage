@@ -2,5 +2,5 @@
 from __future__ import annotations
 
 
-def stamp(triples, *, user: str, session: str, model: str):
+def stamp(triples: object, *, user: str, session: str, model: str) -> object:
     raise NotImplementedError("P3: attach PROV-O attribution (K4)")
