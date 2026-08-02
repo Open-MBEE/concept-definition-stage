@@ -38,7 +38,8 @@ interop = [
 ]
 
 mcp = ["mcp>=1.0"]
-facilitator = ["cds[mcp]", "anthropic>=0.40", "instructor>=1.0"]
+oracle = ["fastapi>=0.110", "uvicorn>=0.29"]
+facilitator = ["cds[mcp]", "fastapi>=0.110", "uvicorn>=0.29", "anthropic>=0.40", "instructor>=1.0"]
 selfhosted-llm = ["vllm>=0.6", "xgrammar>=0.1"]
 app = ["cds[facilitator]", "voila>=0.5", "ipywidgets>=8", "jupyterhub>=5", "dockerspawner>=13", "oauthenticator>=17"]
 store = ["pyoxigraph>=0.4", "oxrdflib>=0.4"]
@@ -47,6 +48,7 @@ store = ["pyoxigraph>=0.4", "oxrdflib>=0.4"]
 cds = "cds.core.cli:main"
 cds-mcp = "cds.mcp.server:main"
 cds-serve = "cds.facilitator.server:main"
+cds-oracle = "cds.oracle.app:main"
 
 [tool.hatch.metadata]
 allow-direct-references = true
