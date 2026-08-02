@@ -88,9 +88,55 @@
       "cds_edit_args": {
         "additionalProperties": true,
         "properties": {
+          "addresses": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Addresses",
+            "type": "array"
+          },
+          "cites": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Cites",
+            "type": "array"
+          },
           "description": {
             "title": "Description",
             "type": "string"
+          },
+          "for_stakeholder": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "For Stakeholder",
+            "type": "array"
+          },
+          "influence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Influence"
+          },
+          "interest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interest"
           },
           "kind": {
             "title": "Kind",
@@ -100,9 +146,44 @@
             "title": "Label",
             "type": "string"
           },
+          "refines": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Refines",
+            "type": "array"
+          },
+          "segment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segment"
+          },
+          "serves_goal": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Serves Goal",
+            "type": "array"
+          },
           "slug": {
             "title": "Slug",
             "type": "string"
+          },
+          "supersedes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Supersedes",
+            "type": "array"
           },
           "synthesis": {
             "title": "Synthesis",
@@ -150,9 +231,55 @@
       "cds_new_args": {
         "additionalProperties": true,
         "properties": {
+          "addresses": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Addresses",
+            "type": "array"
+          },
+          "cites": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Cites",
+            "type": "array"
+          },
           "description": {
             "title": "Description",
             "type": "string"
+          },
+          "for_stakeholder": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "For Stakeholder",
+            "type": "array"
+          },
+          "influence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Influence"
+          },
+          "interest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interest"
           },
           "kind": {
             "title": "Kind",
@@ -162,9 +289,44 @@
             "title": "Label",
             "type": "string"
           },
+          "refines": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Refines",
+            "type": "array"
+          },
+          "segment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segment"
+          },
+          "serves_goal": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Serves Goal",
+            "type": "array"
+          },
           "slug": {
             "title": "Slug",
             "type": "string"
+          },
+          "supersedes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Supersedes",
+            "type": "array"
           },
           "synthesis": {
             "title": "Synthesis",

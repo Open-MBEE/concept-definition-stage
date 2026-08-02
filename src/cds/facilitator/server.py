@@ -27,6 +27,24 @@ from cds.mcp import server as mcp_server
 from cds.mcp import tools as mcp_tools
 
 
+def _kind_specific_fields() -> dict[str, tuple[Any, Any]]:
+    """The union of per-kind record fields beyond the route's positional args — declared
+    explicitly so the OpenAPI contract never lies by omission (LARP F-1)."""
+    from pydantic_core import PydanticUndefined
+
+    from cds.core.model.instances import KIND_TERM, model_for_kind
+
+    handled = {"slug", "kind", "label", "description", "synthesis"}
+    out: dict[str, tuple[Any, Any]] = {}
+    for kind in sorted(KIND_TERM):
+        for fname, finfo in model_for_kind(kind).model_fields.items():
+            if fname in handled or fname in out:
+                continue
+            default = None if finfo.default is PydanticUndefined else finfo.default
+            out[fname] = (finfo.annotation, default)
+    return out
+
+
 def _request_model(spec: mcp_tools.ToolSpec) -> type[BaseModel]:
     """Derive the route's request model from the tool's signature (minus ``project``)."""
     hints = get_type_hints(spec.fn)
@@ -36,11 +54,13 @@ def _request_model(spec: mcp_tools.ToolSpec) -> type[BaseModel]:
         if name == "project":
             continue
         if param.kind is inspect.Parameter.VAR_KEYWORD:
-            open_extras = True  # e.g. cds_new/cds_edit kind-specific fields
+            open_extras = True  # cds_new/cds_edit kind-specific fields
             continue
         annotation = hints.get(name, object)
         default = ... if param.default is inspect.Parameter.empty else param.default
         fields[name] = (annotation, default)
+    if open_extras:
+        fields.update(_kind_specific_fields())
     config = ConfigDict(extra="allow" if open_extras else "forbid")
     return create_model(f"{spec.name}_args", __config__=config, **fields)
 
