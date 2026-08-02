@@ -100,6 +100,20 @@ def test_openapi_declares_kind_specific_fields(client: TestClient) -> None:
         assert field in props, f"{field} missing from cds_new schema"
 
 
+def test_every_tool_call_is_audited(client: TestClient, tmp_path: Path) -> None:
+    """REQ-K4.2 on the transport: tool calls land in the session's hash-chained audit."""
+    from cds.mcp.provenance import AuditLog
+
+    client.post("/tools/cds_synthesis", json={"slug": "m1", "title": "M"})
+    client.post("/tools/cds_commit", json={})  # refused — refusals are audited too
+    audit = AuditLog(tmp_path / "session" / "audit.jsonl")
+    events = audit.replay()
+    tools_called = [(e["event"]["tool"], e["event"]["status"]) for e in events]
+    assert ("cds_synthesis", "ok") in tools_called
+    assert ("cds_commit", "403") in tools_called
+    assert audit.verify_chain() is True
+
+
 def test_committed_openapi_is_current() -> None:
     from cds.facilitator.export_openapi import openapi_json
 
