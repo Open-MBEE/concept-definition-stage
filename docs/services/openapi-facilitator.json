@@ -814,7 +814,7 @@
     },
     "/tools/cds_commit": {
       "post": {
-        "description": "Merge staging into canonical (K2 gate; requires cds-reviewer).",
+        "description": "Merge staging into canonical through the K2 gate (requires the cds-reviewer role bound at server start); returns the executed change plan.",
         "operationId": "cds_commit",
         "requestBody": {
           "content": {
@@ -1009,7 +1009,7 @@
     },
     "/tools/cds_list": {
       "post": {
-        "description": "List records of a kind in the session staging project (slug, label).",
+        "description": "List records of a kind visible to this session \u2014 staged candidates overlaid on the canonical current view (slug, label).",
         "operationId": "cds_list",
         "requestBody": {
           "content": {
@@ -1243,7 +1243,7 @@
     },
     "/tools/cds_show": {
       "post": {
-        "description": "Show one staged record by kind and slug.",
+        "description": "Show one record visible to this session (staged copy wins).",
         "operationId": "cds_show",
         "requestBody": {
           "content": {

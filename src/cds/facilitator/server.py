@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import inspect
 from dataclasses import asdict, is_dataclass
+from pathlib import Path
 from typing import Any, get_type_hints
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, create_model
@@ -175,13 +176,29 @@ def build_app(project: Project) -> Any:
     return app
 
 
+def resolve_session(project: Path | None, canonical: Path | None,
+                    roles: list[str] | None, approver: str | None) -> Project:
+    """Bind the session (P2): explicit scratch root, or a fresh overlay session over
+    ``--canonical``, or plain cwd discovery. Roles/approver are OPERATOR configuration —
+    never caller-claimable (K2)."""
+    from cds.core.workspace import load_project
+    from cds.mcp import staging, tools
+
+    canon = load_project(explicit=canonical) if canonical is not None else None
+    tools.SESSION.canonical = canon
+    tools.SESSION.roles = frozenset(roles or ())
+    tools.SESSION.approver = approver
+    if project is not None:
+        return load_project(explicit=project)
+    if canon is not None:
+        return staging.new_session_project(canon.base_iri)  # fresh isolated session (F-5)
+    return load_project()
+
+
 def main() -> None:
     import argparse
-    from pathlib import Path
 
     import uvicorn
-
-    from cds.core.workspace import load_project
 
     ap = argparse.ArgumentParser(
         prog="cds-serve",
@@ -189,10 +206,19 @@ def main() -> None:
                     "staging project; writes are candidates, the commit gate is human.",
     )
     ap.add_argument("--project", type=Path, default=None,
-                    help="Staging project root (default: CDS_PROJECT / cwd discovery).")
+                    help="Explicit staging root (default: fresh session when --canonical "
+                         "is given, else CDS_PROJECT / cwd discovery).")
+    ap.add_argument("--canonical", type=Path, default=None,
+                    help="Canonical record root — enables the overlay read model and the "
+                         "commit gate (K2).")
+    ap.add_argument("--role", action="append", default=None,
+                    help="Grant a role to this session (repeatable), e.g. cds-reviewer. "
+                         "Operator configuration until P6 auth.")
+    ap.add_argument("--approver", default=None,
+                    help="Approver IRI recorded on committed change plans.")
     ap.add_argument("--host", default="127.0.0.1",
                     help="Bind address (loopback by default; authn arrives at P6).")
     ap.add_argument("--port", type=int, default=8800)
     args = ap.parse_args()
-    uvicorn.run(build_app(load_project(explicit=args.project)),
-                host=args.host, port=args.port)
+    session = resolve_session(args.project, args.canonical, args.role, args.approver)
+    uvicorn.run(build_app(session), host=args.host, port=args.port)

@@ -17,25 +17,34 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 
-from rdflib import Graph
+from rdflib import RDF, RDFS, Graph
 
 from cds.contracts import ConformanceOracle, InProcessOracle
 from cds.core import compile as compile_mod
 from cds.core import explain as explain_mod
 from cds.core.authoring import (
+    RecordExistsError,
+    RecordNotFoundError,
     create_parked,
     create_queue_item,
     create_record,
     create_synthesis,
     create_tension,
     edit_record,
-    list_records,
+    merge_subject_graph,
     project_graph,
     set_queue_status,
     set_tension_status,
     show_record,
+    upsert_record,
 )
-from cds.core.model.instances import Record, Synthesis, model_for_kind
+from cds.core.model.instances import (
+    Record,
+    Synthesis,
+    model_for_kind,
+    record_iri,
+    type_iri_for_kind,
+)
 from cds.core.model.notes import (
     ParkedItem,
     RetrievalItem,
@@ -103,8 +112,36 @@ def registered() -> tuple[str, ...]:
     return tuple(TOOLS)
 
 
+@dataclass
+class SessionContext:
+    """Operator-bound session state (P2): the canonical target, the caller's roles, and
+    the approver IRI. Set at server start (``--canonical``/``--role``/``--approver``) —
+    NEVER from tool arguments (roles are not caller-claimable, K2)."""
+
+    canonical: Project | None = None
+    roles: frozenset[str] = frozenset()
+    approver: str | None = None
+
+
+SESSION = SessionContext()
+
+
 def _staging_graph(project: Project) -> Graph:
-    return project_graph(project)
+    """The session read model: staging over the canonical current view (sparse overlay)."""
+    from cds.mcp.staging import union_graph
+
+    return union_graph(project, SESSION.canonical)
+
+
+def _in_canonical_current(kind: str, slug: str) -> bool:
+    canon = SESSION.canonical
+    if canon is None:
+        return False
+    from cds.core.view import is_current
+
+    g = project_graph(canon)
+    s = record_iri(canon.base_iri, kind, slug)
+    return (s, None, None) in g and is_current(g, s)
 
 
 # The verification seam (spec §8.3): tools consult the oracle via its contract, so the check
@@ -124,7 +161,8 @@ def cds_explain(project: Project, name: str) -> list[str]:
     return [f"unknown term {name!r} — explainable names:"] + explain_mod.glossary()
 
 
-@_tool("cds_list", "List records of a kind in the session staging project (slug, label).")
+@_tool("cds_list", "List records of a kind visible to this session — staged candidates "
+                   "overlaid on the canonical current view (slug, label).")
 def cds_list(project: Project, kind: str) -> list[tuple[str, str]]:
     from cds.core.model.instances import AUTHORABLE_KINDS
 
@@ -133,12 +171,19 @@ def cds_list(project: Project, kind: str) -> list[tuple[str, str]]:
         raise ValueError(
             f"unknown kind {kind!r}; expected one of {', '.join(AUTHORABLE_KINDS)}"
         )
-    return list_records(project, kind)
+    g = _staging_graph(project)
+    return sorted(
+        (str(s).rsplit("/", 1)[-1], str(g.value(s, RDFS.label) or ""))
+        for s in g.subjects(RDF.type, type_iri_for_kind(kind))
+    )
 
 
-@_tool("cds_show", "Show one staged record by kind and slug.")
+@_tool("cds_show", "Show one record visible to this session (staged copy wins).")
 def cds_show(project: Project, kind: str, slug: str) -> list[str] | None:
-    return show_record(project, kind, slug)
+    lines = show_record(project, kind, slug)
+    if lines is None and SESSION.canonical is not None:
+        lines = show_record(SESSION.canonical, kind, slug)
+    return lines
 
 
 @_tool("cds_verify", "Verify the staging graph — tri-severity findings; preview only.")
@@ -178,6 +223,11 @@ def cds_synthesis(project: Project, slug: str, title: str, description: str = ""
 def cds_new(project: Project, kind: str, slug: str, label: str, description: str,
             synthesis: str, **fields: object) -> str:
     rec = _validated_record(kind, slug, label, description, synthesis, fields)
+    if _in_canonical_current(kind, slug):  # existence consults the overlay union (P2-a)
+        raise RecordExistsError(
+            f"{kind} {slug!r} already exists in the canonical record — use cds_edit to "
+            f"revise it, or a new slug with supersedes={slug!r} to replace it"
+        )
     return str(create_record(project, rec))
 
 
@@ -186,7 +236,14 @@ def cds_new(project: Project, kind: str, slug: str, label: str, description: str
 def cds_edit(project: Project, kind: str, slug: str, label: str, description: str,
              synthesis: str, **fields: object) -> str:
     rec = _validated_record(kind, slug, label, description, synthesis, fields)
-    return str(edit_record(project, rec))
+    try:
+        return str(edit_record(project, rec))
+    except RecordNotFoundError:
+        if _in_canonical_current(kind, slug):
+            # copy-on-write: the edited version becomes the staged shadow of the
+            # canonical record; canonical is untouched until the commit gate (K2)
+            return str(upsert_record(project, rec))
+        raise
 
 
 @_tool("cds_discard", "Delete a staged candidate or ledger item from the working copy — "
@@ -226,7 +283,17 @@ def cds_retract(project: Project, kind: str, slug: str,
                 reason: str | None = None) -> dict[str, object]:
     from cds.core.authoring import find_referrers, retract_record
 
-    iri = retract_record(project, kind, slug, reason=reason)
+    try:
+        iri = retract_record(project, kind, slug, reason=reason)
+    except RecordNotFoundError:
+        if not _in_canonical_current(kind, slug):
+            raise
+        # copy-on-write: pull the canonical subject into staging, then stage the
+        # retraction intent — canonical gets the marker only at the commit gate
+        assert SESSION.canonical is not None
+        target = record_iri(project.base_iri, kind, slug)
+        merge_subject_graph(project, target, project_graph(SESSION.canonical))
+        iri = retract_record(project, kind, slug, reason=reason)
     referrers = [str(r) for r in find_referrers(project, iri) if r != iri]
     return {"retracted": str(iri), "referrers": referrers}
 
@@ -314,13 +381,29 @@ def cds_waive(project: Project, waiver_id: str, rule: str, reason: str,
     return waiver_id
 
 
-@_tool("cds_commit", "Merge staging into canonical (K2 gate; requires cds-reviewer).",
-       mode=ToolMode.COMMIT)
-def cds_commit(project: Project) -> None:
-    # The sole path to canonical state. Registered (it is in the K1 whitelist) but the
-    # approver-gated merge + full verify is P2's commit gate — until then it refuses.
-    raise PermissionError(  # F-7: the refusal speaks to the user, not the roadmap
-        "committing requires the cds-reviewer role and an approved change plan; the commit "
-        "gate is not enabled in this build. Your candidates remain safely in session "
-        "staging — nothing is lost. Ask a reviewer to commit once the gate is available."
-    )
+@_tool("cds_commit", "Merge staging into canonical through the K2 gate (requires the "
+                     "cds-reviewer role bound at server start); returns the executed "
+                     "change plan.", mode=ToolMode.COMMIT)
+def cds_commit(project: Project) -> dict[str, object]:
+    if SESSION.canonical is None:
+        raise PermissionError(  # F-7: the refusal speaks to the user, not the roadmap
+            "committing requires the cds-reviewer role and a canonical record bound at "
+            "server start (--canonical); neither is configured here. Your candidates "
+            "remain safely in session staging — nothing is lost."
+        )
+    # Lazy import — the K2 gate lives in the app tier (cds.app); module-level sibling
+    # imports are forbidden by the factoring DAG, and this call-time seam is the
+    # sanctioned crossing (same pattern as the transport SDKs).
+    from cds.app.commit_gate import commit
+
+    plan = commit(project, SESSION.canonical,
+                  approver_roles=SESSION.roles, approver=SESSION.approver)
+    return {
+        "committed": not plan.empty,
+        "content_hash": plan.content_hash,
+        "adds": [str(s) for s in plan.adds],
+        "revisions": [str(s) for s in plan.revisions],
+        "supersessions": [[str(old), str(new)] for old, new in plan.supersessions],
+        "retractions": [str(s) for s in plan.retractions],
+        "held": [str(s) for s in plan.held],
+    }
