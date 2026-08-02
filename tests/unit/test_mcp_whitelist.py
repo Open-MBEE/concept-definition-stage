@@ -2,9 +2,9 @@
 from cds.mcp import server
 
 
-def test_manifest_equals_whitelist():
+def test_manifest_equals_whitelist() -> None:
     assert sorted(server.list_tools()) == sorted(server.WHITELIST)
 
 
-def test_no_exec_tool_present():
+def test_no_exec_tool_present() -> None:
     assert server.FORBIDDEN.isdisjoint(set(server.list_tools()))

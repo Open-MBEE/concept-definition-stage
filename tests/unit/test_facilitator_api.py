@@ -24,7 +24,9 @@ def client(tmp_path: Path) -> TestClient:
 
 
 def test_tool_routes_equal_whitelist(client: TestClient) -> None:
-    tool_routes = {r.path.removeprefix("/tools/") for r in client.app.routes
+    from typing import Any, cast
+
+    tool_routes = {r.path.removeprefix("/tools/") for r in cast(Any, client.app).routes
                    if getattr(r, "path", "").startswith("/tools/")}
     assert tool_routes == set(server.WHITELIST)
 

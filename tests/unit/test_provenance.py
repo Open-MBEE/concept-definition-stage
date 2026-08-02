@@ -2,5 +2,5 @@
 from cds.mcp import provenance
 
 
-def test_stamp_attaches_provenance():
+def test_stamp_attaches_provenance() -> None:
     provenance.stamp([], user="u", session="s", model="m")  # NotImplementedError -> red

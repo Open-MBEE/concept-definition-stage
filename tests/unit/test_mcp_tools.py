@@ -5,6 +5,7 @@ unchanged cds.core functions and takes the session staging ``Project`` as its fi
 write tools produce candidates only (K2 posture — ``cds_commit`` refuses until P2).
 """
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -19,7 +20,7 @@ def staging(tmp_path: Path) -> Project:
     return proj
 
 
-def _run(name: str, *args: object, **kw: object) -> object:
+def _run(name: str, *args: object, **kw: object) -> Any:
     return tools.TOOLS[name].fn(*args, **kw)
 
 
