@@ -209,14 +209,118 @@ def new(
         "influence": influence,
     }
     model = model_for_kind(kind)
-    from cds.core.authoring import create_record
+    from cds.core.authoring import RecordExistsError, create_record
 
     rec = _validated(lambda: model.model_validate(fields))
-    iri = create_record(project, rec)
-    # echo the stored fields so an upsert/correction is visible (not just the IRI)
+    try:
+        iri = create_record(project, rec)
+    except RecordExistsError:
+        typer.secho(
+            f"{kind} {slug!r} already exists — `cds edit {kind} {slug} …` to change it, or "
+            f"`cds new {kind} <new-slug> --supersedes {slug}` to replace it in the durable "
+            f"record, or `cds rm {kind} {slug}` to discard the draft.",
+            fg=typer.colors.RED, err=True,
+        )
+        raise typer.Exit(2) from None
+    # echo the stored fields so a correction is visible (not just the IRI)
     typer.secho(f"{kind} {rec.slug} — {rec.label}", fg=typer.colors.GREEN)
     typer.echo(f"  {rec.description}")
     typer.echo(f"  {iri}")
+
+
+@app.command()
+def edit(
+    kind: Annotated[str, typer.Argument(help="Record kind (mission, goal, stakeholder, …).")],
+    slug: Annotated[str, typer.Argument(help="Slug of the EXISTING record to change.")],
+    synthesis: Annotated[
+        str | None, typer.Option(help="Slug of the parent mapping (cds:Synthesis).")
+    ] = None,
+    label: Annotated[str | None, typer.Option(help="Short name.")] = None,
+    description: Annotated[str | None, typer.Option(help="The content statement.")] = None,
+    for_stakeholder: Annotated[
+        list[str] | None, typer.Option(help="need → stakeholder slug(s).")
+    ] = None,
+    serves_goal: Annotated[list[str] | None, typer.Option(help="need → goal slug(s).")] = None,
+    refines: Annotated[list[str] | None, typer.Option(help="objective → goal slug(s).")] = None,
+    addresses: Annotated[
+        list[str] | None, typer.Option(help="goal → problem/opportunity slug(s).")
+    ] = None,
+    segment: Annotated[str | None, typer.Option(help="stakeholder segment/perspective.")] = None,
+    interest: Annotated[str | None, typer.Option(help="stakeholder interest.")] = None,
+    influence: Annotated[str | None, typer.Option(help="stakeholder influence.")] = None,
+    cites: Annotated[list[str] | None, typer.Option(help="Source IRI(s) for provenance.")] = None,
+    supersedes: Annotated[
+        list[str] | None,
+        typer.Option(help="Slug (same kind) or IRI of a record this one replaces."),
+    ] = None,
+) -> None:
+    """Edit an EXISTING record in place — scratch-mode correction (ADR-9); see also `retract`."""
+    from cds.core.authoring import RecordNotFoundError, edit_record
+    from cds.core.model.instances import KIND_TERM, model_for_kind
+    from cds.core.workspace import load_project
+
+    if kind not in KIND_TERM:
+        typer.secho(f"unknown kind {kind!r}; expected one of {', '.join(KIND_TERM)}",
+                    fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    if synthesis is None or label is None or description is None:
+        typer.secho("--synthesis, --label and --description are required",
+                    fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    project = load_project()
+    fields: dict[str, object] = {
+        "slug": slug, "kind": kind, "label": label, "description": description,
+        "synthesis": synthesis, "cites": cites or [],
+        "supersedes": [_resolve_ref(project.base_iri, kind, v) for v in (supersedes or [])],
+        "for_stakeholder": for_stakeholder or [], "serves_goal": serves_goal or [],
+        "refines": refines or [], "addresses": addresses or [],
+        "segment": segment, "interest": interest, "influence": influence,
+    }
+    rec = _validated(lambda: model_for_kind(kind).model_validate(fields))
+    try:
+        iri = edit_record(project, rec)
+    except RecordNotFoundError:
+        typer.secho(f"no {kind} {slug!r} to edit — `cds new {kind} {slug} …` to create it.",
+                    fg=typer.colors.RED, err=True)
+        raise typer.Exit(2) from None
+    typer.secho(f"{kind} {rec.slug} — {rec.label} (edited)", fg=typer.colors.GREEN)
+    typer.echo(f"  {rec.description}")
+    typer.echo(f"  {iri}")
+
+
+@app.command()
+def retract(
+    kind: Annotated[str, typer.Argument(help="Record kind.")],
+    slug: Annotated[str, typer.Argument(help="Record slug.")],
+    reason: Annotated[str | None, typer.Option(help="Why the record is retired.")] = None,
+) -> None:
+    """Retire a record with an APPEND-ONLY marker (ADR-9) — it leaves the current view,
+    but its content and history are preserved in the record."""
+    from cds.core.authoring import (
+        AlreadyRetractedError,
+        RecordNotFoundError,
+        find_referrers,
+        retract_record,
+    )
+    from cds.core.workspace import load_project
+
+    project = load_project()
+    try:
+        iri = retract_record(project, kind, slug, reason=reason)
+    except RecordNotFoundError:
+        typer.secho(f"no {kind} {slug!r}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2) from None
+    except AlreadyRetractedError:
+        typer.secho(f"{kind} {slug!r} is already retracted", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2) from None
+    typer.secho(f"retracted {kind} {slug}" + (f" — {reason}" if reason else ""),
+                fg=typer.colors.GREEN)
+    referrers = [r for r in find_referrers(project, iri) if r != iri]
+    if referrers:
+        names = ", ".join("/".join(str(r).rsplit("/", 2)[-2:]) for r in referrers)
+        typer.secho(f"  still referenced by: {names} — update those links or retract them too "
+                    "(surfaced by `cds verify` as ReferenceToRetracted).",
+                    fg=typer.colors.YELLOW)
 
 
 park_app = typer.Typer(help="Parking-lot: capture out-of-scope ideas without derailing.",
@@ -429,16 +533,52 @@ def show(
         typer.echo(line)
 
 
+def _committed_at_head(project: object, kind: str, slug: str) -> bool:
+    """True iff the record exists in the git-committed state of its kind file (ADR-9)."""
+    import subprocess
+
+    from rdflib import Graph as _Graph
+
+    from cds.core.model.instances import record_iri
+
+    root = project.root  # type: ignore[attr-defined]
+    rel = (project.instances_dir / f"{kind}.ttl").relative_to(root)  # type: ignore[attr-defined]
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(root), "show", f"HEAD:{rel.as_posix()}"],
+            capture_output=True, text=True, timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    if out.returncode != 0:
+        return False
+    g = _Graph()
+    try:
+        g.parse(data=out.stdout, format="turtle")
+    except Exception:
+        return False
+    base = project.base_iri  # type: ignore[attr-defined]
+    return (record_iri(base, kind, slug), None, None) in g
+
+
 @app.command()
 def rm(
     kind: Annotated[str, typer.Argument(help="Record kind.")],
     slug: Annotated[str, typer.Argument(help="Record slug.")],
 ) -> None:
-    """Delete a record — the sanctioned way to retract, alongside re-authoring to correct."""
+    """Delete a record from the WORKING COPY (scratch mode, ADR-9); see `retract` for the
+    append-only retirement that preserves the durable record."""
     from cds.core.authoring import remove_record
     from cds.core.workspace import load_project
 
-    if remove_record(load_project(), kind, slug):
+    project = load_project()
+    if _committed_at_head(project, kind, slug):
+        typer.secho(
+            f"note: {kind} {slug!r} is part of the committed record — deleting here will "
+            "rewrite history at your next commit; `cds retract` keeps it with a marker.",
+            fg=typer.colors.YELLOW,
+        )
+    if remove_record(project, kind, slug):
         typer.secho(f"removed {kind} {slug}", fg=typer.colors.GREEN)
     else:
         typer.secho(f"no {kind} {slug!r}", fg=typer.colors.RED, err=True)
@@ -596,6 +736,11 @@ def compile(
         Path | None,
         typer.Option(help="Output path; defaults to <briefs>/concept-definition.md."),
     ] = None,
+    include_history: Annotated[
+        bool,
+        typer.Option(help="Append the 'Superseded & retracted' history section (ADR-9; "
+                          "off by default — the model, not the document, is canon)."),
+    ] = False,
 ) -> None:
     """Compile the mapping to a deterministic, human-readable Markdown brief."""
     from cds.core.authoring import project_graph
@@ -603,7 +748,8 @@ def compile(
     from cds.core.workspace import load_project
 
     project = load_project()
-    md = compile_brief(project_graph(project), base=project.base_iri)
+    md = compile_brief(project_graph(project), base=project.base_iri,
+                       include_history=include_history)
     out = output if output is not None else project.briefs_dir / "concept-definition.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(md, encoding="utf-8")
