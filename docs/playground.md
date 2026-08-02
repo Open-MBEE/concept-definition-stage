@@ -59,7 +59,29 @@ curl -s -X POST http://127.0.0.1:8800/tools/cds_compile -H 'Content-Type: applic
 
 Things worth trying on purpose: write a need containing "shall" (watch the `NeedFormShall`
 warning — advisory, it never blocks you); try `cds_commit` (403 — the human commit gate
-lands in P2); file a retrieval item with `cds_queue_add` (the escalate-never-invent path).
+lands in P2); file a retrieval item with `cds_queue_add` (the escalate-never-invent path);
+re-POST `cds_new` with an existing slug (409 with a three-way hint — `cds_edit` changes it).
+
+**Scratch vs append-only (ADR-9):** discard a draft, retire a record, replace one —
+
+```bash
+curl -s -X POST http://127.0.0.1:8800/tools/cds_discard -H 'Content-Type: application/json' -d '{"kind":"goal","slug":"junk"}'
+```
+
+```bash
+curl -s -X POST http://127.0.0.1:8800/tools/cds_retract -H 'Content-Type: application/json' -d '{"kind":"goal","slug":"old-goal","reason":"rolled into v2"}'
+```
+
+**Perspectives (positions):** let two stakeholders disagree honestly —
+
+```bash
+curl -s -X POST http://127.0.0.1:8800/tools/cds_new -H 'Content-Type: application/json' -d '{"kind":"position","slug":"council-on-coverage","label":"Council on coverage","description":"Coverage justifies the budget.","synthesis":"demo","characterizes":"objective/coverage","held_by":"council","stance":"supports"}'
+```
+
+Then `cds_verify` surfaces `DivergingPositions` as a T3 *finding* (divergence is valid,
+never an error) and the brief gains a **Convergence & divergence** section. Retracted and
+superseded records leave the brief but never the record — `cds compile --include-history`
+shows the appendix.
 
 ### 4. Play — the conformance oracle (stateless checking)
 
