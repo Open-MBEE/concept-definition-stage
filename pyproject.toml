@@ -76,6 +76,12 @@ python_version = "3.11"
 strict = true
 files = ["src", "tests"]
 
+# ipywidgets ships no py.typed; the same source must type-check whether or not the
+# app extra is installed (an inline ignore code flips to unused either way).
+[[tool.mypy.overrides]]
+module = "ipywidgets.*"
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--tb=short"

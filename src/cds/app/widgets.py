@@ -24,7 +24,7 @@ _EXECUTOR = ThreadPoolExecutor(max_workers=2, thread_name_prefix="cds-verify")
 
 
 def _w() -> Any:
-    import ipywidgets  # type: ignore[import-not-found,import-untyped]  # app extra; lazy
+    import ipywidgets  # app extra; lazy by design (mypy override in pyproject)
 
     return ipywidgets
 
