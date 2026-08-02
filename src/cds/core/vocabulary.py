@@ -52,6 +52,7 @@ _CLASSES: tuple[tuple[str, URIRef | None, URIRef], ...] = (
     ("LifecycleModel", None, AVAILABLE),
     ("Waiver", None, AVAILABLE),
     ("Instance", None, AVAILABLE),
+    ("Position", None, AVAILABLE),
 )
 
 # (local name, domain, range or None, framework role) — value is a resource
@@ -71,6 +72,8 @@ _OBJECT_PROPS: tuple[tuple[str, URIRef, URIRef | None, URIRef], ...] = (
     ("waivesFocus", CDS.Waiver, None, AVAILABLE),
     ("supersedes", CDS.Instance, CDS.Instance, AVAILABLE),
     ("supersededBy", CDS.Instance, CDS.Instance, AVAILABLE),
+    ("characterizes", CDS.Position, CDS.Instance, AVAILABLE),
+    ("heldBy", CDS.Position, CDS.Instance, AVAILABLE),
 )
 
 # (local name, domain, xsd range, framework role) — value is a literal
@@ -89,6 +92,8 @@ _DATA_PROPS: tuple[tuple[str, URIRef, URIRef, URIRef], ...] = (
     ("waiverReason", CDS.Waiver, XSD.string, AVAILABLE),
     ("retracted", CDS.Instance, XSD.boolean, AVAILABLE),
     ("retractionReason", CDS.Instance, XSD.string, AVAILABLE),
+    ("stance", CDS.Position, XSD.string, AVAILABLE),
+    ("invarianceCriterion", CDS.Position, XSD.string, AVAILABLE),
 )
 
 # rdfs:comment per term — kept out of the tuples to stay readable
@@ -133,6 +138,14 @@ _COMMENTS: dict[str, str] = {
     "retracted": "Append-only retirement marker (ADR-9): the record is withdrawn from the "
                  "current view; its content triples are preserved.",
     "retractionReason": "Why a record was retracted (append-only, ADR-9).",
+    "Position": "A stakeholder's stance on another record — the perspective primitive; "
+                "divergent positions are retained, surfaced, and valid (ADR-9 R7).",
+    "characterizes": "The record a position reads (its subject).",
+    "heldBy": "The stakeholder holding a position.",
+    "stance": "The closed stance vocabulary: supports / opposes / prioritizes / "
+              "constrains / reads-as.",
+    "invarianceCriterion": "What a position's reading holds constant (lineage-compatible "
+                           "with ant-rdf's invariance criterion).",
 }
 
 

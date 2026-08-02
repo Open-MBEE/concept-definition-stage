@@ -96,6 +96,10 @@
             "title": "Addresses",
             "type": "array"
           },
+          "characterizes": {
+            "title": "Characterizes",
+            "type": "string"
+          },
           "cites": {
             "default": [],
             "items": {
@@ -115,6 +119,10 @@
             },
             "title": "For Stakeholder",
             "type": "array"
+          },
+          "held_by": {
+            "title": "Held By",
+            "type": "string"
           },
           "influence": {
             "anyOf": [
@@ -137,6 +145,17 @@
               }
             ],
             "title": "Interest"
+          },
+          "invariance": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invariance"
           },
           "kind": {
             "title": "Kind",
@@ -175,6 +194,17 @@
           },
           "slug": {
             "title": "Slug",
+            "type": "string"
+          },
+          "stance": {
+            "enum": [
+              "supports",
+              "opposes",
+              "prioritizes",
+              "constrains",
+              "reads-as"
+            ],
+            "title": "Stance",
             "type": "string"
           },
           "supersedes": {
@@ -239,6 +269,10 @@
             "title": "Addresses",
             "type": "array"
           },
+          "characterizes": {
+            "title": "Characterizes",
+            "type": "string"
+          },
           "cites": {
             "default": [],
             "items": {
@@ -258,6 +292,10 @@
             },
             "title": "For Stakeholder",
             "type": "array"
+          },
+          "held_by": {
+            "title": "Held By",
+            "type": "string"
           },
           "influence": {
             "anyOf": [
@@ -280,6 +318,17 @@
               }
             ],
             "title": "Interest"
+          },
+          "invariance": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invariance"
           },
           "kind": {
             "title": "Kind",
@@ -318,6 +367,17 @@
           },
           "slug": {
             "title": "Slug",
+            "type": "string"
+          },
+          "stance": {
+            "enum": [
+              "supports",
+              "opposes",
+              "prioritizes",
+              "constrains",
+              "reads-as"
+            ],
+            "title": "Stance",
             "type": "string"
           },
           "supersedes": {

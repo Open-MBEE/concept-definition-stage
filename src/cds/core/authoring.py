@@ -25,13 +25,13 @@ from pathlib import Path
 from rdflib import RDF, RDFS, Graph, Literal, URIRef
 
 from cds.core.model.instances import (
-    KIND_TERM,
     Record,
     Synthesis,
     record_iri,
     record_to_graph,
     synthesis_iri,
     synthesis_to_graph,
+    type_iri_for_kind,
 )
 from cds.core.model.notes import (
     ParkedItem,
@@ -217,7 +217,7 @@ def list_records(project: Project, kind: str) -> list[tuple[str, str]]:
     """Every record of ``kind`` as ``(slug, label)``, sorted by slug."""
     graph = _load(_kind_file(project, kind))
     out: list[tuple[str, str]] = []
-    for s in graph.subjects(RDF.type, CDS_TERM[KIND_TERM[kind]]):
+    for s in graph.subjects(RDF.type, type_iri_for_kind(kind)):
         label = graph.value(s, RDFS.label)
         out.append((str(s).rsplit("/", 1)[-1], str(label) if label is not None else ""))
     return sorted(out)

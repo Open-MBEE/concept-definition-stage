@@ -8,7 +8,9 @@ through the CLI.
 
 from __future__ import annotations
 
-from rdflib import RDF, RDFS, Graph
+from collections import defaultdict
+
+from rdflib import RDF, RDFS, Graph, URIRef
 from rdflib.term import Node
 
 from cds.core.model.instances import KIND_TERM
@@ -143,6 +145,9 @@ def compile_brief(graph: Graph, *, base: str, include_history: bool = False) -> 
             )
         lines.append("")
 
+    # ---- perspectives (X2-lite): stakeholder positions on shared frame objects
+    _positions_section(lines, graph)
+
     # ---- side ledgers
     _tensions_section(lines, graph)
     _section(lines, graph, CDS.ParkedItem, "Parking-lot")
@@ -176,6 +181,45 @@ def _history_appendix(lines: list[str], full: Graph) -> None:
     lines.append("")
     lines += entries
     lines.append("")
+
+
+def _positions_section(lines: list[str], graph: Graph) -> None:
+    """Positions grouped per characterized subject, with a converge/diverge verdict.
+
+    Divergence is a rendered finding, never an error — perspectives may validly conflict
+    (ADR-9 R7); convergence is itself a finding worth seeing, not redundancy.
+    """
+    positions = sorted(graph.subjects(RDF.type, CDS.Position), key=str)
+    if not positions:
+        return
+    by_target: dict[str, list[Node]] = defaultdict(list)
+    for p in positions:
+        target = graph.value(p, CDS.characterizes)
+        if target is not None:
+            by_target[str(target)].append(p)
+    if not by_target:
+        return
+    lines.append("## Convergence & divergence")
+    lines.append("")
+    for target_iri in sorted(by_target):
+        entries = sorted(by_target[target_iri], key=str)
+        stances = {str(graph.value(p, CDS.stance) or "") for p in entries}
+        if len(entries) == 1:
+            verdict = "single voice"
+        elif len(stances) > 1:
+            verdict = "**diverge**"
+        else:
+            verdict = "converge"
+        lines.append(f"### {_label(graph, URIRef(target_iri))} — {verdict}")
+        lines.append("")
+        for p in entries:
+            holder = graph.value(p, CDS.heldBy)
+            stance = str(graph.value(p, CDS.stance) or "")
+            inv = graph.value(p, CDS.invarianceCriterion)
+            inv_note = f" _(holds constant: {inv})_" if inv is not None else ""
+            lines.append(f"- **{_local(holder) if holder else '?'}** {stance}: "
+                         f"{_desc(graph, p)}{inv_note}")
+        lines.append("")
 
 
 def _section(lines: list[str], graph: Graph, cls: Node, heading: str) -> None:
