@@ -150,3 +150,64 @@ def test_live_llm_smoke(session: Project) -> None:  # pragma: no cover — creds
     result = aicc.run_turn("Create a synthesis called 'smoke' titled 'Smoke test'.",
                            project=session, backend=decode.OpenAICompatBackend(cfg))
     assert result.reply
+
+
+# ------------------------------------------------- B4 (live-QA 2026-08-02): silent no-ops
+
+
+def test_backend_sends_near_deterministic_temperature(
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    """B4: with no temperature sent, a local model's default (~0.7) made 3/5 turns come
+    back empty. The tool-planning loop wants near-deterministic decoding by default."""
+    import io
+    import json as jsonlib
+
+    captured: dict[str, object] = {}
+
+    class _Resp(io.BytesIO):
+        def __enter__(self) -> _Resp:
+            return self
+
+        def __exit__(self, *exc: object) -> None:
+            return None
+
+    def fake_urlopen(request: object, timeout: float = 0) -> _Resp:
+        captured.update(jsonlib.loads(request.data.decode("utf-8")))  # type: ignore[attr-defined]
+        return _Resp(jsonlib.dumps(
+            {"choices": [{"message": {"content": "ok"}}]}).encode("utf-8"))
+
+    monkeypatch.setattr("urllib.request.urlopen", fake_urlopen)
+    config = decode.LLMConfig(base_url="https://api.example/v1", model="m", api_key="k")
+    backend = decode.OpenAICompatBackend(config)
+    backend.complete(system="s", messages=[{"role": "user", "content": "hi"}], tools=[])
+    assert captured.get("temperature") == 0.0
+
+
+def test_temperature_configurable_from_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("CDS_LLM_BASE_URL", "https://api.example/v1")
+    monkeypatch.setenv("CDS_LLM_MODEL", "some-model")
+    monkeypatch.setenv("CDS_LLM_API_KEY", "k")
+    monkeypatch.setenv("CDS_LLM_TEMPERATURE", "0.3")
+    config = decode.LLMConfig.from_env()
+    assert config is not None and config.temperature == 0.3
+
+
+def test_empty_completion_retries_then_succeeds(session: Project) -> None:
+    """B4: one empty completion is retried before anything is reported."""
+    backend = decode.ScriptedBackend(turns=[
+        decode.AssistantTurn(),  # neither tools nor text
+        decode.AssistantTurn(text="Here is the summary."),
+    ])
+    result = aicc.run_turn("hello", project=session, backend=backend)
+    assert result.reply == "Here is the summary."
+
+
+def test_double_empty_completion_yields_a_diagnostic(session: Project) -> None:
+    """B4: a persistently empty model must surface a diagnostic, never a blank 200."""
+    backend = decode.ScriptedBackend(turns=[
+        decode.AssistantTurn(),
+        decode.AssistantTurn(),
+    ])
+    result = aicc.run_turn("hello", project=session, backend=backend)
+    assert result.reply.strip()  # not a silent no-op
+    assert "empty" in result.reply.lower() or "nothing" in result.reply.lower()

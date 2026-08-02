@@ -21,11 +21,17 @@ from typing import Any, Protocol
 
 @dataclass(frozen=True)
 class LLMConfig:
-    """The ADR-8 endpoint triplet — operator configuration, never end-user UX."""
+    """The ADR-8 endpoint triplet — operator configuration, never end-user UX.
+
+    ``temperature`` defaults to 0: the tool-planning loop wants near-deterministic
+    decoding (B4, live-QA 2026-08-02: an unset temperature left a local model at ~0.7
+    and 3/5 turns came back empty). Operators may raise it via ``CDS_LLM_TEMPERATURE``.
+    """
 
     base_url: str
     model: str
     api_key: str
+    temperature: float = 0.0
 
     @classmethod
     def from_env(cls) -> LLMConfig | None:
@@ -34,7 +40,9 @@ class LLMConfig:
         key = os.environ.get("CDS_LLM_API_KEY")
         if not (base and model and key):
             return None
-        return cls(base_url=base.rstrip("/"), model=model, api_key=key)
+        temperature = float(os.environ.get("CDS_LLM_TEMPERATURE", "0"))
+        return cls(base_url=base.rstrip("/"), model=model, api_key=key,
+                   temperature=temperature)
 
 
 @dataclass(frozen=True)
@@ -90,6 +98,7 @@ class OpenAICompatBackend:
         payload: dict[str, Any] = {
             "model": self.config.model,
             "messages": [{"role": "system", "content": system}, *messages],
+            "temperature": self.config.temperature,
         }
         if tools:
             payload["tools"] = tools

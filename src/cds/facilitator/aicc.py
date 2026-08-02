@@ -98,8 +98,20 @@ def run_turn(
     messages.append({"role": "user", "content": user_message})
     state = TurnResult()
 
+    empty_retried = False
     for _round in range(max_rounds):
         turn = backend.complete(system=system, messages=messages, tools=tools_schema)
+        if not turn.tool_calls and not turn.text.strip():
+            # B4 (live-QA 2026-08-02): no tools AND no text is a model no-op, not a
+            # final answer — a blank HTTP 200 reads as silent success. Retry once,
+            # then say so.
+            if not empty_retried:
+                empty_retried = True
+                continue
+            state.reply = ("the model returned an empty turn twice; nothing was "
+                           "executed. Try rephrasing your message, or check the "
+                           "configured model.")
+            break
         if not turn.tool_calls:
             state.reply = turn.text
             break
