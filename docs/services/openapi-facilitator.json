@@ -65,6 +65,7 @@
         "properties": {
           "include_history": {
             "default": false,
+            "description": "Append the 'Superseded & retracted' section (off by default).",
             "title": "Include History",
             "type": "boolean"
           },
@@ -77,6 +78,7 @@
                 "type": "null"
               }
             ],
+            "description": "Slug of the parent mapping (create it first with cds_synthesis).",
             "title": "Synthesis"
           }
         },
@@ -87,10 +89,12 @@
         "additionalProperties": false,
         "properties": {
           "kind": {
+            "description": "Record kind: mission, goal, objective, driver, constraint, moe, problem, opportunity, stakeholder, need, or position.",
             "title": "Kind",
             "type": "string"
           },
           "slug": {
+            "description": "Short kebab-case id for this record (e.g. 'reach-a-human').",
             "title": "Slug",
             "type": "string"
           }
@@ -107,6 +111,7 @@
         "properties": {
           "addresses": {
             "default": [],
+            "description": "goal \u2192 problem/opportunity slug(s).",
             "items": {
               "type": "string"
             },
@@ -114,11 +119,13 @@
             "type": "array"
           },
           "characterizes": {
+            "description": "position \u2192 '<kind>/<slug>' of the record this stance reads (e.g. 'objective/coverage').",
             "title": "Characterizes",
             "type": "string"
           },
           "cites": {
             "default": [],
+            "description": "Source IRIs for provenance.",
             "items": {
               "type": "string"
             },
@@ -126,11 +133,13 @@
             "type": "array"
           },
           "description": {
+            "description": "The content statement (for a position: the stance rationale).",
             "title": "Description",
             "type": "string"
           },
           "for_stakeholder": {
             "default": [],
+            "description": "need \u2192 stakeholder slug(s).",
             "items": {
               "type": "string"
             },
@@ -138,6 +147,7 @@
             "type": "array"
           },
           "held_by": {
+            "description": "position \u2192 stakeholder slug holding the stance.",
             "title": "Held By",
             "type": "string"
           },
@@ -150,6 +160,7 @@
                 "type": "null"
               }
             ],
+            "description": "stakeholder influence.",
             "title": "Influence"
           },
           "interest": {
@@ -161,6 +172,7 @@
                 "type": "null"
               }
             ],
+            "description": "stakeholder interest.",
             "title": "Interest"
           },
           "invariance": {
@@ -172,18 +184,22 @@
                 "type": "null"
               }
             ],
+            "description": "position \u2192 what this reading holds constant.",
             "title": "Invariance"
           },
           "kind": {
+            "description": "Record kind: mission, goal, objective, driver, constraint, moe, problem, opportunity, stakeholder, need, or position.",
             "title": "Kind",
             "type": "string"
           },
           "label": {
+            "description": "Short human name.",
             "title": "Label",
             "type": "string"
           },
           "refines": {
             "default": [],
+            "description": "objective \u2192 goal slug(s).",
             "items": {
               "type": "string"
             },
@@ -199,10 +215,12 @@
                 "type": "null"
               }
             ],
+            "description": "stakeholder segment/perspective.",
             "title": "Segment"
           },
           "serves_goal": {
             "default": [],
+            "description": "need \u2192 goal slug(s).",
             "items": {
               "type": "string"
             },
@@ -210,10 +228,12 @@
             "type": "array"
           },
           "slug": {
+            "description": "Short kebab-case id for this record (e.g. 'reach-a-human').",
             "title": "Slug",
             "type": "string"
           },
           "stance": {
+            "description": "position \u2192 one of: supports, opposes, prioritizes, constrains, reads-as.",
             "enum": [
               "supports",
               "opposes",
@@ -226,6 +246,7 @@
           },
           "supersedes": {
             "default": [],
+            "description": "Record(s) this one replaces in the durable record \u2014 bare slug (same kind) or full IRI; the old record is marked superseded, not deleted.",
             "items": {
               "type": "string"
             },
@@ -233,6 +254,7 @@
             "type": "array"
           },
           "synthesis": {
+            "description": "Slug of the parent mapping (create it first with cds_synthesis).",
             "title": "Synthesis",
             "type": "string"
           }
@@ -265,6 +287,7 @@
         "additionalProperties": false,
         "properties": {
           "kind": {
+            "description": "Record kind: mission, goal, objective, driver, constraint, moe, problem, opportunity, stakeholder, need, or position.",
             "title": "Kind",
             "type": "string"
           }
@@ -280,6 +303,7 @@
         "properties": {
           "addresses": {
             "default": [],
+            "description": "goal \u2192 problem/opportunity slug(s).",
             "items": {
               "type": "string"
             },
@@ -287,11 +311,13 @@
             "type": "array"
           },
           "characterizes": {
+            "description": "position \u2192 '<kind>/<slug>' of the record this stance reads (e.g. 'objective/coverage').",
             "title": "Characterizes",
             "type": "string"
           },
           "cites": {
             "default": [],
+            "description": "Source IRIs for provenance.",
             "items": {
               "type": "string"
             },
@@ -299,11 +325,13 @@
             "type": "array"
           },
           "description": {
+            "description": "The content statement (for a position: the stance rationale).",
             "title": "Description",
             "type": "string"
           },
           "for_stakeholder": {
             "default": [],
+            "description": "need \u2192 stakeholder slug(s).",
             "items": {
               "type": "string"
             },
@@ -311,6 +339,7 @@
             "type": "array"
           },
           "held_by": {
+            "description": "position \u2192 stakeholder slug holding the stance.",
             "title": "Held By",
             "type": "string"
           },
@@ -323,6 +352,7 @@
                 "type": "null"
               }
             ],
+            "description": "stakeholder influence.",
             "title": "Influence"
           },
           "interest": {
@@ -334,6 +364,7 @@
                 "type": "null"
               }
             ],
+            "description": "stakeholder interest.",
             "title": "Interest"
           },
           "invariance": {
@@ -345,18 +376,22 @@
                 "type": "null"
               }
             ],
+            "description": "position \u2192 what this reading holds constant.",
             "title": "Invariance"
           },
           "kind": {
+            "description": "Record kind: mission, goal, objective, driver, constraint, moe, problem, opportunity, stakeholder, need, or position.",
             "title": "Kind",
             "type": "string"
           },
           "label": {
+            "description": "Short human name.",
             "title": "Label",
             "type": "string"
           },
           "refines": {
             "default": [],
+            "description": "objective \u2192 goal slug(s).",
             "items": {
               "type": "string"
             },
@@ -372,10 +407,12 @@
                 "type": "null"
               }
             ],
+            "description": "stakeholder segment/perspective.",
             "title": "Segment"
           },
           "serves_goal": {
             "default": [],
+            "description": "need \u2192 goal slug(s).",
             "items": {
               "type": "string"
             },
@@ -383,10 +420,12 @@
             "type": "array"
           },
           "slug": {
+            "description": "Short kebab-case id for this record (e.g. 'reach-a-human').",
             "title": "Slug",
             "type": "string"
           },
           "stance": {
+            "description": "position \u2192 one of: supports, opposes, prioritizes, constrains, reads-as.",
             "enum": [
               "supports",
               "opposes",
@@ -399,6 +438,7 @@
           },
           "supersedes": {
             "default": [],
+            "description": "Record(s) this one replaces in the durable record \u2014 bare slug (same kind) or full IRI; the old record is marked superseded, not deleted.",
             "items": {
               "type": "string"
             },
@@ -406,6 +446,7 @@
             "type": "array"
           },
           "synthesis": {
+            "description": "Slug of the parent mapping (create it first with cds_synthesis).",
             "title": "Synthesis",
             "type": "string"
           }
@@ -425,19 +466,23 @@
         "properties": {
           "description": {
             "default": "",
+            "description": "The content statement (for a position: the stance rationale).",
             "title": "Description",
             "type": "string"
           },
           "label": {
+            "description": "Short human name.",
             "title": "Label",
             "type": "string"
           },
           "note": {
             "default": "",
+            "description": "Free-form note.",
             "title": "Note",
             "type": "string"
           },
           "slug": {
+            "description": "Short kebab-case id for this record (e.g. 'reach-a-human').",
             "title": "Slug",
             "type": "string"
           }
@@ -454,14 +499,17 @@
         "properties": {
           "description": {
             "default": "",
+            "description": "The content statement (for a position: the stance rationale).",
             "title": "Description",
             "type": "string"
           },
           "question": {
+            "description": "The open question to resolve later.",
             "title": "Question",
             "type": "string"
           },
           "slug": {
+            "description": "Short kebab-case id for this record (e.g. 'reach-a-human').",
             "title": "Slug",
             "type": "string"
           }
@@ -485,13 +533,16 @@
                 "type": "null"
               }
             ],
+            "description": "Where the answer was found.",
             "title": "Locator"
           },
           "slug": {
+            "description": "Short kebab-case id for this record (e.g. 'reach-a-human').",
             "title": "Slug",
             "type": "string"
           },
           "status": {
+            "description": "Retrieval status: pending, provided, or verified.",
             "title": "Status",
             "type": "string"
           }
@@ -507,6 +558,7 @@
         "additionalProperties": false,
         "properties": {
           "kind": {
+            "description": "Record kind: mission, goal, objective, driver, constraint, moe, problem, opportunity, stakeholder, need, or position.",
             "title": "Kind",
             "type": "string"
           },
@@ -519,9 +571,11 @@
                 "type": "null"
               }
             ],
+            "description": "Why (recorded verbatim, append-only).",
             "title": "Reason"
           },
           "slug": {
+            "description": "Short kebab-case id for this record (e.g. 'reach-a-human').",
             "title": "Slug",
             "type": "string"
           }
@@ -537,10 +591,12 @@
         "additionalProperties": false,
         "properties": {
           "kind": {
+            "description": "Record kind: mission, goal, objective, driver, constraint, moe, problem, opportunity, stakeholder, need, or position.",
             "title": "Kind",
             "type": "string"
           },
           "slug": {
+            "description": "Short kebab-case id for this record (e.g. 'reach-a-human').",
             "title": "Slug",
             "type": "string"
           }
@@ -557,14 +613,17 @@
         "properties": {
           "description": {
             "default": "",
+            "description": "The content statement (for a position: the stance rationale).",
             "title": "Description",
             "type": "string"
           },
           "slug": {
+            "description": "Short kebab-case id for this record (e.g. 'reach-a-human').",
             "title": "Slug",
             "type": "string"
           },
           "title": {
+            "description": "Human title of the mapping.",
             "title": "Title",
             "type": "string"
           }
@@ -591,18 +650,22 @@
                 "type": "null"
               }
             ],
+            "description": "IRIs of the records in tension.",
             "title": "Between"
           },
           "description": {
             "default": "",
+            "description": "The content statement (for a position: the stance rationale).",
             "title": "Description",
             "type": "string"
           },
           "label": {
+            "description": "Short human name.",
             "title": "Label",
             "type": "string"
           },
           "slug": {
+            "description": "Short kebab-case id for this record (e.g. 'reach-a-human').",
             "title": "Slug",
             "type": "string"
           }
@@ -618,6 +681,7 @@
         "additionalProperties": false,
         "properties": {
           "slug": {
+            "description": "Short kebab-case id for this record (e.g. 'reach-a-human').",
             "title": "Slug",
             "type": "string"
           }
@@ -633,6 +697,7 @@
         "properties": {
           "check_conflicts": {
             "default": true,
+            "description": "Also run the cross-record consistency checks.",
             "title": "Check Conflicts",
             "type": "boolean"
           }
@@ -652,6 +717,7 @@
                 "type": "null"
               }
             ],
+            "description": "Operator IRI accepting the waiver.",
             "title": "By"
           },
           "focus": {
@@ -663,17 +729,21 @@
                 "type": "null"
               }
             ],
+            "description": "Optional focus node the waiver is scoped to.",
             "title": "Focus"
           },
           "reason": {
+            "description": "Why (recorded verbatim, append-only).",
             "title": "Reason",
             "type": "string"
           },
           "rule": {
+            "description": "The verify rule (check name) being waived \u2014 see the oracle's /rules.",
             "title": "Rule",
             "type": "string"
           },
           "waiver_id": {
+            "description": "IRI identifying this waiver (append-only ledger entry).",
             "title": "Waiver Id",
             "type": "string"
           }

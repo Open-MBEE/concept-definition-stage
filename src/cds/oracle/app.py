@@ -11,7 +11,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from cds.contracts import InProcessOracle
-from cds.core.verify import Finding, VerifyResult
+from cds.core.verify import Finding, Severity, VerifyResult
 
 
 class VerifyRequest(BaseModel):
@@ -31,20 +31,46 @@ def _result_json(result: VerifyResult) -> dict[str, Any]:
             "findings": [_finding_json(f) for f in result.findings]}
 
 
-def _rule_names() -> list[str]:
-    """The named shapes — the stable ``rule`` identities findings refer to (remediation
-    cross-reference), plus the cross-record conflict checks not expressible per-record."""
-    from rdflib import RDF
+_CONFLICT_MESSAGES: dict[str, str] = {
+    "NeedFormShall": "a need uses 'shall' — write it in need-form (requirements come later)",
+    "NeedWithoutStakeholder": "a need is not linked to any stakeholder (orphan need)",
+    "NeedServesNoGoal": "a need serves no goal it advances",
+    "DuplicateStatement": "two current records share a semantic type and normalized statement",
+    "SynthesisWithoutNeeds": "a mapping has no needs yet (integrated set is empty)",
+    "DanglingReference": "a link points at a record that doesn't exist",
+    "ReferenceToRetracted": "a current record references a retracted one",
+    "DivergingPositions": "stakeholder positions on the same subject diverge "
+                          "(all retained; divergence is valid)",
+}
+
+
+def _rules() -> list[dict[str, str]]:
+    """Every known rule with its tier and message — the remediation cross-reference (G-8).
+
+    Named SHACL shapes carry their authored ``sh:message``; the cross-record conflict
+    checks carry the short descriptions above. Tier comes from
+    :func:`cds.core.verify.rule_severities`.
+    """
+    from rdflib import RDF, URIRef
     from rdflib.namespace import SH
 
-    from cds.core.verify import load_shapes
+    from cds.core.verify import load_shapes, rule_severities
 
     shapes = load_shapes()
-    named = {str(s).rsplit("#", 1)[-1].rsplit("/", 1)[-1]
-             for s in shapes.subjects(RDF.type, SH.NodeShape)}
-    conflict_checks = {"NeedFormShall", "NeedWithoutStakeholder", "NeedServesNoGoal",
-                       "DuplicateStatement", "SynthesisWithoutNeeds", "DanglingReference"}
-    return sorted(named | conflict_checks)
+    messages: dict[str, str] = dict(_CONFLICT_MESSAGES)
+    for cls in (SH.NodeShape, SH.PropertyShape):
+        for s in shapes.subjects(RDF.type, cls):
+            if not isinstance(s, URIRef):
+                continue
+            name = str(s).rsplit("#", 1)[-1].rsplit("/", 1)[-1]
+            msg = shapes.value(s, SH.message)
+            messages.setdefault(name, str(msg) if msg is not None else "")
+    tier = {Severity.VIOLATION: "T1", Severity.WARNING: "T2", Severity.INFO: "T3"}
+    return sorted(
+        ({"rule": name, "tier": tier[sev], "message": messages.get(name, "")}
+         for name, sev in rule_severities(shapes).items()),
+        key=lambda r: r["rule"],
+    )
 
 
 def build_app() -> Any:
@@ -60,7 +86,7 @@ def build_app() -> Any:
         version="0.1.0",
     )
     oracle = InProcessOracle()
-    rules = _rule_names()  # warm — shapes parsed once at build
+    rules = _rules()  # warm — shapes parsed once at build
 
     @app.post("/verify")
     def verify_instance(req: VerifyRequest) -> dict[str, Any]:
@@ -72,7 +98,7 @@ def build_app() -> Any:
         return _result_json(oracle.check(g, check_conflicts=req.check_conflicts))
 
     @app.get("/rules")
-    def list_rules() -> dict[str, list[str]]:
+    def list_rules() -> dict[str, list[dict[str, str]]]:
         return {"rules": rules}
 
     @app.get("/healthz")
