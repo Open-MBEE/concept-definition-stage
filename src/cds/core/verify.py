@@ -329,7 +329,7 @@ def _check_conflicts(data: Graph) -> list[Finding]:
         desc = data.value(need, DCTERMS.description)
         if desc is not None and _SHALL.search(str(desc)):
             findings.append(Finding(Severity.WARNING, "NeedFormShall", str(need),
-                "need uses 'shall' — write it in need-form instead, "
+                "need uses 'shall'; write it in need-form instead, "
                 "e.g. 'the <stakeholder> needs the system to …' (requirements come later)"))
         if not any(data.objects(need, CDS.forStakeholder)):
             findings.append(Finding(Severity.WARNING, "NeedWithoutStakeholder", str(need),
@@ -386,7 +386,7 @@ def _check_conflicts(data: Graph) -> list[Finding]:
         text = str(cited)
         findings.append(Finding(Severity.WARNING, "UnresolvedCitation", str(subj),
             f"cites a source record that doesn't exist: "
-            f"{'/'.join(text.rsplit('/', 2)[-2:])} — register/secure it "
+            f"{'/'.join(text.rsplit('/', 2)[-2:])}; register/secure it "
             "(retrieval queue) before commit"))
 
     # positions diverging on the same target (X2-lite, ADR-9 R7): a FINDING, never a
@@ -405,7 +405,7 @@ def _check_conflicts(data: Graph) -> list[Finding]:
         if len(entries) > 1 and len(stances) > 1:
             detail = "; ".join(f"{h}: {st}" for h, st in sorted(entries))
             findings.append(Finding(Severity.INFO, "DivergingPositions", target_iri,
-                f"perspectives diverge — {detail} (all retained; divergence is valid)"))
+                f"perspectives diverge: {detail} (all retained; divergence is valid)"))
 
     # a CURRENT record leaning on a RETRACTED one (lifecycle links exempt — they are history)
     content_links = tuple(p for p in link_props if p not in (CDS.supersedes, CDS.supersededBy))
@@ -415,7 +415,7 @@ def _check_conflicts(data: Graph) -> list[Finding]:
                 continue
             if (obj, CDS.retracted, Literal(True)) in full:
                 findings.append(Finding(Severity.WARNING, "ReferenceToRetracted", str(subj),
-                    f"references retracted record {'/'.join(str(obj).rsplit('/', 2)[-2:])} — "
+                    f"references retracted record {'/'.join(str(obj).rsplit('/', 2)[-2:])}; "
                     "update the link or retract this record too"))
 
     return findings

@@ -23,6 +23,7 @@ from typing import Any, get_type_hints
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, create_model
 
+from cds.core import usertext
 from cds.core.authoring import (
     AlreadyRetractedError,
     RecordExistsError,
@@ -42,7 +43,7 @@ _FIELD_DESCRIPTIONS: dict[str, str] = {
     "synthesis": "Slug of the parent mapping (create it first with cds_synthesis).",
     "title": "Human title of the mapping.",
     "cites": "Source IRIs for provenance.",
-    "supersedes": "Record(s) this one replaces in the durable record — bare slug "
+    "supersedes": "Record(s) this one replaces in the durable record: bare slug "
                   "(same kind) or full IRI; the old record is marked superseded, not deleted.",
     "for_stakeholder": "need → stakeholder slug(s).",
     "serves_goal": "need → goal slug(s).",
@@ -63,7 +64,7 @@ _FIELD_DESCRIPTIONS: dict[str, str] = {
     "note": "Free-form note.",
     "between": "IRIs of the records in tension.",
     "waiver_id": "IRI identifying this waiver (append-only ledger entry).",
-    "rule": "The verify rule (check name) being waived — see the oracle's /rules.",
+    "rule": "The verify rule (check name) being waived; see the oracle's /rules.",
     "focus": "Optional focus node the waiver is scoped to.",
     "by": "Operator IRI accepting the waiver.",
     "check_conflicts": "Also run the cross-record consistency checks.",
@@ -115,10 +116,8 @@ def build_app(project: Project, llm: Any = None) -> Any:
 
     served = mcp_server.list_tools()  # manifest drift guard — same refusal as cds-mcp
     app = FastAPI(
-        title="cds facilitator",
-        description="Correct-by-construction authoring over the K1 tool whitelist: "
-                    "Pydantic-gated candidate writes into session staging; advisory "
-                    "verification while composing; the commit gate (K2, human) blocks.",
+        title=usertext.FACILITATOR_TITLE,
+        description=usertext.FACILITATOR_DESCRIPTION,
         version="0.1.0",
     )
 
@@ -173,9 +172,9 @@ def build_app(project: Project, llm: Any = None) -> Any:
         if llm is None:
             raise HTTPException(
                 status_code=503,
-                detail="no LLM configured — set the ADR-8 triplet (CDS_LLM_BASE_URL, "
-                       "CDS_LLM_MODEL, CDS_LLM_API_KEY) and restart cds-serve; the "
-                       "/tools/* routes work without one",
+                detail="no LLM is configured. Set CDS_LLM_BASE_URL, CDS_LLM_MODEL, and "
+                       "CDS_LLM_API_KEY, then restart cds-serve; the /tools/* routes "
+                       "work without one",
             )
         from cds.facilitator.aicc import run_turn
 
@@ -228,15 +227,15 @@ def main() -> None:
 
     ap = argparse.ArgumentParser(
         prog="cds-serve",
-        description="cds facilitation API — the K1 whitelist as HTTP routes over a session "
-                    "staging project; writes are candidates, the commit gate is human.",
+        description="cds facilitation API: the fixed cds tool set as HTTP routes over a "
+                    "session staging project; writes are candidates, the commit gate is human.",
     )
     ap.add_argument("--project", type=Path, default=None,
                     help="Explicit staging root (default: fresh session when --canonical "
                          "is given, else CDS_PROJECT / cwd discovery).")
     ap.add_argument("--canonical", type=Path, default=None,
-                    help="Canonical record root — enables the overlay read model and the "
-                         "commit gate (K2).")
+                    help="Canonical record root; enables the overlay read model and the "
+                         "commit gate.")
     ap.add_argument("--role", action="append", default=None,
                     help="Grant a role to this session (repeatable), e.g. cds-reviewer. "
                          "Operator configuration until P6 auth.")

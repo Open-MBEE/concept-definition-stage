@@ -91,7 +91,7 @@ def compile_brief(graph: Graph, *, base: str, include_history: bool = False,
     title = _label(graph, syntheses[0]) if syntheses else "Concept Definition"
     lines.append(f"# {title}")
     lines.append("")
-    lines.append("*Concept Definition — Business Analysis & Stakeholder Needs*")
+    lines.append("*Concept Definition: Business Analysis & Stakeholder Needs*")
     lines.append("")
 
     # ---- Business / Mission Analysis
@@ -112,7 +112,7 @@ def compile_brief(graph: Graph, *, base: str, include_history: bool = False,
                 addresses = _refs(graph, s, CDS.addresses)
                 extra = f" _(addresses: {addresses})_" if addresses else ""
             sup = _supersedes(graph, s)
-            lines.append(f"- **{_label(graph, s)}** — {_desc(graph, s)}{extra}{sup}")
+            lines.append(f"- **{_label(graph, s)}**: {_desc(graph, s)}{extra}{sup}")
         lines.append("")
 
     # ---- Stakeholders
@@ -148,7 +148,7 @@ def compile_brief(graph: Graph, *, base: str, include_history: bool = False,
                 tags.append(f"serves: {serves}")
             suffix = f" _({'; '.join(tags)})_" if tags else ""
             lines.append(
-                f"- **{_label(graph, s)}** — {_desc(graph, s)}{suffix}{_supersedes(graph, s)}"
+                f"- **{_label(graph, s)}**: {_desc(graph, s)}{suffix}{_supersedes(graph, s)}"
             )
         lines.append("")
 
@@ -198,7 +198,7 @@ def _history_appendix(lines: list[str], full: Graph) -> None:
         if (s, CDS.retracted, None) in full:
             reason = full.value(s, CDS.retractionReason)
             marks.append(f"retracted{f': {reason}' if reason is not None else ''}")
-        entries.append(f"- **{_label(full, s)}** — {_desc(full, s)} _({'; '.join(marks)})_")
+        entries.append(f"- **{_label(full, s)}**: {_desc(full, s)} _({'; '.join(marks)})_")
     if not entries:
         return
     lines.append("## Superseded & retracted")
@@ -234,7 +234,7 @@ def _positions_section(lines: list[str], graph: Graph) -> None:
             verdict = "**diverge**"
         else:
             verdict = "converge"
-        lines.append(f"### {_label(graph, URIRef(target_iri))} — {verdict}")
+        lines.append(f"### {_label(graph, URIRef(target_iri))}: {verdict}")
         lines.append("")
         for p in entries:
             holder = graph.value(p, CDS.heldBy)
@@ -254,7 +254,7 @@ def _section(lines: list[str], graph: Graph, cls: Node, heading: str) -> None:
     lines.append("")
     for s in items:
         desc = _desc(graph, s)
-        lines.append(f"- **{_label(graph, s)}**" + (f" — {desc}" if desc else ""))
+        lines.append(f"- **{_label(graph, s)}**" + (f": {desc}" if desc else ""))
     lines.append("")
 
 
@@ -274,7 +274,7 @@ def _tensions_section(lines: list[str], graph: Graph) -> None:
     lines.append("")
     for s in items:
         desc = _desc(graph, s)
-        lines.append(f"- **{_label(graph, s)}**" + (f" — {desc}" if desc else ""))
+        lines.append(f"- **{_label(graph, s)}**" + (f": {desc}" if desc else ""))
     lines.append("")
 
 

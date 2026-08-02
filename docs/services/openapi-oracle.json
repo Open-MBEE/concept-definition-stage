@@ -76,7 +76,7 @@
     }
   },
   "info": {
-    "description": "Model-instance conformance against the cds model family: verdict + granular tri-severity findings (rule/focus/message) for remediation. Verification only \u2014 validation (fitness for purpose) is human.",
+    "description": "Checks a model against the cds model family. Send a model instance to /verify and get a verdict plus itemized findings (each names the rule, the record it concerns, and what to do about it); /rules lists every rule the oracle applies. The oracle only checks; it never stores or changes anything.",
     "title": "cds conformance oracle",
     "version": "0.1.0"
   },

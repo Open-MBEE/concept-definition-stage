@@ -57,6 +57,7 @@ from cds.core.model.notes import (
 )
 from cds.core.namespaces import CDS, DCTERMS, PROV
 from cds.core.serialize import canonical_turtle
+from cds.core.usertext import COMMIT_SESSION_UNBOUND
 from cds.core.verify import (
     Finding,
     Severity,
@@ -180,10 +181,10 @@ def cds_explain(project: Project, name: str) -> list[str]:
     if lines is not None:
         return lines
     # F-11: never a bare null — teach what IS explainable
-    return [f"unknown term {name!r} — explainable names:"] + explain_mod.glossary()
+    return [f"unknown term {name!r}. Explainable names:"] + explain_mod.glossary()
 
 
-@_tool("cds_list", "List records of a kind visible to this session — staged candidates "
+@_tool("cds_list", "List records of a kind visible to this session: staged candidates "
                    "overlaid on the canonical current view (slug, label).")
 def cds_list(project: Project, kind: str) -> list[tuple[str, str]]:
     from cds.core.model.instances import AUTHORABLE_KINDS
@@ -211,7 +212,7 @@ def cds_show(project: Project, kind: str, slug: str) -> list[str] | None:
     return lines
 
 
-@_tool("cds_verify", "Verify the staging graph — tri-severity findings; preview only.")
+@_tool("cds_verify", "Verify the staging graph (advisory preview with tiered findings).")
 def cds_verify(project: Project, check_conflicts: bool = True) -> VerifyResult:
     return _ORACLE.check(_staging_graph(project), check_conflicts=check_conflicts)
 
@@ -260,7 +261,7 @@ def cds_synthesis(project: Project, slug: str, title: str, description: str = ""
 
 
 @_tool("cds_new", "Create a NEW record of a kind (candidate into staging); refuses an "
-                  "existing slug — use cds_edit to change one.", mode=ToolMode.SCRATCH)
+                  "existing slug, use cds_edit to change one.", mode=ToolMode.SCRATCH)
 def cds_new(project: Project, kind: str, slug: str, label: str, description: str,
             synthesis: str,
             cites: list[str] | None = None,
@@ -284,14 +285,14 @@ def cds_new(project: Project, kind: str, slug: str, label: str, description: str
     rec = _validated_record(kind, slug, label, description, synthesis, fields)
     if _in_canonical_current(kind, slug):  # existence consults the overlay union (P2-a)
         raise RecordExistsError(
-            f"{kind} {slug!r} already exists in the canonical record — use cds_edit to "
+            f"{kind} {slug!r} already exists in the canonical record. Use cds_edit to "
             f"revise it, or a new slug with supersedes={slug!r} to replace it"
         )
     return str(create_record(project, rec))
 
 
 @_tool("cds_edit", "Edit an EXISTING record (scratch mode; copies a canonical record on "
-                   "write). REPLACES the whole record — restate every field you want to "
+                   "write). REPLACES the whole record: restate every field you want to "
                    "keep, including links. Refuses an absent slug.", mode=ToolMode.SCRATCH)
 def cds_edit(project: Project, kind: str, slug: str, label: str, description: str,
              synthesis: str,
@@ -324,8 +325,8 @@ def cds_edit(project: Project, kind: str, slug: str, label: str, description: st
         raise
 
 
-@_tool("cds_discard", "Delete a staged candidate or ledger item from the working copy — "
-                      "scratch only, can never touch canonical state.", mode=ToolMode.SCRATCH)
+@_tool("cds_discard", "Delete a staged candidate or ledger item from the working copy "
+                      "(scratch only; can never touch canonical state).", mode=ToolMode.SCRATCH)
 def cds_discard(project: Project, kind: str, slug: str) -> dict[str, object]:
     from cds.core.authoring import (
         find_referrers,
@@ -379,8 +380,8 @@ def cds_retract(project: Project, kind: str, slug: str,
 # --------------------------------------------------------------------------- session ledgers
 
 
-@_tool("cds_queue_add", "File a retrieval item — the mandated dead-end on unsecured canon.",
-       mode=ToolMode.SCRATCH)
+@_tool("cds_queue_add", "File a retrieval item for an unsecured source: authoring on it "
+                        "stops until a human secures it.", mode=ToolMode.SCRATCH)
 def cds_queue_add(project: Project, slug: str, question: str, description: str = "") -> str:
     return str(create_queue_item(project, RetrievalItem(slug=slug, question=question,
                                                         description=description)))
@@ -449,7 +450,7 @@ def cds_waive(project: Project, waiver_id: str, rule: str, reason: str,
               focus: str | None = None, by: str | None = None) -> str:
     known = rule_severities()
     if rule not in known:  # F-3: no dead waivers in an append-only ledger
-        raise ValueError(f"unknown rule {rule!r} — known rules: {', '.join(sorted(known))}")
+        raise ValueError(f"unknown rule {rule!r}; known rules: {', '.join(sorted(known))}")
     if known[rule] is Severity.VIOLATION:  # F-3: T1-class refused even without a live finding
         raise PermissionError(f"T1 is never waivable: {rule} is a Violation-class rule")
     result = _ORACLE.check(_staging_graph(project), check_conflicts=True)
@@ -459,17 +460,14 @@ def cds_waive(project: Project, waiver_id: str, rule: str, reason: str,
     return waiver_id
 
 
-@_tool("cds_commit", "Merge staging into canonical through the K2 gate (requires the "
-                     "cds-reviewer role bound at server start); returns the executed "
-                     "change plan.", mode=ToolMode.COMMIT)
+@_tool("cds_commit", "Merge staging into the canonical record (requires the cds-reviewer "
+                     "role bound at server start; publishing is a human decision); returns "
+                     "the executed change plan.", mode=ToolMode.COMMIT)
 def cds_commit(project: Project,
                include_unverified: list[str] | None = None) -> dict[str, object]:
     if SESSION.canonical is None:
-        raise PermissionError(  # F-7: the refusal speaks to the user, not the roadmap
-            "committing requires the cds-reviewer role and a canonical record bound at "
-            "server start (--canonical); neither is configured here. Your candidates "
-            "remain safely in session staging — nothing is lost."
-        )
+        # F-7: the refusal speaks to the user, not the roadmap
+        raise PermissionError(COMMIT_SESSION_UNBOUND)
     # Lazy import — the K2 gate lives in the app tier (cds.app); module-level sibling
     # imports are forbidden by the factoring DAG, and this call-time seam is the
     # sanctioned crossing (same pattern as the transport SDKs).

@@ -11,6 +11,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from cds.contracts import InProcessOracle
+from cds.core import usertext
 from cds.core.verify import Finding, Severity, VerifyResult
 
 
@@ -32,7 +33,7 @@ def _result_json(result: VerifyResult) -> dict[str, Any]:
 
 
 _CONFLICT_MESSAGES: dict[str, str] = {
-    "NeedFormShall": "a need uses 'shall' — write it in need-form (requirements come later)",
+    "NeedFormShall": "a need uses 'shall'; write it in need-form (requirements come later)",
     "NeedWithoutStakeholder": "a need is not linked to any stakeholder (orphan need)",
     "NeedServesNoGoal": "a need serves no goal it advances",
     "DuplicateStatement": "two current records share a semantic type and normalized statement",
@@ -41,7 +42,7 @@ _CONFLICT_MESSAGES: dict[str, str] = {
     "ReferenceToRetracted": "a current record references a retracted one",
     "DivergingPositions": "stakeholder positions on the same subject diverge "
                           "(all retained; divergence is valid)",
-    "UnresolvedCitation": "a record cites a project-local source that doesn't exist — "
+    "UnresolvedCitation": "a record cites a project-local source that doesn't exist; "
                           "register/secure it before commit",
 }
 
@@ -81,10 +82,8 @@ def build_app() -> Any:
     from rdflib import Graph
 
     app = FastAPI(
-        title="cds conformance oracle",
-        description="Model-instance conformance against the cds model family: verdict + "
-                    "granular tri-severity findings (rule/focus/message) for remediation. "
-                    "Verification only — validation (fitness for purpose) is human.",
+        title=usertext.ORACLE_TITLE,
+        description=usertext.ORACLE_DESCRIPTION,
         version="0.1.0",
     )
     oracle = InProcessOracle()
@@ -117,7 +116,7 @@ def main() -> None:
 
     ap = argparse.ArgumentParser(
         prog="cds-oracle",
-        description="cds model-conformance oracle — stateless /verify, /rules, /healthz.",
+        description="cds model-conformance oracle: stateless /verify, /rules, /healthz.",
     )
     ap.add_argument("--host", default="127.0.0.1",
                     help="Bind address (loopback by default; authn arrives at P6).")

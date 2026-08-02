@@ -69,7 +69,7 @@ class RecordForm:
         self.label = w.Text(description="Label", placeholder="Short name")
         self.description = w.Textarea(
             description="Statement",
-            placeholder="The content statement — for a need, use need-form "
+            placeholder="The content statement. For a need, use need-form "
                         "('the <stakeholder> needs …', never 'shall')")
         self.synthesis = w.Text(description="Mapping", placeholder="synthesis slug")
         self.extra = w.Text(
@@ -136,7 +136,7 @@ class VerifyPanel:
         )
         self.findings.value = rows or "<i>no findings</i>"
         verdict = "conforms" if result.conforms else "does NOT conform"
-        self.status.value = (f"{verdict} — {len(result.findings)} finding(s); "
+        self.status.value = (f"{verdict}: {len(result.findings)} finding(s); "
                              "advisory while composing, the commit gate decides")
         return VerifyOutcome(conforms=result.conforms, findings=len(result.findings),
                              thread_name=threading.current_thread().name)
@@ -159,7 +159,7 @@ class CommitPanel:
         except Exception as exc:
             self.status.value = f"<b>not committed:</b> {exc}"
             return
-        self.status.value = (f"committed <code>{plan['content_hash'][:12]}</code> — "
+        self.status.value = (f"committed <code>{plan['content_hash'][:12]}</code>: "
                              f"+{len(plan['adds'])} ~{len(plan['revisions'])} "
                              f"^{len(plan['supersessions'])} -{len(plan['retractions'])}"
                              + (f"; held: {len(plan['held'])}" if plan["held"] else ""))

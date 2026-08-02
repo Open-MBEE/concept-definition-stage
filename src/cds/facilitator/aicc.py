@@ -53,15 +53,14 @@ def _summarize(result: object) -> str:
 def _execute(call: ToolCall, project: Project, state: TurnResult) -> str:
     """Run one requested call through the guards; returns the in-band tool message."""
     if call.name not in prompts.offered_tool_names():
-        reason = (f"tool {call.name!r} is not available — the complete tool list is in "
+        reason = (f"tool {call.name!r} is not available. The complete tool list is in "
                   "your instructions; nothing outside it exists")
         state.refused.append(RefusedCall(name=call.name, reason=reason))
         return reason
     spec = mcp_tools.TOOLS[call.name]
     if state.escalated and spec.mode is not ToolMode.READ:
-        reason = ("refused: unsecured canon was escalated to the retrieval queue this "
-                  "turn — authoring stops here until a human secures the source "
-                  "(the mandated dead-end)")
+        reason = ("refused: an unsecured source was escalated to the retrieval queue "
+                  "this turn. Authoring stops here until a human secures the source.")
         state.refused.append(RefusedCall(name=call.name, reason=reason))
         return reason
     try:
@@ -89,8 +88,8 @@ def run_turn(
     results feed back, until the model answers in text (or the round budget ends)."""
     if project is None or backend is None:
         raise NotImplementedError(
-            "the facilitator needs a session project and an LLM backend — configure the "
-            "ADR-8 triplet (CDS_LLM_BASE_URL / CDS_LLM_MODEL / CDS_LLM_API_KEY)"
+            "the facilitator needs a session project and an LLM backend; configure "
+            "CDS_LLM_BASE_URL, CDS_LLM_MODEL, and CDS_LLM_API_KEY"
         )
     system = prompts.system_prompt()
     tools_schema = prompts.offered_tools_schema()
@@ -124,5 +123,5 @@ def run_turn(
             outcome = _execute(call, project, state)
             messages.append({"role": "tool", "name": call.name, "content": outcome})
     else:
-        state.reply = state.reply or "(round budget exhausted — summarizing is on you)"
+        state.reply = state.reply or "(round budget exhausted; summarizing is on you)"
     return state
