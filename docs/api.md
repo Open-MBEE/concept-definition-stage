@@ -38,3 +38,32 @@ modules are the library underneath it.
    :members:
    :undoc-members:
 ```
+
+## Contracts, tool boundary & services
+
+The cross-component seams and the service surfaces built on them (see the
+[factoring contract](architecture/factoring.md) and the per-service pages under
+`docs/services/`). Transport SDKs are imported lazily, so these modules document on a lean
+install.
+
+```{eval-rst}
+.. automodule:: cds.contracts
+   :members:
+   :undoc-members:
+
+.. automodule:: cds.mcp.tools
+   :members:
+   :undoc-members:
+
+.. automodule:: cds.mcp.server
+   :members:
+   :undoc-members:
+
+.. automodule:: cds.facilitator.server
+   :members:
+   :undoc-members:
+
+.. automodule:: cds.oracle.app
+   :members:
+   :undoc-members:
+```
