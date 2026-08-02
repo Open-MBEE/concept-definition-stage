@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from functools import cache
 
-from cds.core.model.instances import KIND_TERM, KINDS
+from cds.core.model.instances import AUTHORABLE_KINDS, KIND_TERM
 
 #: Plain-language, one-line glosses (our words, not the canon) for each authorable kind.
 _GLOSS: dict[str, str] = {
@@ -28,6 +28,24 @@ _GLOSS: dict[str, str] = {
         "What a stakeholder needs, in *need-form* — 'the <stakeholder> needs the system to…', "
         "never 'shall' (requirements come in a later stage)."
     ),
+    "position": (
+        "A stakeholder's stance on another record — supports / opposes / prioritizes / "
+        "constrains / reads-as. Divergent positions are valid and retained; verify surfaces "
+        "them as a finding, never an error."
+    ),
+    # lifecycle verbs (ADR-9) — how records change without losing the durable record
+    "retract": (
+        "Retire a record with an append-only marker: it leaves the current view, but its "
+        "content and the reason are preserved in the record forever."
+    ),
+    "supersede": (
+        "Replace a record by authoring a NEW one with supersedes=<old-slug>: the old record "
+        "is marked superseded (append-only) and leaves the current view; nothing is deleted."
+    ),
+    "discard": (
+        "Delete a draft from the working copy (scratch mode) — safe before anything is "
+        "committed; for committed records use retract instead."
+    ),
 }
 
 #: How to author each kind (defaults to a generic template).
@@ -40,6 +58,14 @@ _USAGE: dict[str, str] = {
         "cds new need <slug> --synthesis <s> --for-stakeholder <st> --serves-goal <g> "
         "--label … --description …"
     ),
+    "position": (
+        "cds new position <slug> --synthesis <s> --characterizes <kind>/<slug> "
+        "--held-by <stakeholder> --stance supports|opposes|prioritizes|constrains|reads-as "
+        "--label … --description …"
+    ),
+    "retract": "cds retract <kind> <slug> --reason '…'   (HTTP/MCP: cds_retract)",
+    "supersede": "cds new <kind> <new-slug> --supersedes <old-slug> …",
+    "discard": "cds rm <kind> <slug>   (HTTP/MCP: cds_discard)",
 }
 
 
@@ -68,9 +94,12 @@ def explain(name: str) -> list[str] | None:
     lines = [f"{label}  ({slug})", ""]
     if gloss:
         lines += [f"In plain terms: {gloss}", ""]
-    if name in KIND_TERM or slug in KIND_TERM.values():
-        kind = name if name in KIND_TERM else next(k for k, v in KIND_TERM.items() if v == slug)
+    if name in AUTHORABLE_KINDS or slug in KIND_TERM.values():
+        kind = name if name in AUTHORABLE_KINDS \
+            else next(k for k, v in KIND_TERM.items() if v == slug)
         lines += [f"Author it:  {_usage_for(kind)}", ""]
+    elif name in _USAGE:  # lifecycle verbs
+        lines += [f"How:  {_USAGE[name]}", ""]
 
     source = getattr(term, "definition_source", None) if term is not None else None
     grounding = getattr(term, "grounding", None) if term is not None else None
@@ -85,9 +114,10 @@ def glossary() -> list[str]:
     """A one-line-per-kind overview of the authorable vocabulary."""
     idx = _term_index()
     lines = ["Record kinds you can author:", ""]
-    for kind in KINDS:
-        slug = KIND_TERM[kind]
+    for kind in AUTHORABLE_KINDS:
+        slug = KIND_TERM.get(kind, kind)
         label = getattr(idx.get(slug), "pref_label", None) or slug
         lines.append(f"  {kind:11s} {label} — {_GLOSS.get(kind, '')}")
-    lines += ["", "Run `cds explain <kind>` for detail on any one."]
+    lines += ["", "Changing your mind: `cds explain retract | supersede | discard` (ADR-9).",
+              "Run `cds explain <kind>` for detail on any one."]
     return lines
