@@ -112,6 +112,7 @@ It is the concrete realization of ROADMAP **T8** (refined from *multi-tenant* to
 > **(c) Verifier backend is swappable behind a frozen contract.** `verify()`'s `VerifyResult`/`Finding` signature is the contract; **pyshacl is the reference implementation and current engine**. A future Rust-executing fast-path (a mature Oxigraph-compatible SHACL validator, or a SHACL→SPARQL-on-Oxigraph compiler) is **deferred** (§11) and, when adopted, MUST pass a **W3C-suite + differential-vs-pyshacl parity harness** before it is trusted for any shape.
 
 > **ADR-8 — LLM locality (N6).** Default to a hosted structured-output/tool-use API (least infra); self-hosted vLLM + grammar-constrained decoding is an optional extra for air-gap/sovereignty. The tool boundary and gates are identical either way.
+> *(P1 amendment — bring-your-own-LLM.)* Two BYO paths, neither adding end-user UX: **(a) MCP path** — `cds-mcp` is BYO-LLM *by construction*: the model lives in whichever MCP client connects (Claude Code/Desktop, a local Ollama-backed host, …); cds holds no LLM credential (this is T8b). **(b) Web-app path** — the facilitator's `decode.py` (P4) holds exactly one server-side client behind an **OpenAI-compatible endpoint triplet** (`base_url`, `model`, `api_key` — covers Anthropic/OpenAI/OpenRouter/Azure and self-hosted Ollama/vLLM/llama.cpp), set as **operator config** (env/deploy secrets, `cds-admin` persona). End users never see a model picker; swapping providers is editing three values; the K-gates are provider-independent.
 
 ---
 
