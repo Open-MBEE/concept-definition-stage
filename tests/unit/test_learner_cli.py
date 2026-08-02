@@ -22,6 +22,17 @@ def test_explain_covers_every_authorable_kind() -> None:
         assert any("In plain terms" in ln for ln in lines), kind
 
 
+def test_explain_covers_position_and_lifecycle_verbs() -> None:
+    # LARP#2 G-1: the newest concepts must not be the least explained.
+    pos = explain("position")
+    assert pos is not None and any("stance" in ln for ln in pos)
+    for verb in ("retract", "supersede", "discard"):
+        lines = explain(verb)
+        assert lines is not None, verb
+    assert any("append-only" in ln for ln in explain("retract") or [])
+    assert any("position" in ln for ln in glossary())
+
+
 def test_explain_need_mentions_need_form() -> None:
     lines = explain("need")
     assert lines is not None
