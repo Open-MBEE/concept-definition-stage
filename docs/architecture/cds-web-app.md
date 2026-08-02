@@ -152,6 +152,29 @@ flowchart TB
 
 ## 6. Concrete architecture for `cds`
 
+### 6.0 Six-component decomposition & contract seams *(owner-approved P1 amendment, 2026-08-02)*
+
+The system is factored into **six components, each a would-be distribution, joined only by typed
+contracts** (`cds.contracts`, which imports only `cds.core`). Any component can move
+out-of-process without changing its consumers. Doctrine (from the internal eBike design corpus
+and RIME ai-authoring): **verification** is the machine question "did we build it right?"
+(oracle, SHACL); **validation** is the human question "did we build the right thing?" (the K2
+commit gate); the two are never conflated in either direction. Facilitation is a bounded assist
+layer — "e-bike-style": the human steers — whose substance is the constrained authoring
+protocol, not the LLM.
+
+| # | Component | Package / surface | Role |
+|---|---|---|---|
+| C1 | Modeling-family package | `cds.core` + `cds.stages` + `cds` CLI | the model family + CLIs to build/check models; Sphinx-documented |
+| C2 | Conformance oracle service | `cds.oracle` · `cds-oracle` · extra `oracle` | stateless: model instance in → verdict + granular tri-severity findings (rule/focus/message) for remediation; OpenAPI committed |
+| C3 | Facilitator service | `cds.facilitator` · `cds-serve` · extra `facilitator` | **correct-by-construction authoring**: the K1 tool registry mounted as HTTP routes over a session staging Project; graded strictness (advisory checks while composing; the commit gate blocks); P4 adds the AICC/LLM sidecar as a UX affordance over this same API; OpenAPI committed |
+| C4 | Model datastore service | contract `cds.contracts.ModelStore` (= `cds.core.flexo.FlexoBackend`) | stores model instances per branch; local git-TTL layout is the reference impl; **Flexo MMS** is the deployment target (ROADMAP T6); own docs page |
+| C5 | MCP tool server | `cds.mcp` · `cds-mcp` · extra `mcp` | the K1 whitelist as an MCP/stdio transport for LLM orchestrators; composes C1 (in-process) + C2 (via `ConformanceOracle`) + C4 (via `ModelStore`) |
+| C6 | Web app | `cds.app` (P5/P6) | Jupyter/Voilà front end driving the facilitator service |
+
+Process-grammar mapping (eBike lifecycle vocabulary): `Q` (query/lookup) = C4, `DC`
+(deterministic compute) = C2, `LLM` + `HI` (human input) = C3/C6.
+
 ### 6.1 Reference tier → concrete component
 
 | Ref tier | Concrete for `cds` |
@@ -159,10 +182,10 @@ flowchart TB
 | T1 Edge | Traefik (TLS, WS passthrough) |
 | T2 Identity | **Keycloak** realm `dsg` + **JupyterHub** `GenericOAuthenticator`; realm roles → personas (§6.5) |
 | T3 App | `DockerSpawner` → per-user `cds-app` image: **Voilà** + `concept_definition_app.ipynb` + `cds[app]` + `ipywidgets` chat/forms/brief-preview |
-| T4 Orchestrator | `cds.facilitator` — AICC loop; the vendored facilitation skill becomes the server-side contract; LLM per ADR-8 |
-| T5 Tool boundary | **`cds.mcp`** — whitelisted typed wrappers over `authoring`/`verify`/`explain`/`compile`; candidate-producing; **no exec tool** |
+| T4 Orchestrator | `cds.facilitator` — layered: **P1** the non-LLM facilitation API (`cds-serve`, C3 — the constrained authoring routes); **P4** the AICC loop + LLM sidecar as a UX affordance over that same API (LLM per ADR-8) |
+| T5 Tool boundary | **`cds.mcp`** — whitelisted typed wrappers over `authoring`/`verify`/`explain`/`compile`; candidate-producing; **no exec tool**; the registry (`cds.mcp.tools`) is transport-neutral and is mounted by both `cds-mcp` (MCP/stdio) and `cds-serve` (HTTP) |
 | T6 Controller | `cds.core` — **unchanged**; Pydantic guardrails intact |
-| T7 Verification | `cds.core.verify` behind the swappable backend contract (pyshacl reference); staging-delta targeted, warm, async (ADR-7) |
+| T7 Verification | `cds.core.verify` behind the swappable backend contract (pyshacl reference); staging-delta targeted, warm, async (ADR-7); exposed out-of-process as the **conformance oracle service** (`cds.oracle`, C2) via the `ConformanceOracle` contract |
 | T8 Canonical | per-analysis **git repo of `concept-definition/instances/*.ttl`** (record) + **Oxigraph read index**; `cds:Waiver` append-only; **PROV-O**; commit gate |
 | T9 Sandbox | **N/A** — cds authors records, not computations; no user-code execution exists to sandbox (K3 satisfied twice over) |
 | T10 Cross-cutting | Secrets (SOPS/1Password-CLI); append-only audit; access-controlled **held-canon store** (SEBoK/GtWR PDFs — REFERENCE tier, never vendored) |
@@ -223,9 +246,11 @@ concept-definition-stage/                    # monorepo
 ├── src/cds/
 │   ├── core/  stages/  ontology/  fixtures/ # S1 — existing package, UNCHANGED (T6/T7 engine)
 │   │   └── verify.py                        #   frozen validate() contract; pyshacl reference backend (ADR-7c)
-│   ├── mcp/          __init__.py server.py tools.py staging.py provenance.py   # S2 — tool boundary (K1/K2/K4)
-│   ├── facilitator/  __init__.py aicc.py prompts.py decode.py server.py         # S3 — AICC agent (T4)
-│   └── app/          __init__.py widgets.py commit_gate.py notebook/concept_definition_app.ipynb  # S4 (T3)
+│   ├── contracts/    __init__.py                                                # C-seams — ConformanceOracle · ModelStore (imports only core)
+│   ├── mcp/          __init__.py server.py tools.py staging.py provenance.py manifest_doc.py  # S2/C5 — tool boundary (K1/K2/K4); tools.py = transport-neutral registry
+│   ├── oracle/       __init__.py app.py export_openapi.py                       # C2 — stateless conformance oracle (/verify /rules /healthz)
+│   ├── facilitator/  __init__.py aicc.py prompts.py decode.py server.py export_openapi.py  # S3/C3 — P1 authoring API (cds-serve); P4 AICC agent (T4)
+│   └── app/          __init__.py widgets.py commit_gate.py notebook/concept_definition_app.ipynb  # S4/C6 (T3)
 ├── deploy/                                   # S5 — infra-as-code (NOT in the wheel)
 │   ├── docker-compose.yml  jupyterhub_config.py  keycloak/realm-dsg.json  traefik/
 │   └── images/ (cds-app Dockerfile, hub Dockerfile)
@@ -242,16 +267,18 @@ concept-definition-stage/                    # monorepo
 ```toml
 [project.optional-dependencies]
 # existing: dev, docs, interop
-mcp         = ["mcp>=1.0"]                                                  # S2 (lean, reusable)
-facilitator = ["cds[mcp]", "anthropic>=0.40", "instructor>=1.0"]           # S3 (hosted-LLM default, ADR-8)
+mcp         = ["mcp>=1.0"]                                                  # S2/C5 (lean, reusable)
+oracle      = ["fastapi>=0.110", "uvicorn>=0.29"]                           # C2 — conformance oracle service
+facilitator = ["cds[mcp]", "fastapi>=0.110", "uvicorn>=0.29", "anthropic>=0.40", "instructor>=1.0"]  # S3/C3 (service substrate + hosted-LLM default, ADR-8; LLM deps lazy)
 selfhosted-llm = ["vllm>=0.6", "xgrammar>=0.1"]                            # N6 sovereign option
 app         = ["cds[facilitator]", "voila>=0.5", "ipywidgets>=8", "jupyterhub>=5", "dockerspawner>=13", "oauthenticator>=17"]
 store       = ["pyoxigraph>=0.4", "oxrdflib>=0.4"]                          # ADR-7a read index (optional)
 
 [project.scripts]
-cds       = "cds.core.cli:main"           # existing — unchanged
-cds-mcp   = "cds.mcp.server:main"          # S2
-cds-serve = "cds.facilitator.server:main" # S3
+cds        = "cds.core.cli:main"           # existing — unchanged
+cds-mcp    = "cds.mcp.server:main"          # S2/C5 — MCP transport
+cds-serve  = "cds.facilitator.server:main" # S3/C3 — facilitation (authoring) API
+cds-oracle = "cds.oracle.app:main"         # C2 — conformance oracle
 ```
 
 `pip install cds` → lean CLI. `pip install "cds[mcp]"` → the reusable tool server. `pip install "cds[app]"` → the full deployable app. `deploy/` is infra, versioned in the monorepo but never shipped in the wheel.
@@ -274,6 +301,33 @@ cds-serve = "cds.facilitator.server:main" # S3
 | `cds_commit` | staging→canonical merge + git + full verify | **gated**: refused unless caller holds `cds-reviewer` |
 
 No `run_python`, `read_file`, `write_file`, `shell`, `http_get`. This table *is* the model's entire reachable surface — `test_mcp_manifest_equals_whitelist` asserts it.
+
+*(P1 amendment.)* The whitelist is **transport-independent**: `cds.mcp.tools` is the single
+registry, mounted by both the MCP server (`cds-mcp`, stdio — for LLM orchestrators) and the
+facilitator service (`cds-serve`, HTTP — for UIs/scripts), drift-guarded on each
+(`test_mcp_manifest_equals_whitelist`, `test_facilitator_api::test_tool_routes_equal_whitelist`).
+The conformance oracle is a **separate, smaller surface**: exactly `POST /verify`, `GET /rules`,
+`GET /healthz` (`test_oracle_api::test_surface_is_exactly_three_routes`).
+
+### 8.3 Cross-component contracts (`cds.contracts`) — P1 amendment
+
+```
+# cds.contracts — imports ONLY cds.core; the modularity keystone
+class ConformanceOracle(Protocol):        # C2 seam ("build it right" — machine)
+    def check(self, data: Graph, *, check_conflicts: bool = True) -> VerifyResult: ...
+class InProcessOracle:                    # reference impl (wraps cds.core.verify.verify)
+    ...
+# DEFERRED: an HTTP client impl consuming cds-oracle's /verify — trigger: an
+# out-of-process consumer (P5/P6 app tier).
+
+ModelStore = cds.core.flexo.FlexoBackend  # C4 seam: commit(*, branch, graph) / read_graph(*, branch)
+# impls: InMemoryFlexoBackend (tests) · git-TTL project layout (durable reference, P2 staging)
+#        · FlexoHttpClient (remote — the T6 datastore service target)
+```
+
+Committed, drift-checked interface specs: `docs/services/openapi-oracle.json`,
+`docs/services/openapi-facilitator.json`, `docs/services/mcp-manifest.md` — regenerating each
+must be byte-identical (same discipline as the TTL determinism gate).
 
 ### 8.2 The verification backend contract (ADR-7c) — designed swappable now, Rust deferred
 
@@ -371,6 +425,8 @@ Local-LLM hosting (T8b) falls out of P1+P4: `pip install "cds[mcp]"` + a local m
 | **D5 — Self-hosted LLM default** | Hosted API default | least infra | Air-gap / data-residency requirement (flip to `selfhosted-llm` extra) |
 | **D6 — Sibling `cds-app` distribution** | Extras on `cds` | matches conventions, one version | If web deps must be fully out of core metadata |
 | **D7 — Multiplicity / named graphs, next-stage (T5) handoff** | Out of app scope | not required to ship | When T5 (System Requirements) consumes the conformed integrated set |
+| **D8 — HTTP `ConformanceOracle` client** | `InProcessOracle` only; the oracle service exists but its consumers are in-process | no out-of-process consumer yet | P5/P6: the app tier (or another service) needs the oracle over the network — implement the client behind the same `cds.contracts` Protocol |
+| **D9 — Flexo-backed model-datastore service** | `ModelStore` contract + local git-TTL reference only | ROADMAP T6 owns the live Flexo round-trip; creds-gated | T6 acceptance (Starforge Layer-1 round-trip green) — then `FlexoHttpClient` serves as the store behind the same contract |
 
 ---
 
