@@ -13,7 +13,7 @@ and must never import a transport SDK (``mcp``, ``fastapi``) — that rule is en
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
 from rdflib import Graph
@@ -40,7 +40,16 @@ from cds.core.model.notes import (
     Tension,
     TensionStatus,
 )
-from cds.core.verify import VerifyResult, verify
+from cds.core.namespaces import CDS, DCTERMS, PROV
+from cds.core.serialize import canonical_turtle
+from cds.core.verify import (
+    Finding,
+    Severity,
+    VerifyResult,
+    Waiver,
+    verify,
+    waiver_to_graph,
+)
 from cds.core.workspace import Project
 
 
@@ -171,3 +180,54 @@ def cds_tension_add(project: Project, slug: str, label: str, description: str = 
 @_tool("cds_tension_resolve", "Mark a tension resolved.", writes=True)
 def cds_tension_resolve(project: Project, slug: str) -> None:
     set_tension_status(project, slug, TensionStatus.RESOLVED)
+
+
+# ------------------------------------------------------------------ waivers + the commit gate
+
+
+def refuse_if_waives_t1(findings: Sequence[Finding], *, rule: str, focus: str | None) -> None:
+    """T1 is never waivable — refuse any waiver that would select a live Violation."""
+    for f in findings:
+        if (f.severity is Severity.VIOLATION and f.rule == rule
+                and (focus is None or focus == f.focus)):
+            raise PermissionError(f"T1 is never waivable: {rule} on {f.focus}")
+
+
+_WAIVER_PREFIXES: dict[str, str] = {
+    "cds": str(CDS),
+    "dcterms": str(DCTERMS),
+    "prov": str(PROV),
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+}
+
+
+def _append_waiver(project: Project, addition: Graph) -> None:
+    """Append-only waiver ledger: parse existing, merge, rewrite deterministically."""
+    target = project.instances_dir / "waivers.ttl"
+    g = Graph()
+    if target.exists():
+        g.parse(target, format="turtle")
+    for triple in addition:
+        g.add(triple)
+    target.write_text(canonical_turtle(g, prefixes=_WAIVER_PREFIXES), encoding="utf-8")
+
+
+@_tool("cds_waive", "Waive a T2/T3 finding with a reason (append-only; T1 refused).",
+       writes=True)
+def cds_waive(project: Project, waiver_id: str, rule: str, reason: str,
+              focus: str | None = None, by: str | None = None) -> str:
+    result = verify(_staging_graph(project), check_conflicts=True)
+    refuse_if_waives_t1(result.findings, rule=rule, focus=focus)
+    w = Waiver(id=waiver_id, rule=rule, reason=reason, focus=focus, by=by)
+    _append_waiver(project, waiver_to_graph(w))
+    return waiver_id
+
+
+@_tool("cds_commit", "Merge staging into canonical (K2 gate; requires cds-reviewer).",
+       writes=True)
+def cds_commit(project: Project) -> None:
+    # The sole path to canonical state. Registered (it is in the K1 whitelist) but the
+    # approver-gated merge + full verify is P2's commit gate — until then it refuses.
+    raise PermissionError(
+        "cds_commit is gated: the K2 commit gate (approver role + full verify) lands in P2"
+    )

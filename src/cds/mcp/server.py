@@ -15,8 +15,19 @@ FORBIDDEN: frozenset[str] = frozenset(
 
 
 def list_tools() -> list[str]:
-    """Names the running server actually serves. P1: implement (docs 8.1)."""
-    raise NotImplementedError("P1: implement the MCP tool manifest (K1)")
+    """Names the running server actually serves — MUST equal WHITELIST (K1).
+
+    This is also the manifest-drift guard: both transports (``cds-mcp`` and the facilitator's
+    ``cds-serve``) call it before serving and refuse to start on any mismatch.
+    """
+    from cds.mcp import tools
+
+    served = sorted(tools.registered())
+    if served != sorted(WHITELIST):
+        raise RuntimeError(f"manifest drift: served {served} != whitelist {sorted(WHITELIST)}")
+    if not FORBIDDEN.isdisjoint(served):
+        raise RuntimeError("forbidden tool present in manifest (K1/K3)")
+    return served
 
 
 def main() -> None:
