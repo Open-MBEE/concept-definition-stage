@@ -271,6 +271,7 @@ _CONFLICT_RULE_SEVERITIES: dict[str, Severity] = {
     "DanglingReference": Severity.WARNING,
     "ReferenceToRetracted": Severity.WARNING,
     "DivergingPositions": Severity.INFO,
+    "UnresolvedCitation": Severity.WARNING,
 }
 
 
@@ -364,6 +365,17 @@ def _check_conflicts(data: Graph) -> list[Finding]:
             seen.add((str(subj), text))
             findings.append(Finding(Severity.WARNING, "DanglingReference", str(subj),
                 f"links to a record that doesn't exist: {'/'.join(text.rsplit('/', 2)[-2:])}"))
+
+    # a project-local citation (/src/ path) that resolves to nothing in the graph — the
+    # retrieval workflow should know about it before it reaches a commit (LARP#3 H-5)
+    for subj, cited in data.subject_objects(CDS.cites):
+        text = str(cited)
+        if isinstance(cited, URIRef) and "/src/" in text \
+                and (cited, None, None) not in full:
+            findings.append(Finding(Severity.WARNING, "UnresolvedCitation", str(subj),
+                f"cites a source record that doesn't exist: "
+                f"{'/'.join(text.rsplit('/', 2)[-2:])} — register/secure it "
+                "(retrieval queue) before commit"))
 
     # positions diverging on the same target (X2-lite, ADR-9 R7): a FINDING, never a
     # violation — perspectives may validly conflict; both are retained and surfaced.

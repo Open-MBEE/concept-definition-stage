@@ -931,7 +931,7 @@
     },
     "/tools/cds_edit": {
       "post": {
-        "description": "Edit an EXISTING staged record in place (scratch mode); refuses an absent slug \u2014 use cds_new to create one.",
+        "description": "Edit an EXISTING record (scratch mode; copies a canonical record on write). REPLACES the whole record \u2014 restate every field you want to keep, including links. Refuses an absent slug.",
         "operationId": "cds_edit",
         "requestBody": {
           "content": {

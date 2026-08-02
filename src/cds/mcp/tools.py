@@ -171,10 +171,13 @@ def cds_list(project: Project, kind: str) -> list[tuple[str, str]]:
         raise ValueError(
             f"unknown kind {kind!r}; expected one of {', '.join(AUTHORABLE_KINDS)}"
         )
+    from cds.core.view import is_current
+
     g = _staging_graph(project)
     return sorted(
         (str(s).rsplit("/", 1)[-1], str(g.value(s, RDFS.label) or ""))
         for s in g.subjects(RDF.type, type_iri_for_kind(kind))
+        if is_current(g, s)  # uniform current-view filtering (LARP#3 H-3)
     )
 
 
@@ -231,8 +234,9 @@ def cds_new(project: Project, kind: str, slug: str, label: str, description: str
     return str(create_record(project, rec))
 
 
-@_tool("cds_edit", "Edit an EXISTING staged record in place (scratch mode); refuses an "
-                   "absent slug — use cds_new to create one.", mode=ToolMode.SCRATCH)
+@_tool("cds_edit", "Edit an EXISTING record (scratch mode; copies a canonical record on "
+                   "write). REPLACES the whole record — restate every field you want to "
+                   "keep, including links. Refuses an absent slug.", mode=ToolMode.SCRATCH)
 def cds_edit(project: Project, kind: str, slug: str, label: str, description: str,
              synthesis: str, **fields: object) -> str:
     rec = _validated_record(kind, slug, label, description, synthesis, fields)
@@ -394,10 +398,15 @@ def cds_commit(project: Project) -> dict[str, object]:
     # Lazy import — the K2 gate lives in the app tier (cds.app); module-level sibling
     # imports are forbidden by the factoring DAG, and this call-time seam is the
     # sanctioned crossing (same pattern as the transport SDKs).
-    from cds.app.commit_gate import commit
+    from cds.app.commit_gate import CommitBlockedError, commit
 
-    plan = commit(project, SESSION.canonical,
-                  approver_roles=SESSION.roles, approver=SESSION.approver)
+    try:
+        plan = commit(project, SESSION.canonical,
+                      approver_roles=SESSION.roles, approver=SESSION.approver)
+    except CommitBlockedError as exc:
+        # a verification-blocked commit is a teachable client-state error (H-1/H-7),
+        # never an unmapped internal error
+        raise ValueError(str(exc)) from exc
     return {
         "committed": not plan.empty,
         "content_hash": plan.content_hash,
