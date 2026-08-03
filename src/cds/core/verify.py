@@ -355,7 +355,8 @@ def _check_conflicts(data: Graph) -> list[Finding]:
     for syn in data.subjects(RDF.type, CDS.Synthesis):
         if not any((need, CDS.inSynthesis, syn) in data for need in needs):
             findings.append(Finding(Severity.INFO, "SynthesisWithoutNeeds", str(syn),
-                "mapping has no needs yet (integrated set is empty)"))
+                "this mapping has no needs yet (the integrated set of needs is empty; "
+                "author needs with cds_new kind=need)"))
 
     # dangling references: a project-internal link whose target record doesn't exist. Matched by
     # slug (not exact IRI), so a link built with a hard-coded target kind still resolves.

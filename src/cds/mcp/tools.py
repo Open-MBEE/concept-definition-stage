@@ -212,7 +212,8 @@ def cds_show(project: Project, kind: str, slug: str) -> list[str] | None:
     return lines
 
 
-@_tool("cds_verify", "Verify the staging graph (advisory preview with tiered findings).")
+@_tool("cds_verify", "Verify the staging graph (advisory preview; findings are tiered: "
+                     "T1 must be fixed before commit, T2 is a warning, T3 is a note).")
 def cds_verify(project: Project, check_conflicts: bool = True) -> VerifyResult:
     return _ORACLE.check(_staging_graph(project), check_conflicts=check_conflicts)
 
@@ -292,9 +293,11 @@ def cds_new(project: Project, kind: str, slug: str, label: str, description: str
     return str(create_record(project, rec))
 
 
-@_tool("cds_edit", "Edit an EXISTING record (scratch mode; copies a canonical record on "
-                   "write). REPLACES the whole record: restate every field you want to "
-                   "keep, including links. Refuses an absent slug.", mode=ToolMode.SCRATCH)
+@_tool("cds_edit", "Edit an EXISTING record in your session (a committed record is "
+                   "copied into the session on first edit; the record itself is untouched "
+                   "until commit). REPLACES the whole record: restate every field you "
+                   "want to keep, including links. Refuses an absent slug.",
+       mode=ToolMode.SCRATCH)
 def cds_edit(project: Project, kind: str, slug: str, label: str, description: str,
              synthesis: str,
              cites: list[str] | None = None,
@@ -445,8 +448,9 @@ def _append_waiver(project: Project, addition: Graph) -> None:
     target.write_text(canonical_turtle(g, prefixes=_WAIVER_PREFIXES), encoding="utf-8")
 
 
-@_tool("cds_waive", "Waive a T2/T3 finding with a reason (append-only; T1 refused).",
-       mode=ToolMode.APPEND)
+@_tool("cds_waive", "Waive a warning-level (T2/T3) finding with a reason, recorded "
+                    "append-only; T1 findings can never be waived. Pass an unknown rule "
+                    "name to list the valid ones.", mode=ToolMode.APPEND)
 def cds_waive(project: Project, waiver_id: str, rule: str, reason: str,
               focus: str | None = None, by: str | None = None) -> str:
     known = rule_severities()
