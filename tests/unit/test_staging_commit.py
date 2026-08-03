@@ -5,11 +5,11 @@ from cds.app import commit_gate
 from cds.mcp import staging
 
 
-def test_candidate_isolated_in_staging():
+def test_candidate_isolated_in_staging() -> None:
     proj = staging.new_session_project("https://cds.example/test/")
     assert proj is not None  # candidates live here, never in canonical instances/
 
 
-def test_commit_requires_approver():
+def test_commit_requires_approver() -> None:
     with pytest.raises(PermissionError):
         commit_gate.commit(object(), approver_roles=frozenset())
