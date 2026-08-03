@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from enum import StrEnum
 
 from rdflib import Graph
 
@@ -27,13 +28,14 @@ from cds.core.authoring import (
     create_record,
     create_synthesis,
     create_tension,
+    edit_record,
     list_records,
     project_graph,
     set_queue_status,
     set_tension_status,
     show_record,
 )
-from cds.core.model.instances import Synthesis, model_for_kind
+from cds.core.model.instances import Record, Synthesis, model_for_kind
 from cds.core.model.notes import (
     ParkedItem,
     RetrievalItem,
@@ -48,29 +50,49 @@ from cds.core.verify import (
     Severity,
     VerifyResult,
     Waiver,
+    rule_severities,
     waiver_to_graph,
 )
 from cds.core.workspace import Project
 
 
+class ToolMode(StrEnum):
+    """The deontic mode of a tool (ADR-9) — served in the manifest.
+
+    READ observes; SCRATCH mutates the working copy (create/edit/discard — nothing durable);
+    APPEND expresses durable-record intent by only ever adding triples (retract, waive);
+    COMMIT is the sole scratch→durable boundary.
+    """
+
+    READ = "read"
+    SCRATCH = "scratch"
+    APPEND = "append"
+    COMMIT = "commit"
+
+
 @dataclass(frozen=True)
 class ToolSpec:
-    """One whitelisted tool: its name, callable, human description, and write/read effect."""
+    """One whitelisted tool: its name, callable, human description, and deontic mode."""
 
     name: str
     fn: Callable[..., object]
     description: str
-    writes: bool
+    mode: ToolMode
+
+    @property
+    def writes(self) -> bool:
+        """Back-compat effect flag: anything other than READ writes somewhere."""
+        return self.mode is not ToolMode.READ
 
 
 TOOLS: dict[str, ToolSpec] = {}
 
 
 def _tool(
-    name: str, description: str, *, writes: bool = False
+    name: str, description: str, *, mode: ToolMode = ToolMode.READ
 ) -> Callable[[Callable[..., object]], Callable[..., object]]:
     def register(fn: Callable[..., object]) -> Callable[..., object]:
-        TOOLS[name] = ToolSpec(name=name, fn=fn, description=description, writes=writes)
+        TOOLS[name] = ToolSpec(name=name, fn=fn, description=description, mode=mode)
         return fn
 
     return register
@@ -94,12 +116,21 @@ _ORACLE: ConformanceOracle = InProcessOracle()
 
 
 @_tool("cds_explain", "Explain a cds concept or record kind (read-only guidance).")
-def cds_explain(project: Project, name: str) -> list[str] | None:
-    return explain_mod.explain(name)
+def cds_explain(project: Project, name: str) -> list[str]:
+    lines = explain_mod.explain(name)
+    if lines is not None:
+        return lines
+    # F-11: never a bare null — teach what IS explainable
+    return [f"unknown term {name!r} — explainable names:"] + explain_mod.glossary()
 
 
 @_tool("cds_list", "List records of a kind in the session staging project (slug, label).")
 def cds_list(project: Project, kind: str) -> list[tuple[str, str]]:
+    from cds.core.model.instances import KIND_TERM
+
+    if kind not in KIND_TERM:
+        # F-6: the error teaches the vocabulary instead of leaking a KeyError
+        raise ValueError(f"unknown kind {kind!r}; expected one of {', '.join(KIND_TERM)}")
     return list_records(project, kind)
 
 
@@ -121,53 +152,97 @@ def cds_compile(project: Project) -> str:
 # ------------------------------------------------------------------- candidate writes (staging)
 
 
-def _upsert(project: Project, kind: str, slug: str, label: str, description: str,
-            synthesis: str, fields: dict[str, object]) -> str:
+def _validated_record(kind: str, slug: str, label: str, description: str,
+                      synthesis: str, fields: dict[str, object]) -> Record:
     """Pydantic (``model_for_kind``) is the structural guardrail — bad args raise an error."""
     payload: dict[str, object] = {"slug": slug, "kind": kind, "label": label,
                                   "description": description, "synthesis": synthesis, **fields}
-    rec = model_for_kind(kind).model_validate(payload)
-    return str(create_record(project, rec))
+    return model_for_kind(kind).model_validate(payload)
 
 
-@_tool("cds_synthesis", "Create/update the Synthesis (candidate into staging).", writes=True)
+@_tool("cds_synthesis", "Create/update the Synthesis (candidate into staging).",
+       mode=ToolMode.SCRATCH)
 def cds_synthesis(project: Project, slug: str, title: str, description: str = "") -> str:
     return str(create_synthesis(project, Synthesis(slug=slug, title=title,
                                                    description=description)))
 
 
-@_tool("cds_new", "Create a record of a kind (candidate into staging).", writes=True)
+@_tool("cds_new", "Create a NEW record of a kind (candidate into staging); refuses an "
+                  "existing slug — use cds_edit to change one.", mode=ToolMode.SCRATCH)
 def cds_new(project: Project, kind: str, slug: str, label: str, description: str,
             synthesis: str, **fields: object) -> str:
-    return _upsert(project, kind, slug, label, description, synthesis, fields)
+    rec = _validated_record(kind, slug, label, description, synthesis, fields)
+    return str(create_record(project, rec))
 
 
-@_tool("cds_edit", "Upsert an existing record (candidate; merges into staging).", writes=True)
+@_tool("cds_edit", "Edit an EXISTING staged record in place (scratch mode); refuses an "
+                   "absent slug — use cds_new to create one.", mode=ToolMode.SCRATCH)
 def cds_edit(project: Project, kind: str, slug: str, label: str, description: str,
              synthesis: str, **fields: object) -> str:
-    # Same core call as cds_new (create_record upserts); a distinct tool name because *edit*
-    # is a distinct intent — it is what facilitator prompts and the audit log key on.
-    return _upsert(project, kind, slug, label, description, synthesis, fields)
+    rec = _validated_record(kind, slug, label, description, synthesis, fields)
+    return str(edit_record(project, rec))
+
+
+@_tool("cds_discard", "Delete a staged candidate or ledger item from the working copy — "
+                      "scratch only, can never touch canonical state.", mode=ToolMode.SCRATCH)
+def cds_discard(project: Project, kind: str, slug: str) -> dict[str, object]:
+    from cds.core.authoring import (
+        find_referrers,
+        remove_parked,
+        remove_queue_item,
+        remove_record,
+        remove_tension,
+    )
+    from cds.core.model.instances import record_iri
+
+    if kind == "parked":
+        removed = remove_parked(project, slug)
+        referrers: list[str] = []
+    elif kind == "queue":
+        removed = remove_queue_item(project, slug)
+        referrers = []
+    elif kind == "tension":
+        removed = remove_tension(project, slug)
+        referrers = []
+    else:
+        target = record_iri(project.base_iri, kind, slug)
+        referrers = [str(r) for r in find_referrers(project, target) if r != target]
+        removed = remove_record(project, kind, slug)
+    if not removed:
+        raise KeyError(f"no {kind} {slug!r} to discard")
+    return {"discarded": slug, "referrers": referrers}
+
+
+@_tool("cds_retract", "Stage an append-only retraction (ADR-9): the record leaves the "
+                      "current view; its content and history are preserved.",
+       mode=ToolMode.APPEND)
+def cds_retract(project: Project, kind: str, slug: str,
+                reason: str | None = None) -> dict[str, object]:
+    from cds.core.authoring import find_referrers, retract_record
+
+    iri = retract_record(project, kind, slug, reason=reason)
+    referrers = [str(r) for r in find_referrers(project, iri) if r != iri]
+    return {"retracted": str(iri), "referrers": referrers}
 
 
 # --------------------------------------------------------------------------- session ledgers
 
 
 @_tool("cds_queue_add", "File a retrieval item — the mandated dead-end on unsecured canon.",
-       writes=True)
+       mode=ToolMode.SCRATCH)
 def cds_queue_add(project: Project, slug: str, question: str, description: str = "") -> str:
     return str(create_queue_item(project, RetrievalItem(slug=slug, question=question,
                                                         description=description)))
 
 
 @_tool("cds_queue_set", "Advance a retrieval item's status (pending/provided/verified).",
-       writes=True)
+       mode=ToolMode.SCRATCH)
 def cds_queue_set(project: Project, slug: str, status: str,
                   locator: str | None = None) -> None:
     set_queue_status(project, slug, RetrievalStatus(status), locator=locator)
 
 
-@_tool("cds_park_add", "Park an out-of-scope idea (kept, not dropped).", writes=True)
+@_tool("cds_park_add", "Park an out-of-scope idea (kept, not dropped).", mode=ToolMode.SCRATCH)
 def cds_park_add(project: Project, slug: str, label: str, description: str = "",
                  note: str = "") -> str:
     return str(create_parked(project, ParkedItem(slug=slug, label=label,
@@ -175,14 +250,14 @@ def cds_park_add(project: Project, slug: str, label: str, description: str = "",
 
 
 @_tool("cds_tension_add", "Record a named tension between records (surfaced, not hidden).",
-       writes=True)
+       mode=ToolMode.SCRATCH)
 def cds_tension_add(project: Project, slug: str, label: str, description: str = "",
                     between: list[str] | None = None) -> str:
     return str(create_tension(project, Tension(slug=slug, label=label, description=description,
                                                between=between or [])))
 
 
-@_tool("cds_tension_resolve", "Mark a tension resolved.", writes=True)
+@_tool("cds_tension_resolve", "Mark a tension resolved.", mode=ToolMode.SCRATCH)
 def cds_tension_resolve(project: Project, slug: str) -> None:
     set_tension_status(project, slug, TensionStatus.RESOLVED)
 
@@ -218,9 +293,14 @@ def _append_waiver(project: Project, addition: Graph) -> None:
 
 
 @_tool("cds_waive", "Waive a T2/T3 finding with a reason (append-only; T1 refused).",
-       writes=True)
+       mode=ToolMode.APPEND)
 def cds_waive(project: Project, waiver_id: str, rule: str, reason: str,
               focus: str | None = None, by: str | None = None) -> str:
+    known = rule_severities()
+    if rule not in known:  # F-3: no dead waivers in an append-only ledger
+        raise ValueError(f"unknown rule {rule!r} — known rules: {', '.join(sorted(known))}")
+    if known[rule] is Severity.VIOLATION:  # F-3: T1-class refused even without a live finding
+        raise PermissionError(f"T1 is never waivable: {rule} is a Violation-class rule")
     result = _ORACLE.check(_staging_graph(project), check_conflicts=True)
     refuse_if_waives_t1(result.findings, rule=rule, focus=focus)
     w = Waiver(id=waiver_id, rule=rule, reason=reason, focus=focus, by=by)
@@ -229,10 +309,12 @@ def cds_waive(project: Project, waiver_id: str, rule: str, reason: str,
 
 
 @_tool("cds_commit", "Merge staging into canonical (K2 gate; requires cds-reviewer).",
-       writes=True)
+       mode=ToolMode.COMMIT)
 def cds_commit(project: Project) -> None:
     # The sole path to canonical state. Registered (it is in the K1 whitelist) but the
     # approver-gated merge + full verify is P2's commit gate — until then it refuses.
-    raise PermissionError(
-        "cds_commit is gated: the K2 commit gate (approver role + full verify) lands in P2"
+    raise PermissionError(  # F-7: the refusal speaks to the user, not the roadmap
+        "committing requires the cds-reviewer role and an approved change plan; the commit "
+        "gate is not enabled in this build. Your candidates remain safely in session "
+        "staging — nothing is lost. Ask a reviewer to commit once the gate is available."
     )

@@ -65,8 +65,18 @@ def _md_table(headers: list[str], rows: list[list[str]]) -> list[str]:
     return out
 
 
-def compile_brief(graph: Graph, *, base: str) -> str:
-    """Render the mapping to a deterministic Markdown brief."""
+def compile_brief(graph: Graph, *, base: str, include_history: bool = False) -> str:
+    """Render the mapping to a deterministic Markdown brief.
+
+    The body renders the **current view** (ADR-9): superseded/retracted records are history.
+    ``include_history=True`` adds the deterministic "Superseded & retracted" appendix — off
+    by default because the model, not any one rendered document, is canon; the changelog is
+    never lost by not being displayed (markers + git hold it).
+    """
+    from cds.core.view import current_view
+
+    full = graph
+    graph = current_view(graph)
     lines: list[str] = []
     syntheses = sorted(graph.subjects(RDF.type, CDS.Synthesis), key=str)
     title = _label(graph, syntheses[0]) if syntheses else "Concept Definition"
@@ -138,7 +148,34 @@ def compile_brief(graph: Graph, *, base: str) -> str:
     _section(lines, graph, CDS.ParkedItem, "Parking-lot")
     _queue_section(lines, graph)
 
+    if include_history:
+        _history_appendix(lines, full)
+
     return "\n".join(lines).rstrip("\n") + "\n"
+
+
+def _history_appendix(lines: list[str], full: Graph) -> None:
+    """The non-current records with their lifecycle markers (ADR-9; deterministic)."""
+    from cds.core.view import is_current
+
+    entries: list[str] = []
+    for s in sorted(full.subjects(RDF.type, CDS.Instance), key=str):
+        if is_current(full, s):
+            continue
+        marks: list[str] = []
+        by = sorted(_local(o) for o in full.objects(s, CDS.supersededBy))
+        if by:
+            marks.append(f"superseded by: {', '.join(by)}")
+        if (s, CDS.retracted, None) in full:
+            reason = full.value(s, CDS.retractionReason)
+            marks.append(f"retracted{f': {reason}' if reason is not None else ''}")
+        entries.append(f"- **{_label(full, s)}** — {_desc(full, s)} _({'; '.join(marks)})_")
+    if not entries:
+        return
+    lines.append("## Superseded & retracted")
+    lines.append("")
+    lines += entries
+    lines.append("")
 
 
 def _section(lines: list[str], graph: Graph, cls: Node, heading: str) -> None:

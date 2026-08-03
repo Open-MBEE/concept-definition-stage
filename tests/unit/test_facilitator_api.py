@@ -63,6 +63,17 @@ def test_manifest_route(client: TestClient) -> None:
     assert client.get("/manifest").json()["tools"] == sorted(server.WHITELIST)
 
 
+def test_openapi_declares_kind_specific_fields(client: TestClient) -> None:
+    # F-1: the contract must not lie by omission — link fields are discoverable.
+    spec = client.get("/openapi.json").json()
+    body = spec["paths"]["/tools/cds_new"]["post"]["requestBody"]
+    schema_ref = body["content"]["application/json"]["schema"]["$ref"]
+    props = spec["components"]["schemas"][schema_ref.rsplit("/", 1)[-1]]["properties"]
+    for field in ("for_stakeholder", "serves_goal", "refines", "addresses",
+                  "segment", "interest", "influence", "cites", "supersedes"):
+        assert field in props, f"{field} missing from cds_new schema"
+
+
 def test_committed_openapi_is_current() -> None:
     from cds.facilitator.export_openapi import openapi_json
 

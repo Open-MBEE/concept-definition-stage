@@ -66,12 +66,77 @@
         "title": "cds_compile_args",
         "type": "object"
       },
+      "cds_discard_args": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "slug"
+        ],
+        "title": "cds_discard_args",
+        "type": "object"
+      },
       "cds_edit_args": {
         "additionalProperties": true,
         "properties": {
+          "addresses": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Addresses",
+            "type": "array"
+          },
+          "cites": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Cites",
+            "type": "array"
+          },
           "description": {
             "title": "Description",
             "type": "string"
+          },
+          "for_stakeholder": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "For Stakeholder",
+            "type": "array"
+          },
+          "influence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Influence"
+          },
+          "interest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interest"
           },
           "kind": {
             "title": "Kind",
@@ -81,9 +146,44 @@
             "title": "Label",
             "type": "string"
           },
+          "refines": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Refines",
+            "type": "array"
+          },
+          "segment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segment"
+          },
+          "serves_goal": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Serves Goal",
+            "type": "array"
+          },
           "slug": {
             "title": "Slug",
             "type": "string"
+          },
+          "supersedes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Supersedes",
+            "type": "array"
           },
           "synthesis": {
             "title": "Synthesis",
@@ -131,9 +231,55 @@
       "cds_new_args": {
         "additionalProperties": true,
         "properties": {
+          "addresses": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Addresses",
+            "type": "array"
+          },
+          "cites": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Cites",
+            "type": "array"
+          },
           "description": {
             "title": "Description",
             "type": "string"
+          },
+          "for_stakeholder": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "For Stakeholder",
+            "type": "array"
+          },
+          "influence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Influence"
+          },
+          "interest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interest"
           },
           "kind": {
             "title": "Kind",
@@ -143,9 +289,44 @@
             "title": "Label",
             "type": "string"
           },
+          "refines": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Refines",
+            "type": "array"
+          },
+          "segment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segment"
+          },
+          "serves_goal": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Serves Goal",
+            "type": "array"
+          },
           "slug": {
             "title": "Slug",
             "type": "string"
+          },
+          "supersedes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Supersedes",
+            "type": "array"
           },
           "synthesis": {
             "title": "Synthesis",
@@ -243,6 +424,36 @@
           "status"
         ],
         "title": "cds_queue_set_args",
+        "type": "object"
+      },
+      "cds_retract_args": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "slug"
+        ],
+        "title": "cds_retract_args",
         "type": "object"
       },
       "cds_show_args": {
@@ -532,9 +743,48 @@
         "summary": "Cds Compile"
       }
     },
+    "/tools/cds_discard": {
+      "post": {
+        "description": "Delete a staged candidate or ledger item from the working copy \u2014 scratch only, can never touch canonical state.",
+        "operationId": "cds_discard",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/cds_discard_args"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Cds Discard"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cds Discard"
+      }
+    },
     "/tools/cds_edit": {
       "post": {
-        "description": "Upsert an existing record (candidate; merges into staging).",
+        "description": "Edit an EXISTING staged record in place (scratch mode); refuses an absent slug \u2014 use cds_new to create one.",
         "operationId": "cds_edit",
         "requestBody": {
           "content": {
@@ -651,7 +901,7 @@
     },
     "/tools/cds_new": {
       "post": {
-        "description": "Create a record of a kind (candidate into staging).",
+        "description": "Create a NEW record of a kind (candidate into staging); refuses an existing slug \u2014 use cds_edit to change one.",
         "operationId": "cds_new",
         "requestBody": {
           "content": {
@@ -803,6 +1053,45 @@
           }
         },
         "summary": "Cds Queue Set"
+      }
+    },
+    "/tools/cds_retract": {
+      "post": {
+        "description": "Stage an append-only retraction (ADR-9): the record leaves the current view; its content and history are preserved.",
+        "operationId": "cds_retract",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/cds_retract_args"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Cds Retract"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cds Retract"
       }
     },
     "/tools/cds_show": {

@@ -25,6 +25,10 @@ speaks JSON tool calls over stdio, and the tools below are its **entire reachabl
 **candidates** into the session staging project, never canonical state; `cds_commit` is the
 sole canonical path and refuses until the human-validated K2 gate (P2). The same registry is
 mounted over HTTP by the facilitator service (`cds-serve`) — one whitelist, two transports.
+
+Each tool's **mode** is its deontic class (ADR-9): `read` observes; `scratch` mutates the
+session working copy only; `append` expresses durable-record intent by adding triples
+(never removing); `commit` is the sole scratch→durable boundary.
 """
 
 
@@ -45,13 +49,12 @@ def _args_of(fn: object) -> str:
 
 def manifest_markdown() -> str:
     lines = [_HEADER]
-    lines.append("| Tool | Effect | Arguments | Wraps | Description |")
+    lines.append("| Tool | Mode | Arguments | Wraps | Description |")
     lines.append("|---|---|---|---|---|")
     for name in sorted(tools.TOOLS):
         spec = tools.TOOLS[name]
-        effect = "candidate write" if spec.writes else "read-only"
         wraps = spec.fn.__module__
-        lines.append(f"| `{spec.name}` | {effect} | `{_args_of(spec.fn)}` | `{wraps}` "
+        lines.append(f"| `{spec.name}` | {spec.mode.value} | `{_args_of(spec.fn)}` | `{wraps}` "
                      f"| {spec.description} |")
     lines.append("")
     lines.append(f"Served manifest: {len(server.WHITELIST)} tools — drift-guarded at serve "

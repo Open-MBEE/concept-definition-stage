@@ -134,6 +134,13 @@ cds:CaptureTier
 cds:FrameworkRole
     a skos:ConceptScheme .
 
+cds:Instance
+    a owl:Class,
+        rdfs:Class ;
+    cds:frameworkRole cds:Available ;
+    rdfs:comment "An authored concept-definition record — a reified statement in a mapping." ;
+    rdfs:label "Instance" .
+
 cds:LifecycleModel
     a owl:Class,
         rdfs:Class ;
@@ -308,6 +315,24 @@ cds:reproducible
     rdfs:label "reproducible" ;
     rdfs:range xsd:boolean .
 
+cds:retracted
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    cds:frameworkRole cds:Available ;
+    rdfs:comment "Append-only retirement marker (ADR-9): the record is withdrawn from the current view; its content triples are preserved." ;
+    rdfs:domain cds:Instance ;
+    rdfs:label "retracted" ;
+    rdfs:range xsd:boolean .
+
+cds:retractionReason
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    cds:frameworkRole cds:Available ;
+    rdfs:comment "Why a record was retracted (append-only, ADR-9)." ;
+    rdfs:domain cds:Instance ;
+    rdfs:label "retractionReason" ;
+    rdfs:range xsd:string .
+
 cds:retrievalIssue
     a owl:DatatypeProperty,
         rdf:Property ;
@@ -352,6 +377,25 @@ cds:stage
     rdfs:domain cds:LifecycleModel ;
     rdfs:label "stage" ;
     rdfs:range xsd:string .
+
+cds:supersededBy
+    a owl:ObjectProperty,
+        rdf:Property ;
+    cds:frameworkRole cds:Available ;
+    owl:inverseOf cds:supersedes ;
+    rdfs:comment "Materialized inverse of cds:supersedes, appended to the OLD record at commit (ADR-9); the old record's content is never removed." ;
+    rdfs:domain cds:Instance ;
+    rdfs:label "supersededBy" ;
+    rdfs:range cds:Instance .
+
+cds:supersedes
+    a owl:ObjectProperty,
+        rdf:Property ;
+    cds:frameworkRole cds:Available ;
+    rdfs:comment "This record replaces the referenced record in the durable record (ADR-9); authored on the NEW record." ;
+    rdfs:domain cds:Instance ;
+    rdfs:label "supersedes" ;
+    rdfs:range cds:Instance .
 
 cds:sysmlConstruct
     a owl:ObjectProperty,
