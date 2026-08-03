@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import hashlib
 import subprocess
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -58,6 +59,9 @@ class ChangePlan:
     supersessions: tuple[tuple[URIRef, URIRef], ...] = ()  # (old, new)
     retractions: tuple[URIRef, ...] = ()
     held: tuple[URIRef, ...] = ()  # X7: excluded from this commit, surfaced
+    # S1 (live-QA 2026-08-02): unresolved-citation records, held until the source is
+    # secured or the approver includes them explicitly (include_unverified)
+    held_unverified: tuple[URIRef, ...] = ()
     content_hash: str = ""
     approver: str | None = field(default=None, compare=False)
 
@@ -102,14 +106,31 @@ def _subject_triples(graph: Graph, subject: URIRef) -> frozenset[tuple[str, str]
     return frozenset((str(p), str(o)) for _s, p, o in graph.triples((subject, None, None)))
 
 
-def plan_commit(staging: Project, canonical: Project) -> ChangePlan:
-    """Diff the staging overlay against the canonical record into a :class:`ChangePlan`."""
+def _matches_include(subject: URIRef, include: Sequence[str]) -> bool:
+    """An approver names a record by full IRI or by its ``kind/slug`` tail."""
+    text = str(subject)
+    return any(text == inc or text.endswith("/" + inc.lstrip("/")) for inc in include)
+
+
+def plan_commit(staging: Project, canonical: Project, *,
+                include_unverified: Sequence[str] = ()) -> ChangePlan:
+    """Diff the staging overlay against the canonical record into a :class:`ChangePlan`.
+
+    Records with unresolved citations are moved to ``held_unverified`` (S1): they enter
+    the record only when the source is secured or the approver names them in
+    ``include_unverified`` — an explicit, audited act.
+    """
+    from cds.core.verify import unresolved_citations
     from cds.mcp.staging import union_graph
 
     staged_full = project_graph(staging)
     canon = project_graph(canonical)
-    _kept, held = filter_held_out(union_graph(staging, canonical))
+    union = union_graph(staging, canonical)
+    _kept, held = filter_held_out(union)
     held_in_staging = tuple(h for h in held if (h, None, None) in staged_full)
+    unverified = tuple(sorted(
+        {subj for subj, _cited in unresolved_citations(staged_full, union)
+         if not _matches_include(subj, include_unverified)}, key=str))
 
     adds: list[URIRef] = []
     revisions: list[URIRef] = []
@@ -119,7 +140,7 @@ def plan_commit(staging: Project, canonical: Project) -> ChangePlan:
     subjects = set(staged_full.subjects(RDF.type, CDS.Instance))
     subjects |= set(staged_full.subjects(RDF.type, CDS.Synthesis))
     for s in sorted(subjects, key=str):
-        if not isinstance(s, URIRef) or s in held_in_staging:
+        if not isinstance(s, URIRef) or s in held_in_staging or s in unverified:
             continue
         in_canon = (s, None, None) in canon
         if (s, CDS.retracted, Literal(True)) in staged_full and in_canon:
@@ -138,7 +159,8 @@ def plan_commit(staging: Project, canonical: Project) -> ChangePlan:
     return ChangePlan(
         adds=tuple(adds), revisions=tuple(revisions),
         supersessions=tuple(supersessions), retractions=tuple(retractions),
-        held=held_in_staging, content_hash=_staging_hash(staged_full),
+        held=held_in_staging, held_unverified=unverified,
+        content_hash=_staging_hash(staged_full),
     )
 
 
@@ -160,7 +182,9 @@ def render_plan(plan: ChangePlan) -> str:
         f"## Supersessions (old → new; inverse marker appended)\n{supers}\n\n"
         f"## Retractions (append-only markers)\n{names(plan.retractions)}\n\n"
         f"## Held out (X7 — cited source not verified; excluded, not fabricated around)\n"
-        f"{names(plan.held)}\n"
+        f"{names(plan.held)}\n\n"
+        f"## Unverified sources (held — secure the source, or include explicitly with "
+        f"include_unverified)\n{names(plan.held_unverified)}\n"
     )
 
 
@@ -172,8 +196,14 @@ def commit(
     approver: str | None = None,
     plan: ChangePlan | None = None,
     model: str | None = None,
+    include_unverified: Sequence[str] = (),
 ) -> ChangePlan:
-    """Merge staging → canonical through the K2 gate; returns the executed plan."""
+    """Merge staging → canonical through the K2 gate; returns the executed plan.
+
+    ``include_unverified`` names unresolved-citation records (full IRI or ``kind/slug``)
+    the approver explicitly accepts despite the unsecured source (S1) — the override is
+    recorded in the audit event.
+    """
     if APPROVER_ROLE not in approver_roles:
         raise PermissionError(
             "committing requires the cds-reviewer role (K2: validation is human). "
@@ -182,7 +212,8 @@ def commit(
     if canonical is None or not isinstance(staging_project, Project):
         raise ValueError("commit needs a staging Project and a canonical Project")
 
-    fresh = plan_commit(staging_project, canonical)
+    fresh = plan_commit(staging_project, canonical,
+                        include_unverified=include_unverified)
     if plan is not None and plan.content_hash != fresh.content_hash:
         raise PermissionError(
             "stale change plan: staging changed after approval "
@@ -191,6 +222,7 @@ def commit(
     executed = ChangePlan(
         adds=fresh.adds, revisions=fresh.revisions, supersessions=fresh.supersessions,
         retractions=fresh.retractions, held=fresh.held,
+        held_unverified=fresh.held_unverified,
         content_hash=fresh.content_hash, approver=approver,
     )
 
@@ -201,17 +233,23 @@ def commit(
 
     staged_full = project_graph(staging_project)
     kept_staged, _ = filter_held_out(union_graph(staging_project, canonical))
+    for subj in executed.held_unverified:  # held records are not part of this assertion
+        kept_staged.remove((subj, None, None))
     merged_preview = current_view(kept_staged)
     result = verify(merged_preview, check_conflicts=True)
     if not result.conforms:
         details = "; ".join(f"{f.rule} on {f.focus}" for f in result.violations[:5])
         raise CommitBlockedError(f"unwaived T1 violations block the commit: {details}")
 
-    # the plan is an artifact, not a screen — written unconditionally, named by its hash
+    # the plan is an artifact, not a screen — the write is attempted on every commit, but
+    # the FIRST plan recorded for a content hash is the record (B2, live-QA 2026-08-02:
+    # a no-op re-commit shares the hash and would clobber the real plan with empty
+    # buckets, leaving the human-readable trail contradicting git/audit/provenance).
     plans_dir = canonical.root / "concept-definition" / "changeplans"
     plans_dir.mkdir(parents=True, exist_ok=True)
-    (plans_dir / f"{executed.content_hash[:12]}.md").write_text(
-        render_plan(executed), encoding="utf-8")
+    plan_path = plans_dir / f"{executed.content_hash[:12]}.md"
+    if not plan_path.exists():  # append-only, same guard as the provenance record
+        plan_path.write_text(render_plan(executed), encoding="utf-8")
 
     if not executed.empty:
         _write_provenance(canonical, staging_project, executed, model=model)
@@ -230,13 +268,17 @@ def commit(
         retract_record(canonical, kind, slug,
                        reason=str(reason) if reason is not None else None)
 
-    _audit(canonical).append({
+    event: dict[str, object] = {
         "action": "commit", "content_hash": executed.content_hash,
         "approver": approver or "urn:cds:agent:unattributed",
         "adds": len(executed.adds), "revisions": len(executed.revisions),
         "supersessions": len(executed.supersessions),
         "retractions": len(executed.retractions), "held": len(executed.held),
-    })
+        "held_unverified": len(executed.held_unverified),
+    }
+    if include_unverified:  # S1: the approver's override is itself on the record
+        event["include_unverified"] = sorted(include_unverified)
+    _audit(canonical).append(event)
     _git_commit(canonical, executed)
     return executed
 

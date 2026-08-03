@@ -222,3 +222,70 @@ def test_content_hash_is_stable(tmp_path: Path) -> None:
     h1 = commit_gate.plan_commit(session, canonical).content_hash
     h2 = commit_gate.plan_commit(session, canonical).content_hash
     assert h1 == h2 and len(h1) == len(hashlib.sha256(b"").hexdigest())
+
+
+def test_noop_recommit_preserves_the_changeplan_record(tmp_path: Path) -> None:
+    """B2 (live-QA 2026-08-02): a no-op re-commit shares the content hash, so it wrote an
+    empty-buckets plan over the real one — the human-readable record then contradicted
+    git/audit/provenance. The first plan written for a hash is the record."""
+    canonical = _canonical(tmp_path)
+    session = _session(tmp_path, canonical)
+    create_record(session, Statement(slug="fresh", kind="goal", label="Fresh",
+                                     description="Brand new.", synthesis="cd"))
+    executed = commit_gate.commit(session, canonical, approver_roles=REVIEWER)
+    plan_path = (canonical.root / "concept-definition" / "changeplans"
+                 / f"{executed.content_hash[:12]}.md")
+    original = plan_path.read_text(encoding="utf-8")
+    assert "goal/fresh" in original  # the real plan enumerates the add
+
+    commit_gate.commit(session, canonical, approver_roles=REVIEWER)  # no-op
+    assert plan_path.read_text(encoding="utf-8") == original
+
+
+def test_unresolved_citation_is_held_until_included(tmp_path: Path) -> None:
+    """S1 (live-QA 2026-08-02, Probe B): over raw MCP an agent could cds_new → cds_commit
+    an unverified-source definition with no gate. Owner decision: records whose citations
+    are unresolved are HELD at the gate, enumerated for the approver, and enter the
+    record only by an explicit include (or by securing the source)."""
+    canonical = _canonical(tmp_path)
+    session = _session(tmp_path, canonical)
+    base = canonical.base_iri
+    create_record(session, Statement(
+        slug="sebok-def", kind="goal", label="SEBoK definition",
+        description="A cited paraphrase pending a secured source.", synthesis="cd",
+        cites=[f"{base}src/sebok-need"]))
+    create_record(session, Statement(slug="clean", kind="goal", label="Clean",
+                                     description="No citation.", synthesis="cd"))
+
+    plan = commit_gate.plan_commit(session, canonical)
+    unresolved = record_iri(base, "goal", "sebok-def")
+    assert unresolved in plan.held_unverified
+    assert unresolved not in plan.adds
+
+    executed = commit_gate.commit(session, canonical, approver_roles=REVIEWER)
+    assert unresolved in executed.held_unverified
+    canon = project_graph(canonical)
+    assert (unresolved, None, None) not in canon  # held, not committed
+    assert (record_iri(base, "goal", "clean"), None, None) in canon  # the rest lands
+
+    included = commit_gate.commit(session, canonical, approver_roles=REVIEWER,
+                                  include_unverified=["goal/sebok-def"])
+    assert unresolved in included.adds
+    assert (unresolved, None, None) in project_graph(canonical)
+
+    audit_lines = (canonical.root / "concept-definition" / "audit.jsonl").read_text(
+        encoding="utf-8").strip().splitlines()
+    import json as jsonlib
+    last = jsonlib.loads(audit_lines[-1])["event"]
+    assert last["include_unverified"] == ["goal/sebok-def"]  # the override is on the record
+
+
+def test_unverified_hold_is_enumerated_in_the_plan_artifact(tmp_path: Path) -> None:
+    canonical = _canonical(tmp_path)
+    session = _session(tmp_path, canonical)
+    create_record(session, Statement(
+        slug="cited", kind="goal", label="Cited", description="Pending source.",
+        synthesis="cd", cites=[f"{canonical.base_iri}src/missing"]))
+    plan = commit_gate.plan_commit(session, canonical)
+    text = commit_gate.render_plan(plan)
+    assert "Unverified" in text and "goal/cited" in text

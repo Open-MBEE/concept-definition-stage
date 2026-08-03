@@ -291,6 +291,20 @@ def rule_severities(shapes: Graph | None = None) -> dict[str, Severity]:
     return out
 
 
+def unresolved_citations(data: Graph, full: Graph | None = None) -> list[tuple[URIRef, URIRef]]:
+    """(record, cited IRI) pairs where a project-local citation (/src/ path) resolves to
+    nothing in ``full``. One condition, two consumers: the ``UnresolvedCitation`` T2
+    finding here, and the commit gate's unverified-source hold (S1, live-QA 2026-08-02) —
+    shared so the finding and the hold can never drift apart."""
+    full = full if full is not None else data
+    pairs: list[tuple[URIRef, URIRef]] = []
+    for subj, cited in data.subject_objects(CDS.cites):
+        if isinstance(subj, URIRef) and isinstance(cited, URIRef) \
+                and "/src/" in str(cited) and (cited, None, None) not in full:
+            pairs.append((subj, cited))
+    return sorted(pairs, key=lambda p: (str(p[0]), str(p[1])))
+
+
 def _check_conflicts(data: Graph) -> list[Finding]:
     """Cross-record consistency checks over an *instance* graph (not expressible per-record SHACL).
 
@@ -368,14 +382,12 @@ def _check_conflicts(data: Graph) -> list[Finding]:
 
     # a project-local citation (/src/ path) that resolves to nothing in the graph — the
     # retrieval workflow should know about it before it reaches a commit (LARP#3 H-5)
-    for subj, cited in data.subject_objects(CDS.cites):
+    for subj, cited in unresolved_citations(data, full):
         text = str(cited)
-        if isinstance(cited, URIRef) and "/src/" in text \
-                and (cited, None, None) not in full:
-            findings.append(Finding(Severity.WARNING, "UnresolvedCitation", str(subj),
-                f"cites a source record that doesn't exist: "
-                f"{'/'.join(text.rsplit('/', 2)[-2:])} — register/secure it "
-                "(retrieval queue) before commit"))
+        findings.append(Finding(Severity.WARNING, "UnresolvedCitation", str(subj),
+            f"cites a source record that doesn't exist: "
+            f"{'/'.join(text.rsplit('/', 2)[-2:])} — register/secure it "
+            "(retrieval queue) before commit"))
 
     # positions diverging on the same target (X2-lite, ADR-9 R7): a FINDING, never a
     # violation — perspectives may validly conflict; both are retained and surfaced.

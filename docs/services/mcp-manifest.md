@@ -16,13 +16,13 @@ session working copy only; `append` expresses durable-record intent by adding tr
 
 | Tool | Mode | Arguments | Wraps | Description |
 |---|---|---|---|---|
-| `cds_commit` | commit | `—` | `cds.mcp.tools` | Merge staging into canonical through the K2 gate (requires the cds-reviewer role bound at server start); returns the executed change plan. |
+| `cds_commit` | commit | `include_unverified=None` | `cds.mcp.tools` | Merge staging into canonical through the K2 gate (requires the cds-reviewer role bound at server start); returns the executed change plan. |
 | `cds_compile` | read | `synthesis=None, include_history=False` | `cds.mcp.tools` | Compile the staging graph to a Markdown brief; preview only. Scope to one mapping with synthesis=<slug>; include_history adds the superseded/retracted appendix. |
 | `cds_discard` | scratch | `kind, slug` | `cds.mcp.tools` | Delete a staged candidate or ledger item from the working copy — scratch only, can never touch canonical state. |
-| `cds_edit` | scratch | `kind, slug, label, description, synthesis, **kind-specific fields` | `cds.mcp.tools` | Edit an EXISTING record (scratch mode; copies a canonical record on write). REPLACES the whole record — restate every field you want to keep, including links. Refuses an absent slug. |
+| `cds_edit` | scratch | `kind, slug, label, description, synthesis, cites=None, supersedes=None, addresses=None, for_stakeholder=None, serves_goal=None, refines=None, characterizes=None, held_by=None, stance=None, invariance=None, segment=None, interest=None, influence=None` | `cds.mcp.tools` | Edit an EXISTING record (scratch mode; copies a canonical record on write). REPLACES the whole record — restate every field you want to keep, including links. Refuses an absent slug. |
 | `cds_explain` | read | `name` | `cds.mcp.tools` | Explain a cds concept or record kind (read-only guidance). |
 | `cds_list` | read | `kind` | `cds.mcp.tools` | List records of a kind visible to this session — staged candidates overlaid on the canonical current view (slug, label). |
-| `cds_new` | scratch | `kind, slug, label, description, synthesis, **kind-specific fields` | `cds.mcp.tools` | Create a NEW record of a kind (candidate into staging); refuses an existing slug — use cds_edit to change one. |
+| `cds_new` | scratch | `kind, slug, label, description, synthesis, cites=None, supersedes=None, addresses=None, for_stakeholder=None, serves_goal=None, refines=None, characterizes=None, held_by=None, stance=None, invariance=None, segment=None, interest=None, influence=None` | `cds.mcp.tools` | Create a NEW record of a kind (candidate into staging); refuses an existing slug — use cds_edit to change one. |
 | `cds_park_add` | scratch | `slug, label, description='', note=''` | `cds.mcp.tools` | Park an out-of-scope idea (kept, not dropped). |
 | `cds_queue_add` | scratch | `slug, question, description=''` | `cds.mcp.tools` | File a retrieval item — the mandated dead-end on unsecured canon. |
 | `cds_queue_set` | scratch | `slug, status, locator=None` | `cds.mcp.tools` | Advance a retrieval item's status (pending/provided/verified). |

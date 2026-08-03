@@ -169,3 +169,48 @@ def test_waive_appends_and_t1_guard(staging: Project) -> None:
          rule="SynthesisWithoutNeeds", reason="early session")
     text = (staging.instances_dir / "waivers.ttl").read_text(encoding="utf-8")
     assert "w1" in text and "w2" in text
+
+
+# --------------------------------------------------------- B1 (live-QA 2026-08-02 @ bb2d4a7)
+
+
+def test_no_var_keyword_params_in_registry() -> None:
+    """B1: a ``**kwargs`` parameter collapses to one opaque object under the MCP SDK's
+    schema derivation, silently dropping every link field. Tools declare explicit params."""
+    import inspect
+
+    for spec in tools.TOOLS.values():
+        for param in inspect.signature(spec.fn).parameters.values():
+            assert param.kind is not inspect.Parameter.VAR_KEYWORD, (
+                f"{spec.name} declares **{param.name}; the MCP transport cannot serve it"
+            )
+
+
+def test_record_field_union_is_explicit_on_write_tools() -> None:
+    """B1 drift guard: every authorable-kind model field must be an explicit parameter of
+    cds_new/cds_edit, so a new record field can never silently vanish on a transport."""
+    import inspect
+
+    from cds.core.model.instances import AUTHORABLE_KINDS, model_for_kind
+
+    handled = {"slug", "kind", "label", "description", "synthesis"}
+    union: set[str] = set()
+    for kind in AUTHORABLE_KINDS:
+        union |= set(model_for_kind(kind).model_fields) - handled
+    for name in ("cds_new", "cds_edit"):
+        params = set(inspect.signature(tools.TOOLS[name].fn).parameters)
+        missing = union - params
+        assert not missing, f"{name} is missing explicit fields: {sorted(missing)}"
+
+
+def test_new_link_fields_reach_the_record(staging: Project) -> None:
+    """B1 round-trip: link args land as triples (the QA run's orphan-need repro)."""
+    _run("cds_synthesis", staging, slug="m1", title="Mapping One")
+    _run("cds_new", staging, kind="stakeholder", slug="ops", label="Operator",
+         description="Runs the system day to day.", synthesis="m1")
+    _run("cds_new", staging, kind="need", slug="uptime", label="Uptime",
+         description="The operator needs the system to stay available.",
+         synthesis="m1", for_stakeholder=["ops"])
+    result = _run("cds_verify", staging)
+    rules = {f.rule for f in result.findings}
+    assert "NeedWithoutStakeholder" not in rules

@@ -18,6 +18,7 @@ import inspect
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import Literal
 
 from rdflib import RDF, RDFS, Graph
 
@@ -235,6 +236,22 @@ def _validated_record(kind: str, slug: str, label: str, description: str,
     return model_for_kind(kind).model_validate(payload)
 
 
+# The stance vocabulary is the Position model's Literal — restated here so the served
+# schema carries the enum (the model still validates it).
+StanceName = Literal["supports", "opposes", "prioritizes", "constrains", "reads-as"]
+
+
+def _record_fields(**fields: object) -> dict[str, object]:
+    """Drop unset (None) optionals so per-kind Pydantic requirements still bite.
+
+    B1 (live-QA 2026-08-02): these fields MUST be explicit named parameters on
+    cds_new/cds_edit — a ``**kwargs`` catch-all collapses to one opaque object under the
+    MCP SDK's schema derivation and every link silently vanishes on that transport.
+    ``tests/unit/test_mcp_tools.py`` guards the union against the record models.
+    """
+    return {k: v for k, v in fields.items() if v is not None}
+
+
 @_tool("cds_synthesis", "Create/update the Synthesis (candidate into staging).",
        mode=ToolMode.SCRATCH)
 def cds_synthesis(project: Project, slug: str, title: str, description: str = "") -> str:
@@ -245,7 +262,25 @@ def cds_synthesis(project: Project, slug: str, title: str, description: str = ""
 @_tool("cds_new", "Create a NEW record of a kind (candidate into staging); refuses an "
                   "existing slug — use cds_edit to change one.", mode=ToolMode.SCRATCH)
 def cds_new(project: Project, kind: str, slug: str, label: str, description: str,
-            synthesis: str, **fields: object) -> str:
+            synthesis: str,
+            cites: list[str] | None = None,
+            supersedes: list[str] | None = None,
+            addresses: list[str] | None = None,
+            for_stakeholder: list[str] | None = None,
+            serves_goal: list[str] | None = None,
+            refines: list[str] | None = None,
+            characterizes: str | None = None,
+            held_by: str | None = None,
+            stance: StanceName | None = None,
+            invariance: str | None = None,
+            segment: str | None = None,
+            interest: str | None = None,
+            influence: str | None = None) -> str:
+    fields = _record_fields(
+        cites=cites, supersedes=supersedes, addresses=addresses,
+        for_stakeholder=for_stakeholder, serves_goal=serves_goal, refines=refines,
+        characterizes=characterizes, held_by=held_by, stance=stance,
+        invariance=invariance, segment=segment, interest=interest, influence=influence)
     rec = _validated_record(kind, slug, label, description, synthesis, fields)
     if _in_canonical_current(kind, slug):  # existence consults the overlay union (P2-a)
         raise RecordExistsError(
@@ -259,7 +294,25 @@ def cds_new(project: Project, kind: str, slug: str, label: str, description: str
                    "write). REPLACES the whole record — restate every field you want to "
                    "keep, including links. Refuses an absent slug.", mode=ToolMode.SCRATCH)
 def cds_edit(project: Project, kind: str, slug: str, label: str, description: str,
-             synthesis: str, **fields: object) -> str:
+             synthesis: str,
+             cites: list[str] | None = None,
+             supersedes: list[str] | None = None,
+             addresses: list[str] | None = None,
+             for_stakeholder: list[str] | None = None,
+             serves_goal: list[str] | None = None,
+             refines: list[str] | None = None,
+             characterizes: str | None = None,
+             held_by: str | None = None,
+             stance: StanceName | None = None,
+             invariance: str | None = None,
+             segment: str | None = None,
+             interest: str | None = None,
+             influence: str | None = None) -> str:
+    fields = _record_fields(
+        cites=cites, supersedes=supersedes, addresses=addresses,
+        for_stakeholder=for_stakeholder, serves_goal=serves_goal, refines=refines,
+        characterizes=characterizes, held_by=held_by, stance=stance,
+        invariance=invariance, segment=segment, interest=interest, influence=influence)
     rec = _validated_record(kind, slug, label, description, synthesis, fields)
     try:
         return str(edit_record(project, rec))
@@ -409,7 +462,8 @@ def cds_waive(project: Project, waiver_id: str, rule: str, reason: str,
 @_tool("cds_commit", "Merge staging into canonical through the K2 gate (requires the "
                      "cds-reviewer role bound at server start); returns the executed "
                      "change plan.", mode=ToolMode.COMMIT)
-def cds_commit(project: Project) -> dict[str, object]:
+def cds_commit(project: Project,
+               include_unverified: list[str] | None = None) -> dict[str, object]:
     if SESSION.canonical is None:
         raise PermissionError(  # F-7: the refusal speaks to the user, not the roadmap
             "committing requires the cds-reviewer role and a canonical record bound at "
@@ -424,7 +478,8 @@ def cds_commit(project: Project) -> dict[str, object]:
     try:
         plan = commit(project, SESSION.canonical,
                       approver_roles=SESSION.roles, approver=SESSION.approver,
-                      model=SESSION.model)
+                      model=SESSION.model,
+                      include_unverified=tuple(include_unverified or ()))
     except CommitBlockedError as exc:
         # a verification-blocked commit is a teachable client-state error (H-1/H-7),
         # never an unmapped internal error
@@ -437,4 +492,5 @@ def cds_commit(project: Project) -> dict[str, object]:
         "supersessions": [[str(old), str(new)] for old, new in plan.supersessions],
         "retractions": [str(s) for s in plan.retractions],
         "held": [str(s) for s in plan.held],
+        "held_unverified": [str(s) for s in plan.held_unverified],
     }
