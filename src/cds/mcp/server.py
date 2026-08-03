@@ -39,7 +39,7 @@ def list_tools() -> list[str]:
     if served != sorted(WHITELIST):
         raise RuntimeError(f"manifest drift: served {served} != whitelist {sorted(WHITELIST)}")
     if not FORBIDDEN.isdisjoint(served):
-        raise RuntimeError("forbidden tool present in manifest (K1/K3)")
+        raise RuntimeError("forbidden tool present in manifest")
     return served
 
 
@@ -95,19 +95,19 @@ def main() -> None:
     import argparse
     from pathlib import Path
 
+    from cds.core.usertext import MCP_SERVER_DESCRIPTION
     from cds.core.workspace import load_project
 
     ap = argparse.ArgumentParser(
         prog="cds-mcp",
-        description="cds MCP tool server — serves exactly the K1 whitelist; "
-                    "writes are candidates into the session staging project.",
+        description=MCP_SERVER_DESCRIPTION,
     )
     ap.add_argument("--project", type=Path, default=None,
                     help="Explicit staging root (default: fresh session when --canonical "
                          "is given, else CDS_PROJECT / cwd discovery).")
     ap.add_argument("--canonical", type=Path, default=None,
-                    help="Canonical record root — enables the overlay read model and the "
-                         "commit gate (K2).")
+                    help="Canonical record root; enables the overlay read model and the "
+                         "commit gate.")
     ap.add_argument("--role", action="append", default=None,
                     help="Grant a role to this session (repeatable), e.g. cds-reviewer.")
     ap.add_argument("--approver", default=None,

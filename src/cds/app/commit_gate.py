@@ -39,6 +39,7 @@ from cds.core.authoring import (
     retract_record,
 )
 from cds.core.namespaces import CDS, PROV
+from cds.core.usertext import COMMIT_NEEDS_REVIEWER
 from cds.core.verify import verify
 from cds.core.view import current_view
 from cds.core.workspace import Project
@@ -173,7 +174,7 @@ def render_plan(plan: ChangePlan) -> str:
     return (
         "# Change plan\n\n"
         f"content-hash: `{plan.content_hash}`\n"
-        "(preimage: SHA-256 over the staging graph serialized as sorted N-Triples — "
+        "(preimage: SHA-256 over the staging graph serialized as sorted N-Triples, "
         "recomputable by any auditor from the staged instance files)\n\n"
         f"approver: {plan.approver or '(unrecorded)'}\n\n"
         f"## Adds\n{names(plan.adds)}\n\n"
@@ -181,9 +182,9 @@ def render_plan(plan: ChangePlan) -> str:
         f"{names(plan.revisions)}\n\n"
         f"## Supersessions (old → new; inverse marker appended)\n{supers}\n\n"
         f"## Retractions (append-only markers)\n{names(plan.retractions)}\n\n"
-        f"## Held out (X7 — cited source not verified; excluded, not fabricated around)\n"
+        f"## Held out (cited source not verified; excluded, not fabricated around)\n"
         f"{names(plan.held)}\n\n"
-        f"## Unverified sources (held — secure the source, or include explicitly with "
+        f"## Unverified sources (held; secure the source, or include explicitly with "
         f"include_unverified)\n{names(plan.held_unverified)}\n"
     )
 
@@ -205,10 +206,7 @@ def commit(
     recorded in the audit event.
     """
     if APPROVER_ROLE not in approver_roles:
-        raise PermissionError(
-            "committing requires the cds-reviewer role (K2: validation is human). "
-            "Your staged candidates are preserved — ask a cds-reviewer to review and commit."
-        )
+        raise PermissionError(COMMIT_NEEDS_REVIEWER)
     if canonical is None or not isinstance(staging_project, Project):
         raise ValueError("commit needs a staging Project and a canonical Project")
 
@@ -217,7 +215,8 @@ def commit(
     if plan is not None and plan.content_hash != fresh.content_hash:
         raise PermissionError(
             "stale change plan: staging changed after approval "
-            f"(approved {plan.content_hash[:12]}, now {fresh.content_hash[:12]}) — re-review"
+            f"(approved {plan.content_hash[:12]}, now {fresh.content_hash[:12]}); "
+            "review the new plan"
         )
     executed = ChangePlan(
         adds=fresh.adds, revisions=fresh.revisions, supersessions=fresh.supersessions,

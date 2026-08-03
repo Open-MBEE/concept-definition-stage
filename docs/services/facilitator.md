@@ -22,9 +22,17 @@ the constrained authoring protocol, not the LLM:
 - **Escalate, never invent**: `cds_queue_add` files a retrieval item when canon is
   unsecured — the mandated dead-end that makes fabrication a structural impossibility.
 
-`GET /manifest` returns the served whitelist; `GET /healthz` liveness. Swagger UI at `/docs`
-when running; the committed spec is [`openapi-facilitator.json`](openapi-facilitator.json)
-(drift-checked byte-identically by `tests/unit/test_facilitator_api.py`).
+`GET /manifest` returns the served whitelist plus `staged_count` — how many records this
+session holds that no reviewer has committed; `GET /healthz` liveness. Swagger UI at
+`/docs` when running; the committed spec is
+[`openapi-facilitator.json`](openapi-facilitator.json) (drift-checked byte-identically by
+`tests/unit/test_facilitator_api.py`).
+
+> **Session staging is not durable** (live-QA 2026-08-02, Step 2): drafts live in the
+> session's scratch project until a reviewer commits them. If the server process dies
+> first, staged work is gone — that is the scratch/record boundary working as designed
+> (only the commit is the assertion), but UIs should surface `staged_count` so nobody
+> assumes in-progress authoring is persisted.
 
 ## Running
 

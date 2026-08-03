@@ -85,10 +85,35 @@ def test_rm_warns_when_record_is_git_committed(proj: Path) -> None:
     subprocess.run(["git", "add", "-A"], cwd=proj, check=True)
     subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t",
                     "commit", "-qm", "record"], cwd=proj, check=True)
-    result = runner.invoke(app, ["rm", "goal", "g"])
-    assert result.exit_code == 0  # warn-and-proceed (owner decision): scratch must not chafe
+    # D1 (live-QA 2026-08-02): warn, then ask; proceed on Y
+    result = runner.invoke(app, ["rm", "goal", "g"], input="y\n")
+    assert result.exit_code == 0
     assert "committed record" in result.output
     assert "cds retract" in result.output
+    assert "removed goal g" in result.output
+
+
+def test_rm_on_committed_record_declined_keeps_it(proj: Path) -> None:
+    subprocess.run(["git", "init", "-q"], cwd=proj, check=True)
+    assert runner.invoke(app, _new_goal()).exit_code == 0
+    subprocess.run(["git", "add", "-A"], cwd=proj, check=True)
+    subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t",
+                    "commit", "-qm", "record"], cwd=proj, check=True)
+    result = runner.invoke(app, ["rm", "goal", "g"], input="n\n")
+    assert result.exit_code != 0
+    assert "removed goal g" not in result.output
+    listed = runner.invoke(app, ["list", "goal"])
+    assert "g" in listed.output  # still there
+
+
+def test_rm_yes_flag_skips_the_prompt(proj: Path) -> None:
+    subprocess.run(["git", "init", "-q"], cwd=proj, check=True)
+    assert runner.invoke(app, _new_goal()).exit_code == 0
+    subprocess.run(["git", "add", "-A"], cwd=proj, check=True)
+    subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t",
+                    "commit", "-qm", "record"], cwd=proj, check=True)
+    result = runner.invoke(app, ["rm", "goal", "g", "--yes"])
+    assert result.exit_code == 0
     assert "removed goal g" in result.output
 
 

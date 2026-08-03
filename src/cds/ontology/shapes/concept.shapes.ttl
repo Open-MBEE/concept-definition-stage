@@ -26,12 +26,12 @@ cdsh:TermPrefLabel a sh:PropertyShape ;
 cdsh:TermInScheme a sh:PropertyShape ;
     sh:path skos:inScheme ; sh:minCount 1 ;
     sh:severity sh:Violation ;
-    sh:message "a term must be admitted to a scheme (skos:inScheme) — construction order stage 6." .
+    sh:message "a term must be admitted to a scheme (skos:inScheme); construction order stage 6." .
 
 cdsh:TermCitation a sh:PropertyShape ;
     sh:path cds:cites ; sh:minCount 1 ;
     sh:severity sh:Violation ;
-    sh:message "a term must cite at least one boundary-object source (cds:cites) — construction order stage 4." .
+    sh:message "a term must cite at least one boundary-object source (cds:cites); construction order stage 4." .
 
 # a soft nudge toward NRM/GtWR grounding prose
 cdsh:TermNrmNote a sh:PropertyShape ;
@@ -43,7 +43,7 @@ cdsh:TermNrmNote a sh:PropertyShape ;
 cdsh:TermGroundedShape a sh:NodeShape ;
     sh:targetClass cds:Term ;
     sh:severity sh:Violation ;
-    sh:message "a term must carry at least one grounding edge (rdfs:subClassOf or a skos:*Match) — no bare terms (construction order stage 5)." ;
+    sh:message "a term must carry at least one grounding edge (rdfs:subClassOf or a skos:*Match); no bare terms (construction order stage 5)." ;
     sh:or (
         [ sh:path rdfs:subClassOf ; sh:minCount 1 ]
         [ sh:path skos:exactMatch ; sh:minCount 1 ]
@@ -59,7 +59,7 @@ cdsh:TermVerbatimGuardShape a sh:NodeShape ;
     sh:targetClass cds:Term ;
     sh:severity sh:Violation ;
     sh:sparql [
-        sh:message "hallucination guard: a term with a skos:definition must cite a VERIFIED source — the verbatim must trace to a verified retrieval (construction order stage 3)." ;
+        sh:message "hallucination guard: a term with a skos:definition must cite a VERIFIED source; the verbatim must trace to a verified retrieval (construction order stage 3)." ;
         sh:prefixes cdsh:prefixes ;
         sh:select """
             SELECT $this WHERE {
@@ -79,7 +79,7 @@ cdsh:SchemeProvenanceShape a sh:NodeShape ;
     sh:targetClass skos:ConceptScheme ;
     sh:severity sh:Violation ;
     sh:sparql [
-        sh:message "a vocabulary scheme with cds:Term members must be provenance-tracked (prov:wasDerivedFrom a source) — construction order stage 6/7." ;
+        sh:message "a vocabulary scheme with cds:Term members must be provenance-tracked (prov:wasDerivedFrom a source); construction order stage 6/7." ;
         sh:prefixes cdsh:prefixes ;
         sh:select """
             SELECT $this WHERE {
@@ -93,7 +93,7 @@ cdsh:TermRelatedOnlyShape a sh:NodeShape ;
     sh:targetClass cds:Term ;
     sh:severity sh:Warning ;
     sh:sparql [
-        sh:message "a term is grounded only by skos:relatedMatch (fuzzy) — tighten to a closer relation if one fits." ;
+        sh:message "a term is grounded only by skos:relatedMatch (fuzzy); tighten to a closer relation if one fits." ;
         sh:prefixes cdsh:prefixes ;
         sh:select """
             SELECT $this WHERE {

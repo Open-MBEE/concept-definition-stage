@@ -36,7 +36,7 @@ cdsh:SourceShape a sh:NodeShape ;
 cdsh:SourceAttribution a sh:PropertyShape ;
     sh:path prov:wasAttributedTo ; sh:minCount 1 ; sh:class cds:Authority ;
     sh:severity sh:Violation ;
-    sh:message "a source must be attributed (prov:wasAttributedTo) to a registered cds:Authority — construction order stage 1 precedes stage 2." .
+    sh:message "a source must be attributed (prov:wasAttributedTo) to a registered cds:Authority; construction order stage 1 precedes stage 2." .
 
 cdsh:SourceLocator a sh:PropertyShape ;
     sh:path cds:locator ; sh:minCount 1 ;
@@ -57,4 +57,4 @@ cdsh:SourceCaptureTier a sh:PropertyShape ;
 cdsh:SourceLicense a sh:PropertyShape ;
     sh:path cds:license ; sh:minCount 1 ;
     sh:severity sh:Warning ;
-    sh:message "a source has no tracked cds:license — its usage cannot be audited (licenses are tracked, not enforced)." .
+    sh:message "a source has no tracked cds:license, so its usage cannot be audited (licenses are tracked, not enforced)." .
