@@ -51,6 +51,32 @@ def sebok_renderable(text_license: str) -> bool:
     return text_license in _SEBOK_COMPATIBLE
 
 
+# DRAFT wording, pending the maintainer's legal review (live-QA 2026-08-02, D3a).
+# Guiding principle (D4): the license friction stays, the dead-end goes. Taking this
+# attestation is one explicit act of responsibility; the tool then propagates the
+# BY-NC-SA license into everything the verbatim touches so the user abides by
+# construction (D3b handles ShareAlike; this statement handles NonCommercial).
+NONCOMMERCIAL_ATTESTATION_STATEMENT = (
+    "I attest that this use of SEBoK content is noncommercial (for example, educational "
+    "use such as an accredited student design project), and I take responsibility for "
+    "that determination. I understand the output embeds SEBoK text and is licensed "
+    "CC BY-NC-SA, with attribution preserved."
+)
+
+
+class Attestation(BaseModel):
+    """A recorded noncommercial-use assertion (D3a) — a legal act, audited like an
+    approver decision: who took responsibility, and in what context.
+
+    Clears only the NonCommercial prong; ShareAlike is cleared by license propagation
+    (the rendering that honors an attestation carries CC BY-NC-SA at rest).
+    """
+
+    attester: str  # who takes responsibility (IRI or name)
+    context: str = ""  # e.g. "ABET senior design project"
+    statement: str = NONCOMMERCIAL_ATTESTATION_STATEMENT
+
+
 def license_iri(license_id: str) -> URIRef:
     """Ground a license id to an IRI.
 
