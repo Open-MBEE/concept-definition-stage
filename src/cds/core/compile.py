@@ -8,7 +8,9 @@ through the CLI.
 
 from __future__ import annotations
 
-from rdflib import RDF, RDFS, Graph
+from collections import defaultdict
+
+from rdflib import RDF, RDFS, Graph, URIRef
 from rdflib.term import Node
 
 from cds.core.model.instances import KIND_TERM
@@ -65,18 +67,25 @@ def _md_table(headers: list[str], rows: list[list[str]]) -> list[str]:
     return out
 
 
-def compile_brief(graph: Graph, *, base: str, include_history: bool = False) -> str:
+def compile_brief(graph: Graph, *, base: str, include_history: bool = False,
+                  synthesis: str | None = None) -> str:
     """Render the mapping to a deterministic Markdown brief.
 
     The body renders the **current view** (ADR-9): superseded/retracted records are history.
     ``include_history=True`` adds the deterministic "Superseded & retracted" appendix — off
     by default because the model, not any one rendered document, is canon; the changelog is
     never lost by not being displayed (markers + git hold it).
+
+    ``synthesis=<slug>`` scopes the brief to one mapping (records whose ``cds:inSynthesis``
+    points there, plus that container) — no cross-synthesis bleed (G-5). Default: everything.
     """
     from cds.core.view import current_view
 
     full = graph
     graph = current_view(graph)
+    if synthesis is not None:
+        graph = _scope_to_synthesis(graph, base=base, synthesis=synthesis)
+        full = _scope_to_synthesis(full, base=base, synthesis=synthesis)
     lines: list[str] = []
     syntheses = sorted(graph.subjects(RDF.type, CDS.Synthesis), key=str)
     title = _label(graph, syntheses[0]) if syntheses else "Concept Definition"
@@ -143,6 +152,9 @@ def compile_brief(graph: Graph, *, base: str, include_history: bool = False) -> 
             )
         lines.append("")
 
+    # ---- perspectives (X2-lite): stakeholder positions on shared frame objects
+    _positions_section(lines, graph)
+
     # ---- side ledgers
     _tensions_section(lines, graph)
     _section(lines, graph, CDS.ParkedItem, "Parking-lot")
@@ -152,6 +164,23 @@ def compile_brief(graph: Graph, *, base: str, include_history: bool = False) -> 
         _history_appendix(lines, full)
 
     return "\n".join(lines).rstrip("\n") + "\n"
+
+
+def _scope_to_synthesis(graph: Graph, *, base: str, synthesis: str) -> Graph:
+    """Subgraph of one mapping: its container + every subject with ``inSynthesis`` → it.
+
+    Ledger items (parked/queue/tension) carry no synthesis membership and pass through —
+    they are session hygiene, not mapping content.
+    """
+    syn_iri = URIRef(f"{base}synthesis/{synthesis}")
+    instances = set(graph.subjects(RDF.type, CDS.Instance))
+    containers = set(graph.subjects(RDF.type, CDS.Synthesis))
+    keep = {syn_iri} | set(graph.subjects(CDS.inSynthesis, syn_iri))
+    out = Graph()
+    for s, p, o in graph:
+        if s in keep or (s not in instances and s not in containers):
+            out.add((s, p, o))
+    return out
 
 
 def _history_appendix(lines: list[str], full: Graph) -> None:
@@ -176,6 +205,45 @@ def _history_appendix(lines: list[str], full: Graph) -> None:
     lines.append("")
     lines += entries
     lines.append("")
+
+
+def _positions_section(lines: list[str], graph: Graph) -> None:
+    """Positions grouped per characterized subject, with a converge/diverge verdict.
+
+    Divergence is a rendered finding, never an error — perspectives may validly conflict
+    (ADR-9 R7); convergence is itself a finding worth seeing, not redundancy.
+    """
+    positions = sorted(graph.subjects(RDF.type, CDS.Position), key=str)
+    if not positions:
+        return
+    by_target: dict[str, list[Node]] = defaultdict(list)
+    for p in positions:
+        target = graph.value(p, CDS.characterizes)
+        if target is not None:
+            by_target[str(target)].append(p)
+    if not by_target:
+        return
+    lines.append("## Convergence & divergence")
+    lines.append("")
+    for target_iri in sorted(by_target):
+        entries = sorted(by_target[target_iri], key=str)
+        stances = {str(graph.value(p, CDS.stance) or "") for p in entries}
+        if len(entries) == 1:
+            verdict = "single voice"
+        elif len(stances) > 1:
+            verdict = "**diverge**"
+        else:
+            verdict = "converge"
+        lines.append(f"### {_label(graph, URIRef(target_iri))} — {verdict}")
+        lines.append("")
+        for p in entries:
+            holder = graph.value(p, CDS.heldBy)
+            stance = str(graph.value(p, CDS.stance) or "")
+            inv = graph.value(p, CDS.invarianceCriterion)
+            inv_note = f" _(holds constant: {inv})_" if inv is not None else ""
+            lines.append(f"- **{_local(holder) if holder else '?'}** {stance}: "
+                         f"{_desc(graph, p)}{inv_note}")
+        lines.append("")
 
 
 def _section(lines: list[str], graph: Graph, cls: Node, heading: str) -> None:

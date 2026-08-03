@@ -114,7 +114,10 @@
                 "schema": {
                   "additionalProperties": {
                     "items": {
-                      "type": "string"
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "type": "object"
                     },
                     "type": "array"
                   },

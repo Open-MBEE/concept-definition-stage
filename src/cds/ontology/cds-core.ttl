@@ -148,6 +148,13 @@ cds:LifecycleModel
     rdfs:comment "A system modeled across its life cycle, from Concept Definition." ;
     rdfs:label "LifecycleModel" .
 
+cds:Position
+    a owl:Class,
+        rdfs:Class ;
+    cds:frameworkRole cds:Available ;
+    rdfs:comment "A stakeholder's stance on another record — the perspective primitive; divergent positions are retained, surfaced, and valid (ADR-9 R7)." ;
+    rdfs:label "Position" .
+
 cds:Required
     a skos:Concept ;
     skos:inScheme cds:FrameworkRole ;
@@ -228,6 +235,15 @@ cds:captureTier
     rdfs:label "captureTier" ;
     rdfs:range skos:Concept .
 
+cds:characterizes
+    a owl:ObjectProperty,
+        rdf:Property ;
+    cds:frameworkRole cds:Available ;
+    rdfs:comment "The record a position reads (its subject)." ;
+    rdfs:domain cds:Position ;
+    rdfs:label "characterizes" ;
+    rdfs:range cds:Instance .
+
 cds:cites
     a owl:ObjectProperty,
         rdf:Property ;
@@ -269,6 +285,24 @@ cds:frameworkRole
         rdf:Property ;
     rdfs:comment "Whether a term is Required for compliance or Available (optional)." ;
     rdfs:label "frameworkRole" .
+
+cds:heldBy
+    a owl:ObjectProperty,
+        rdf:Property ;
+    cds:frameworkRole cds:Available ;
+    rdfs:comment "The stakeholder holding a position." ;
+    rdfs:domain cds:Position ;
+    rdfs:label "heldBy" ;
+    rdfs:range cds:Instance .
+
+cds:invarianceCriterion
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    cds:frameworkRole cds:Available ;
+    rdfs:comment "What a position's reading holds constant (lineage-compatible with ant-rdf's invariance criterion)." ;
+    rdfs:domain cds:Position ;
+    rdfs:label "invarianceCriterion" ;
+    rdfs:range xsd:string .
 
 cds:license
     a owl:ObjectProperty,
@@ -376,6 +410,15 @@ cds:stage
     rdfs:comment "The life-cycle stage label of a lifecycle model." ;
     rdfs:domain cds:LifecycleModel ;
     rdfs:label "stage" ;
+    rdfs:range xsd:string .
+
+cds:stance
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    cds:frameworkRole cds:Available ;
+    rdfs:comment "The closed stance vocabulary: supports / opposes / prioritizes / constrains / reads-as." ;
+    rdfs:domain cds:Position ;
+    rdfs:label "stance" ;
     rdfs:range xsd:string .
 
 cds:supersededBy

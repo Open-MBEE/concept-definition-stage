@@ -25,13 +25,13 @@ from pathlib import Path
 from rdflib import RDF, RDFS, Graph, Literal, URIRef
 
 from cds.core.model.instances import (
-    KIND_TERM,
     Record,
     Synthesis,
     record_iri,
     record_to_graph,
     synthesis_iri,
     synthesis_to_graph,
+    type_iri_for_kind,
 )
 from cds.core.model.notes import (
     ParkedItem,
@@ -150,9 +150,27 @@ def upsert_record(project: Project, rec: Record) -> URIRef:
 
     The primitive behind :func:`create_record`/:func:`edit_record`; also used directly by
     the commit gate (approver-confirmed revisions) and by fixtures/migrations.
+
+    Authored ``supersedes`` targets that are project-local existing records get the inverse
+    ``cds:supersededBy`` marker appended **eagerly** (ADR-9): the scratch graph and the
+    gate-merged graph read identically, and the superseded record leaves the current view
+    the moment its replacement is authored.
     """
     _merge_into(_kind_file(project, rec.kind), record_to_graph(rec, base=project.base_iri), project)
-    return record_iri(project.base_iri, rec.kind, rec.slug)
+    s = record_iri(project.base_iri, rec.kind, rec.slug)
+    for target in rec.supersedes:
+        iri = target if "://" in target else str(record_iri(project.base_iri, rec.kind, target))
+        if not iri.startswith(project.base_iri):
+            continue  # external reference — nothing local to mark
+        rel = iri[len(project.base_iri):]
+        tkind, _, tslug = rel.partition("/")
+        if not tslug or not _record_exists(project, tkind, tslug):
+            continue  # dangling target — surfaced by verify, not silently marked
+        graph = _load(_kind_file(project, tkind))
+        old = record_iri(project.base_iri, tkind, tslug)
+        if (old, CDS.supersededBy, s) not in graph:
+            mark_superseded(project, tkind, tslug, by=s)
+    return s
 
 
 def remove_record(project: Project, kind: str, slug: str) -> bool:
@@ -217,7 +235,7 @@ def list_records(project: Project, kind: str) -> list[tuple[str, str]]:
     """Every record of ``kind`` as ``(slug, label)``, sorted by slug."""
     graph = _load(_kind_file(project, kind))
     out: list[tuple[str, str]] = []
-    for s in graph.subjects(RDF.type, CDS_TERM[KIND_TERM[kind]]):
+    for s in graph.subjects(RDF.type, type_iri_for_kind(kind)):
         label = graph.value(s, RDFS.label)
         out.append((str(s).rsplit("/", 1)[-1], str(label) if label is not None else ""))
     return sorted(out)
@@ -234,10 +252,18 @@ def show_record(project: Project, kind: str, slug: str) -> list[str] | None:
     desc = graph.value(s, DCTERMS.description)
     lines.append(f"  label:       {label}")
     lines.append(f"  description: {desc}")
-    for pred in ("forStakeholder", "servesGoal", "refines", "addresses", "supersedes", "cites"):
+    for pred in ("forStakeholder", "servesGoal", "refines", "addresses", "supersedes", "cites",
+                 "characterizes", "heldBy", "stance"):
         targets = sorted(str(o).rsplit("/", 1)[-1] for o in graph.objects(s, CDS[pred]))
         if targets:
             lines.append(f"  {pred}: {', '.join(targets)}")
+    # lifecycle state (ADR-9/G-6): append-only must be inspectable, not taken on faith
+    if (s, CDS.retracted, None) in graph:
+        reason = graph.value(s, CDS.retractionReason)
+        lines.append("  retracted:   true" + (f" — {reason}" if reason is not None else ""))
+    superseded_by = sorted(str(o).rsplit("/", 1)[-1] for o in graph.objects(s, CDS.supersededBy))
+    if superseded_by:
+        lines.append(f"  supersededBy: {', '.join(superseded_by)}")
     return lines
 
 

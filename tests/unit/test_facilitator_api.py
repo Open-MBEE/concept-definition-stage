@@ -59,6 +59,32 @@ def test_commit_refused_403(client: TestClient) -> None:
     assert client.post("/tools/cds_commit", json={}).status_code == 403
 
 
+def test_conflict_and_absence_status_codes(client: TestClient) -> None:
+    # LARP#2 nit: 409 for exists-conflicts, 404 for absences (not blanket 422)
+    body = {"kind": "goal", "slug": "g", "label": "G", "description": "A goal.",
+            "synthesis": "m1"}
+    client.post("/tools/cds_synthesis", json={"slug": "m1", "title": "M"})
+    assert client.post("/tools/cds_new", json=body).status_code == 200
+    assert client.post("/tools/cds_new", json=body).status_code == 409  # exists
+    absent = dict(body, slug="ghost")
+    assert client.post("/tools/cds_edit", json=absent).status_code == 404  # missing
+    assert client.post("/tools/cds_discard",
+                       json={"kind": "goal", "slug": "nope"}).status_code == 404
+    assert client.post("/tools/cds_retract",
+                       json={"kind": "goal", "slug": "g"}).status_code == 200
+    assert client.post("/tools/cds_retract",
+                       json={"kind": "goal", "slug": "g"}).status_code == 409  # already
+
+
+def test_openapi_fields_carry_descriptions(client: TestClient) -> None:
+    spec = client.get("/openapi.json").json()
+    ref = spec["paths"]["/tools/cds_new"]["post"]["requestBody"]["content"][
+        "application/json"]["schema"]["$ref"]
+    props = spec["components"]["schemas"][ref.rsplit("/", 1)[-1]]["properties"]
+    for field in ("kind", "slug", "characterizes", "held_by", "stance", "for_stakeholder"):
+        assert props[field].get("description"), f"{field} lacks a description"
+
+
 def test_manifest_route(client: TestClient) -> None:
     assert client.get("/manifest").json()["tools"] == sorted(server.WHITELIST)
 

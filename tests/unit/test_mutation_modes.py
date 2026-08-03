@@ -113,6 +113,27 @@ def test_find_referrers_reports_inbound_links(tmp_path: Path) -> None:
     assert record_iri(project.base_iri, "need", "n") in referrers
 
 
+def test_authored_supersedes_materializes_inverse_marker(tmp_path: Path) -> None:
+    """G-7/G-2: creating a record with supersedes=[old] marks the old record superseded
+    eagerly (scratch and gate-merged graphs identical), and bare slugs resolve same-kind."""
+    from cds.core.compile import compile_brief
+
+    project = _p(tmp_path)
+    create_record(project, _goal("fast", "Fast delivery", "30-minute windows."))
+    new = Statement(slug="safe", kind="goal", label="Safe delivery",
+                    description="Safety envelope first.", synthesis="cd",
+                    supersedes=["fast"])  # bare slug — resolves to the same-kind record
+    create_record(project, new)
+    g = project_graph(project)
+    old = record_iri(project.base_iri, "goal", "fast")
+    new_iri = record_iri(project.base_iri, "goal", "safe")
+    assert (new_iri, CDS.supersedes, old) in g  # resolved IRI, not a broken relative ref
+    assert (old, CDS.supersededBy, new_iri) in g  # eager inverse marker
+    brief = compile_brief(g, base=project.base_iri)
+    assert "Safe delivery" in brief
+    assert "Fast delivery" not in brief  # superseded → out of the current view
+
+
 def test_current_view_filters_markers(tmp_path: Path) -> None:
     project = _p(tmp_path)
     create_record(project, _goal("keep", "Keep", "stays"))

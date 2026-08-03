@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import re
 from typing import Annotated
+from typing import Literal as TypingLiteral
 
 from pydantic import AfterValidator, BaseModel
 from rdflib import RDF, RDFS, Graph, Literal, URIRef
@@ -76,6 +77,36 @@ KIND_TERM: dict[str, str] = {
 }
 KINDS: tuple[str, ...] = tuple(KIND_TERM)
 
+#: Kinds typed by a MINTED cds-core class (tool structure, like cds:Tension) rather than a
+#: canonical vocabulary Term — no cdsterm concept is fabricated for them (ADR-9 R7).
+CORE_KIND_CLASS: dict[str, URIRef] = {"position": CDS.Position}
+
+#: Every kind a user may author: the canon-typed kinds plus the core-class kinds.
+AUTHORABLE_KINDS: tuple[str, ...] = (*KIND_TERM, *CORE_KIND_CLASS)
+
+
+def type_iri_for_kind(kind: str) -> URIRef:
+    """The semantic ``rdf:type`` for records of ``kind`` (vocabulary Term or core class)."""
+    if kind in KIND_TERM:
+        return CDS_TERM[KIND_TERM[kind]]
+    return CORE_KIND_CLASS[kind]
+
+
+def validate_record_ref(v: str) -> str:
+    """A ``<kind>/<slug>`` reference to another record (e.g. ``objective/coverage``)."""
+    kind, sep, slug = v.partition("/")
+    if not sep or kind not in KIND_TERM:
+        raise ValueError(
+            f"record reference {v!r} must be '<kind>/<slug>' with kind one of "
+            f"{', '.join(KIND_TERM)}"
+        )
+    validate_slug(slug)
+    return v
+
+
+#: A validated ``<kind>/<slug>`` reference to another record.
+RecordRef = Annotated[str, AfterValidator(validate_record_ref)]
+
 
 # ------------------------------------------------------------------------------- IRI helpers
 
@@ -113,8 +144,10 @@ class Record(BaseModel):
     supersedes: list[str] = []  # IRIs of record(s) this one replaces (change provenance)
 
     def model_post_init(self, _context: object) -> None:
-        if self.kind not in KIND_TERM:
-            raise ValueError(f"unknown kind {self.kind!r}; expected one of {', '.join(KINDS)}")
+        if self.kind not in AUTHORABLE_KINDS:
+            raise ValueError(
+                f"unknown kind {self.kind!r}; expected one of {', '.join(AUTHORABLE_KINDS)}"
+            )
 
 
 class Statement(Record):
@@ -148,6 +181,20 @@ class Need(Record):
     serves_goal: SlugList = []  # goal slugs
 
 
+class Position(Record):
+    """A stakeholder's stance on another record — the X2-lite perspective primitive (ADR-9 R7).
+
+    The description is the position statement; divergence between positions on the same
+    target is surfaced as a *finding* (``DivergingPositions``), never a violation — two
+    stakeholders may validly conflict on desired outcome or feasibility.
+    """
+
+    characterizes: RecordRef  # "<kind>/<slug>" of the record this stance reads
+    held_by: Slug  # stakeholder slug
+    stance: TypingLiteral["supports", "opposes", "prioritizes", "constrains", "reads-as"]
+    invariance: str | None = None  # what this reading holds constant (lineage-compatible)
+
+
 # ------------------------------------------------------------------------------- serialization
 
 
@@ -167,14 +214,18 @@ def record_to_graph(rec: Record, *, base: str) -> Graph:
     g = Graph()
     s = record_iri(base, rec.kind, rec.slug)
     g.add((s, RDF.type, CDS.Instance))
-    g.add((s, RDF.type, CDS_TERM[KIND_TERM[rec.kind]]))
+    g.add((s, RDF.type, type_iri_for_kind(rec.kind)))
     g.add((s, RDFS.label, Literal(rec.label)))
     g.add((s, DCTERMS.description, Literal(rec.description)))
     g.add((s, CDS.inSynthesis, synthesis_iri(base, rec.synthesis)))
     for cite in sorted(rec.cites):
         g.add((s, CDS.cites, URIRef(cite)))
     for superseded in sorted(rec.supersedes):
-        g.add((s, CDS.supersedes, URIRef(superseded)))
+        # a bare slug resolves to a same-kind record (G-2: one reference rule everywhere);
+        # a full IRI passes through untouched
+        target = URIRef(superseded) if "://" in superseded \
+            else record_iri(base, rec.kind, superseded)
+        g.add((s, CDS.supersedes, target))
 
     if isinstance(rec, Goal):
         for slug in sorted(rec.addresses):
@@ -194,6 +245,13 @@ def record_to_graph(rec: Record, *, base: str) -> Graph:
             g.add((s, CDS.forStakeholder, record_iri(base, "stakeholder", slug)))
         for slug in sorted(rec.serves_goal):
             g.add((s, CDS.servesGoal, record_iri(base, "goal", slug)))
+    elif isinstance(rec, Position):
+        ckind, _, cslug = rec.characterizes.partition("/")
+        g.add((s, CDS.characterizes, record_iri(base, ckind, cslug)))
+        g.add((s, CDS.heldBy, record_iri(base, "stakeholder", rec.held_by)))
+        g.add((s, CDS.stance, Literal(rec.stance)))
+        if rec.invariance:
+            g.add((s, CDS.invarianceCriterion, Literal(rec.invariance)))
     return g
 
 
@@ -203,11 +261,14 @@ _MODEL_FOR_KIND: dict[str, type[Record]] = {
     "objective": Objective,
     "stakeholder": Stakeholder,
     "need": Need,
+    "position": Position,
 }
 
 
 def model_for_kind(kind: str) -> type[Record]:
     """The :class:`Record` subclass used to author ``kind`` (``Statement`` by default)."""
-    if kind not in KIND_TERM:
-        raise ValueError(f"unknown kind {kind!r}; expected one of {', '.join(KINDS)}")
+    if kind not in AUTHORABLE_KINDS:
+        raise ValueError(
+            f"unknown kind {kind!r}; expected one of {', '.join(AUTHORABLE_KINDS)}"
+        )
     return _MODEL_FOR_KIND.get(kind, Statement)

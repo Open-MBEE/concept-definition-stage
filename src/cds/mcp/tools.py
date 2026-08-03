@@ -126,11 +126,13 @@ def cds_explain(project: Project, name: str) -> list[str]:
 
 @_tool("cds_list", "List records of a kind in the session staging project (slug, label).")
 def cds_list(project: Project, kind: str) -> list[tuple[str, str]]:
-    from cds.core.model.instances import KIND_TERM
+    from cds.core.model.instances import AUTHORABLE_KINDS
 
-    if kind not in KIND_TERM:
+    if kind not in AUTHORABLE_KINDS:
         # F-6: the error teaches the vocabulary instead of leaking a KeyError
-        raise ValueError(f"unknown kind {kind!r}; expected one of {', '.join(KIND_TERM)}")
+        raise ValueError(
+            f"unknown kind {kind!r}; expected one of {', '.join(AUTHORABLE_KINDS)}"
+        )
     return list_records(project, kind)
 
 
@@ -144,9 +146,13 @@ def cds_verify(project: Project, check_conflicts: bool = True) -> VerifyResult:
     return _ORACLE.check(_staging_graph(project), check_conflicts=check_conflicts)
 
 
-@_tool("cds_compile", "Compile the staging graph to a Markdown brief; preview only.")
-def cds_compile(project: Project) -> str:
-    return compile_mod.compile_brief(_staging_graph(project), base=project.base_iri)
+@_tool("cds_compile", "Compile the staging graph to a Markdown brief; preview only. "
+                      "Scope to one mapping with synthesis=<slug>; include_history adds "
+                      "the superseded/retracted appendix.")
+def cds_compile(project: Project, synthesis: str | None = None,
+                include_history: bool = False) -> str:
+    return compile_mod.compile_brief(_staging_graph(project), base=project.base_iri,
+                                     synthesis=synthesis, include_history=include_history)
 
 
 # ------------------------------------------------------------------- candidate writes (staging)

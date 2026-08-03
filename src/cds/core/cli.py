@@ -162,17 +162,30 @@ def new(
         list[str] | None,
         typer.Option(help="Slug (same kind) or IRI of a record this one replaces."),
     ] = None,
+    characterizes: Annotated[
+        str | None, typer.Option(help="position → '<kind>/<slug>' of the record it reads.")
+    ] = None,
+    held_by: Annotated[
+        str | None, typer.Option(help="position → stakeholder slug holding the stance.")
+    ] = None,
+    stance: Annotated[
+        str | None,
+        typer.Option(help="position → supports | opposes | prioritizes | constrains | reads-as."),
+    ] = None,
+    invariance: Annotated[
+        str | None, typer.Option(help="position → what this reading holds constant.")
+    ] = None,
     interactive: Annotated[
         bool, typer.Option(help="Prompt for label/description if omitted.")
     ] = False,
 ) -> None:
     """Author one instance record (typed by its vocabulary term) into the project."""
-    from cds.core.model.instances import KIND_TERM, model_for_kind
+    from cds.core.model.instances import AUTHORABLE_KINDS, model_for_kind
     from cds.core.workspace import load_project
 
-    if kind not in KIND_TERM:
+    if kind not in AUTHORABLE_KINDS:
         typer.secho(
-            f"unknown kind {kind!r}; expected one of {', '.join(KIND_TERM)}",
+            f"unknown kind {kind!r}; expected one of {', '.join(AUTHORABLE_KINDS)}",
             fg=typer.colors.RED,
             err=True,
         )
@@ -208,6 +221,9 @@ def new(
         "interest": interest,
         "influence": influence,
     }
+    if kind == "position":
+        fields.update({"characterizes": characterizes, "held_by": held_by,
+                       "stance": stance, "invariance": invariance})
     model = model_for_kind(kind)
     from cds.core.authoring import RecordExistsError, create_record
 
@@ -253,14 +269,27 @@ def edit(
         list[str] | None,
         typer.Option(help="Slug (same kind) or IRI of a record this one replaces."),
     ] = None,
+    characterizes: Annotated[
+        str | None, typer.Option(help="position → '<kind>/<slug>' of the record it reads.")
+    ] = None,
+    held_by: Annotated[
+        str | None, typer.Option(help="position → stakeholder slug holding the stance.")
+    ] = None,
+    stance: Annotated[
+        str | None,
+        typer.Option(help="position → supports | opposes | prioritizes | constrains | reads-as."),
+    ] = None,
+    invariance: Annotated[
+        str | None, typer.Option(help="position → what this reading holds constant.")
+    ] = None,
 ) -> None:
     """Edit an EXISTING record in place — scratch-mode correction (ADR-9); see also `retract`."""
     from cds.core.authoring import RecordNotFoundError, edit_record
-    from cds.core.model.instances import KIND_TERM, model_for_kind
+    from cds.core.model.instances import AUTHORABLE_KINDS, model_for_kind
     from cds.core.workspace import load_project
 
-    if kind not in KIND_TERM:
-        typer.secho(f"unknown kind {kind!r}; expected one of {', '.join(KIND_TERM)}",
+    if kind not in AUTHORABLE_KINDS:
+        typer.secho(f"unknown kind {kind!r}; expected one of {', '.join(AUTHORABLE_KINDS)}",
                     fg=typer.colors.RED, err=True)
         raise typer.Exit(2)
     if synthesis is None or label is None or description is None:
@@ -276,6 +305,9 @@ def edit(
         "refines": refines or [], "addresses": addresses or [],
         "segment": segment, "interest": interest, "influence": influence,
     }
+    if kind == "position":
+        fields.update({"characterizes": characterizes, "held_by": held_by,
+                       "stance": stance, "invariance": invariance})
     rec = _validated(lambda: model_for_kind(kind).model_validate(fields))
     try:
         iri = edit_record(project, rec)
@@ -741,6 +773,10 @@ def compile(
         typer.Option(help="Append the 'Superseded & retracted' history section (ADR-9; "
                           "off by default — the model, not the document, is canon)."),
     ] = False,
+    synthesis: Annotated[
+        str | None,
+        typer.Option(help="Scope the brief to one mapping (no cross-synthesis bleed)."),
+    ] = None,
 ) -> None:
     """Compile the mapping to a deterministic, human-readable Markdown brief."""
     from cds.core.authoring import project_graph
@@ -749,7 +785,7 @@ def compile(
 
     project = load_project()
     md = compile_brief(project_graph(project), base=project.base_iri,
-                       include_history=include_history)
+                       include_history=include_history, synthesis=synthesis)
     out = output if output is not None else project.briefs_dir / "concept-definition.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(md, encoding="utf-8")
