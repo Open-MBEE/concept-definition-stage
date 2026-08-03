@@ -45,6 +45,24 @@ Step 0 baseline green · CLI mutation modes (collision exit-2, supersede, histor
 `llmMediated false` · K2 403 refusal shape · the SEBoK bait (K5 escalate-then-stop, no fabrication;
 `test_no_fabrication_under_canon_bait` passed).
 
+## Remediation (2026-08-03, on-branch; this folder stays the "before" baseline)
+
+Every confirmed bug, decision, and sweep landed on `feat/t8-concept-definition-app`:
+
+| Finding | Fix commit |
+| --- | --- |
+| B1 MCP link fields inert | `d62c7f1` (explicit typed params; transport-parity guards) |
+| B2 changeplan clobber | `f2bef36` (append-only guard; first plan per hash is the record) |
+| B3 Voila kernel missing | `436ad20` + `b0ca55a` (ipykernel in app extra + documented command) |
+| B4 silent empty turns | `dc59c59` (temperature default 0 + empty-turn retry/diagnostic) |
+| S1 (D6) unverified-source gate hold | `6be2e87` (held_unverified + audited include_unverified) |
+| D1 rm confirm | `6f41a9f` (Y/n prompt, `--yes` bypass) |
+| U1+U2 jargon + em-dash sweep | `fa9c0b7` (cds.core.usertext transclusion + guard tests) |
+| U3 mode chooser + staging durability | `a3a25b1` (`cds explain changes`; `staged_count` on /manifest) |
+| S2 (D2) audit ledger | `a8e91b3` (`cds audit`: per-row chain check + verdict banner) |
+| S3 (D3/D4) licensing | `b15a268` (attestation + BY-NC-SA propagation + cite-only floor with citation fallback; wording DRAFT pending legal skim) |
+| S4 (D5) identity/content split | `a9f126b` (create-vs-revise modes; identity locked; staged banner) |
+
 ## Not fully exercised (for a future run)
 
 - Probe C "override a rejection" needs an **in-continuity** session (this run's was separate).
