@@ -15,11 +15,16 @@ Here we record **end-to-end / user-facing testing** of the tool as a whole.
   sub-agents (a naive domain-expert "human" + a facilitator following the vendored `cds-elicit`
   skill) run a full session against the real CLI, plus a scripted robustness battery. Reusable for
   future runs.
+- [`live-qa/methodology.md`](live-qa/methodology.md) — **Live human-facilitated QA**: a real facilitator
+  executes a test plan against the actual tool while the maintainer logs reactions verbatim, stamped to
+  an exact commit. Catches ergonomic/wording/product-philosophy signals the synthetic agents can't feel.
+  Runs are indexed in [`live-qa/`](live-qa/).
 
 ## Run index
 
 | Date | Run | Method | Headline outcome |
 | --- | --- | --- | --- |
+| 2026-08-02 | [live-qa/2026-08-02-bb2d4a7](live-qa/2026-08-02-bb2d4a7/) | Live human-facilitated (6-step plan + MCP probes, Ollama qwen2.5:7b) | Core guarantees held (commit gate, audit chain, K5 bait). 4 confirmed bugs: MCP inert link fields, no-op changeplan clobber, Voilà missing `ipykernel`, facilitator silent empty-turns. Structural: K5 not enforced over raw MCP. Guiding principle captured ("computational models, not documents"). |
 | 2026-07-25 | [sim-usertest](2026-07-25-sim-usertest/) | 2× two-agent sessions + battery | Found the critical "**can't safely correct a record**" bug (re-authoring appended). All safe bugs fixed with tests; 4 maintainer decisions captured & implemented. |
 | 2026-07-25 | [coldstart](2026-07-25-coldstart/) | 5× cold-start walkthroughs (4 personas + docs-only) | Discovery→install→init→first-records journey. Install is the non-dev floor; no in-CLI term lookup; 2 correctness bugs (link corruption, no dangling-ref check); doc drift. Produced the **onboarding benchmark** (release acceptance criteria). |
 

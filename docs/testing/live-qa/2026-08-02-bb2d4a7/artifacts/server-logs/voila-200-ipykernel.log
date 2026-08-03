@@ -1,0 +1,20 @@
+warning: `VIRTUAL_ENV=/opt/anaconda3` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Installed 88 packages in 242ms
+[Voila] Using /var/folders/_z/k9fkf53x4q7dm02s4lr__qq00000gn/T to store connection files
+[Voila] Storing connection files in /var/folders/_z/k9fkf53x4q7dm02s4lr__qq00000gn/T/voila_h1k3jd6n.
+[Voila] Serving static files from /Users/z/.cache/uv/archive-v0/sIokP1kUTtbhma3pGSJvR/lib/python3.12/site-packages/voila/static.
+[Voila] Voilà is running at:
+http://localhost:8890/
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] Kernel started: f014f8a1-4003-475c-8ae7-1beff6f82e4c
+[IPKernelApp] WARNING | Kernel is running over TCP without encryption. All communication (including code and outputs) is sent in plain text and is susceptible to eavesdropping. Use IPC transport or launch with kernel manager-provisioned CurveZMQ keys to enable transport encryption.
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] Kernel started: 4bad3c7d-b59e-46ea-8343-5a0f2dc325b4
+[IPKernelApp] WARNING | Kernel is running over TCP without encryption. All communication (including code and outputs) is sent in plain text and is susceptible to eavesdropping. Use IPC transport or launch with kernel manager-provisioned CurveZMQ keys to enable transport encryption.
+[Voila] WARNING | Notebook concept_definition_app.ipynb is not trusted
+[Voila] Kernel started: 2ab76465-88ef-44c1-91a2-d94c4348434c
+[IPKernelApp] WARNING | Kernel is running over TCP without encryption. All communication (including code and outputs) is sent in plain text and is susceptible to eavesdropping. Use IPC transport or launch with kernel manager-provisioned CurveZMQ keys to enable transport encryption.
+[Voila] Adapting from protocol version 5.3 (kernel 2ab76465-88ef-44c1-91a2-d94c4348434c) to 5.4 (client).
+[Voila] Connecting to kernel 2ab76465-88ef-44c1-91a2-d94c4348434c.
+The websocket_ping_timeout (90000) cannot be longer than the websocket_ping_interval (30000).
+Setting websocket_ping_timeout=30000

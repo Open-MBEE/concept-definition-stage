@@ -1,0 +1,27 @@
+warning: `VIRTUAL_ENV=/opt/anaconda3` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+INFO:     Started server process [54803]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8800 (Press CTRL+C to quit)
+INFO:     127.0.0.1:56444 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56445 - "POST /tools/cds_verify HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56447 - "POST /tools/cds_synthesis HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:56448 - "POST /tools/cds_new HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:56449 - "POST /tools/cds_new HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:56450 - "POST /tools/cds_new HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:56451 - "POST /tools/cds_new HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:56452 - "POST /tools/cds_new HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:56453 - "POST /tools/cds_verify HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:56457 - "POST /tools/cds_synthesis HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56458 - "POST /tools/cds_new HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56459 - "POST /tools/cds_new HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56460 - "POST /tools/cds_new HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56461 - "POST /tools/cds_new HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56462 - "POST /tools/cds_new HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56463 - "POST /tools/cds_verify HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56512 - "POST /tools/cds_commit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56513 - "POST /tools/cds_commit HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [54803]
