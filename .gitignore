@@ -33,3 +33,4 @@ site/
 # Sphinx docs build output
 docs/_build/
 docs/_autosummary/
+tests/verify/w3c-data-shapes/

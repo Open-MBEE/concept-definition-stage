@@ -16,6 +16,7 @@ New here? Start with **[Getting started](getting-started.md)**.
 
 getting-started
 user-guide
+playground
 ```
 
 ```{toctree}
@@ -26,6 +27,19 @@ construction-order
 api
 sources
 retrieval-queue
+```
+
+```{toctree}
+:maxdepth: 1
+:caption: Services & architecture
+
+services/mcp-server
+services/mcp-manifest
+services/facilitator
+services/conformance-oracle
+services/model-store
+architecture/cds-web-app
+architecture/factoring
 ```
 
 ```{toctree}
