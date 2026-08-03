@@ -13,6 +13,7 @@ Source comments, docstrings, and the architecture docs are free to keep both.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -81,7 +82,7 @@ def test_finding_messages_read_plainly(staging: Project) -> None:
                       description="The system shall never say shall.", synthesis="m1",
                       for_stakeholder=["ghost"],
                       cites=["https://cds.example/u/src/missing"])
-    result = run["cds_verify"].fn(staging)
+    result: Any = run["cds_verify"].fn(staging)
     assert result.findings  # the fixture must actually exercise the message builders
     for f in result.findings:
         _assert_plain(f.message, f"finding {f.rule}")
@@ -97,7 +98,7 @@ def test_compiled_brief_reads_plainly(staging: Project) -> None:
     run["cds_new"].fn(staging, kind="goal", slug="new", label="New goal",
                       description="The replacement.", synthesis="m1",
                       supersedes=["old"])
-    brief = run["cds_compile"].fn(staging, include_history=True)
+    brief: Any = run["cds_compile"].fn(staging, include_history=True)
     _assert_plain(brief, "compiled brief")
 
 
@@ -108,7 +109,7 @@ def test_record_echo_reads_plainly(staging: Project) -> None:
     run["cds_synthesis"].fn(staging, slug="m1", title="Mapping One")
     run["cds_new"].fn(staging, kind="goal", slug="g", label="Fast",
                       description="Fast delivery.", synthesis="m1")
-    lines = run["cds_show"].fn(staging, "goal", "g")
+    lines: Any = run["cds_show"].fn(staging, "goal", "g")
     assert lines
     for line in lines:
         _assert_plain(line, "cds_show line")
