@@ -141,6 +141,7 @@ class SessionContext:
     canonical: Project | None = None
     roles: frozenset[str] = frozenset()
     approver: str | None = None
+    model: str | None = None  # the mediating LLM, when one is configured (provenance, K4)
 
 
 SESSION = SessionContext()
@@ -422,7 +423,8 @@ def cds_commit(project: Project) -> dict[str, object]:
 
     try:
         plan = commit(project, SESSION.canonical,
-                      approver_roles=SESSION.roles, approver=SESSION.approver)
+                      approver_roles=SESSION.roles, approver=SESSION.approver,
+                      model=SESSION.model)
     except CommitBlockedError as exc:
         # a verification-blocked commit is a teachable client-state error (H-1/H-7),
         # never an unmapped internal error

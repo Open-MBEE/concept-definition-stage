@@ -119,8 +119,19 @@ def _jsonable(result: object) -> Any:
     return str(result)
 
 
-def build_app(project: Project) -> Any:
-    """Build the FastAPI app over the registry for one session project (lazy import)."""
+class ChatRequest(BaseModel):
+    """One user message to the AICC facilitator (P4)."""
+
+    message: str
+
+
+def build_app(project: Project, llm: Any = None) -> Any:
+    """Build the FastAPI app over the registry for one session project (lazy import).
+
+    ``llm`` is an optional :class:`~cds.facilitator.decode.LLMBackend`; when absent the
+    ``/chat`` route answers 503 with the ADR-8 configuration hint (the tool routes are
+    fully usable either way — the LLM is an affordance, not the substance).
+    """
     from fastapi import FastAPI, HTTPException
 
     served = mcp_server.list_tools()  # manifest drift guard — same refusal as cds-mcp
@@ -175,6 +186,31 @@ def build_app(project: Project) -> Any:
 
     for name in sorted(mcp_tools.TOOLS):  # sorted → deterministic OpenAPI
         _register(mcp_tools.TOOLS[name])
+
+    chat_history: list[dict[str, Any]] = []
+
+    @app.post("/chat")
+    def chat(req: ChatRequest) -> dict[str, Any]:
+        if llm is None:
+            raise HTTPException(
+                status_code=503,
+                detail="no LLM configured — set the ADR-8 triplet (CDS_LLM_BASE_URL, "
+                       "CDS_LLM_MODEL, CDS_LLM_API_KEY) and restart cds-serve; the "
+                       "/tools/* routes work without one",
+            )
+        from cds.facilitator.aicc import run_turn
+
+        result = run_turn(req.message, project=project, backend=llm,
+                          history=list(chat_history))
+        chat_history.append({"role": "user", "content": req.message})
+        chat_history.append({"role": "assistant", "content": result.reply})
+        return {
+            "reply": result.reply,
+            "executed": [{"tool": c.name, "arguments": c.arguments}
+                         for c in result.executed],
+            "refused": [{"tool": c.name, "reason": c.reason} for c in result.refused],
+            "escalated": result.escalated,
+        }
 
     @app.get("/manifest")
     def manifest() -> dict[str, list[str]]:
@@ -232,4 +268,11 @@ def main() -> None:
     ap.add_argument("--port", type=int, default=8800)
     args = ap.parse_args()
     session = resolve_session(args.project, args.canonical, args.role, args.approver)
-    uvicorn.run(build_app(session), host=args.host, port=args.port)
+    from cds.facilitator.decode import LLMConfig, OpenAICompatBackend
+    from cds.mcp import tools as _tools
+
+    cfg = LLMConfig.from_env()
+    backend = OpenAICompatBackend(cfg) if cfg is not None else None
+    if cfg is not None:
+        _tools.SESSION.model = cfg.model  # provenance: commits record the mediating model
+    uvicorn.run(build_app(session, llm=backend), host=args.host, port=args.port)
