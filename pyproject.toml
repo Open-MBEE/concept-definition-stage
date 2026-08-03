@@ -37,8 +37,16 @@ interop = [
   "requests>=2.31",
 ]
 
+mcp = ["mcp>=1.0"]
+facilitator = ["cds[mcp]", "anthropic>=0.40", "instructor>=1.0"]
+selfhosted-llm = ["vllm>=0.6", "xgrammar>=0.1"]
+app = ["cds[facilitator]", "voila>=0.5", "ipywidgets>=8", "jupyterhub>=5", "dockerspawner>=13", "oauthenticator>=17"]
+store = ["pyoxigraph>=0.4", "oxrdflib>=0.4"]
+
 [project.scripts]
 cds = "cds.core.cli:main"
+cds-mcp = "cds.mcp.server:main"
+cds-serve = "cds.facilitator.server:main"
 
 [tool.hatch.metadata]
 allow-direct-references = true

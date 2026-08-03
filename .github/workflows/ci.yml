@@ -15,7 +15,7 @@ jobs:
       - name: Set up Python
         run: uv python install 3.11
       - name: Sync (dev)
-        run: uv sync --extra dev
+        run: uv sync --extra dev --extra mcp --extra facilitator --extra app
       - name: Ruff
         run: uv run ruff check .
       - name: Mypy

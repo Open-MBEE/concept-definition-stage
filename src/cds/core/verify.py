@@ -27,6 +27,7 @@ from dataclasses import dataclass
 from datetime import date
 from enum import StrEnum
 from pathlib import Path
+from typing import Protocol
 
 import pyshacl
 from pydantic import BaseModel
@@ -132,6 +133,64 @@ class Waiver(BaseModel):
         if self.rule != finding.rule:
             return False
         return self.focus is None or self.focus == finding.focus
+
+
+@dataclass(frozen=True)
+class RawReport:
+    """Engine-agnostic raw validation output — the ADR-7c backend contract's return type."""
+
+    conforms: bool
+    report: Graph
+
+
+class VerifierBackend(Protocol):
+    """The swappable verification engine seam (ADR-7c).
+
+    ``verify()``'s public signature is the frozen caller contract; this Protocol is the frozen
+    *engine* contract behind it. pyshacl (``PyShaclBackend``) is the reference implementation and
+    current default. A future engine (e.g. a Rust SHACL validator or a SHACL→SPARQL-on-Oxigraph
+    compiler — deferred, spec §11 D1) drops in here, and only after passing the W3C-suite +
+    differential-vs-pyshacl parity harness (REQ-VB.1).
+
+    ``focus`` / ``shape_subset`` support targeted "staging-delta" validation (spec ADR-7b): verify
+    only the touched focus nodes against a subset of shapes for interactive-latency feedback.
+    """
+
+    def validate(
+        self,
+        data: Graph,
+        shapes: Graph,
+        *,
+        focus: Iterable[str] | None = None,
+        shape_subset: Iterable[str] | None = None,
+    ) -> RawReport: ...
+
+
+class PyShaclBackend:
+    """Reference implementation and current default engine (ADR-7c): pyshacl, ``advanced=True``."""
+
+    def validate(
+        self,
+        data: Graph,
+        shapes: Graph,
+        *,
+        focus: Iterable[str] | None = None,
+        shape_subset: Iterable[str] | None = None,
+    ) -> RawReport:
+        conforms, report, _text = pyshacl.validate(
+            data,
+            shacl_graph=shapes,
+            advanced=True,  # sh:sparql + sh:prefixes
+            inference="none",
+            allow_infos=True,
+            allow_warnings=True,
+            focus_nodes=list(focus) if focus is not None else None,
+            use_shapes=list(shape_subset) if shape_subset is not None else None,
+        )
+        return RawReport(conforms=bool(conforms), report=report)
+
+
+_DEFAULT_BACKEND: VerifierBackend = PyShaclBackend()
 
 
 def load_shapes(shapes_dir: Path = SHAPES_DIR) -> Graph:
@@ -281,15 +340,8 @@ def verify(
     (need-form, orphan/duplicate, set-level) — used when verifying a user's authored mapping.
     """
     shapes = shapes if shapes is not None else load_shapes()
-    conforms, report, _text = pyshacl.validate(
-        data,
-        shacl_graph=shapes,
-        advanced=True,  # sh:sparql + sh:prefixes
-        inference="none",
-        allow_infos=True,
-        allow_warnings=True,
-    )
-    pool = list(_findings(report))
+    raw = _DEFAULT_BACKEND.validate(data, shapes)
+    pool = list(_findings(raw.report))
     if check_conflicts:
         pool.extend(_check_conflicts(data))
     waiver_list = list(waivers) if waivers is not None else waivers_from_graph(data)
@@ -303,4 +355,4 @@ def verify(
             key=lambda f: (_RANK[f.severity], f.rule, f.focus, f.message),
         )
     )
-    return VerifyResult(conforms=bool(conforms), findings=kept)
+    return VerifyResult(conforms=raw.conforms, findings=kept)
