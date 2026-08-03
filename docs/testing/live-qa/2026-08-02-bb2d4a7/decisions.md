@@ -12,7 +12,7 @@ Decisions the maintainer made live during the run. Each: **Decision / Why / Appl
 - **Why:** *"i want an extra confirm step, warn, ask to confirm but then push through if confirm is Y."*
   Current behavior deletes with only a printed note, no confirmation.
 - **Applies-to:** `cds rm` (CLI). Related to the mode-discoverability gap (U3).
-- **Fix commit:** _(pending)_
+- **Fix commit:** `6f41a9f`
 
 ## D2 — Human-readable audit ledger export (S2)
 
@@ -23,7 +23,7 @@ Decisions the maintainer made live during the run. Each: **Decision / Why / Appl
   need a dashboard or a report … an option to export audit with the trace view."* The formal guarantee
   is trusted; the raw artifacts aren't human-scannable.
 - **Applies-to:** extend `AuditLog` ([provenance.py:82](../../../../src/cds/mcp/provenance.py#L82)); new `cds audit` command (none today).
-- **Fix commit:** _(pending)_
+- **Fix commit:** `a8e91b3`
 
 ## D3 — Licensing: noncommercial attestation override + license-flag propagation (S3)
 
@@ -44,7 +44,7 @@ after Probe B surfaced the real friction._
 - **Why:** see D4 (the guiding principle). A bare "noncommercial" attestation doesn't clear ShareAlike
   for a permissive output; (b) is the resolution — abide by construction rather than mislabel.
 - **Applies-to:** [view.py](../../../../src/cds/core/render/view.py) `scheme_view`, [licenses.py](../../../../src/cds/core/licenses.py) `sebok_renderable`, the instance/canonical writers, and a new attestation surface. **Legal skim recommended before shipping the attestation wording.**
-- **Fix commit:** _(pending)_
+- **Fix commit:** `b15a268`
 
 ## D4 — ⭐ Guiding principle (governs D3 and the licensing surfaces)
 
@@ -77,10 +77,24 @@ engineering-ethics issue).
   authoring triples and the contextual model metadata that is authored once."* Ties to U3 (make "which
   kind of change is this?" obvious).
 - **Applies-to:** [src/cds/app/notebook/concept_definition_app.ipynb](../../../../src/cds/app/notebook/concept_definition_app.ipynb) and the widget layer.
-- **Fix commit:** _(pending)_
+- **Fix commit:** `a9f126b`
 
-## Open design question (not yet decided)
+## D6 — S1 resolved: unverified-source hold at the commit gate
 
-- **S1 — enforce K5 (or a lighter unverified-source guard) at the tool/commit layer, not just the AICC
-  loop?** Probe B showed an agent over raw MCP can `cds_new → cds_commit` a definition with no
-  escalate-then-stop gate; the only backstop was the human commit-role (K2). Needs a maintainer call.
+_Was the open design question; decided by the maintainer post-run (2026-08-02, via the
+coding agent's decision prompt)._
+
+- **Decision:** enforce at the **commit gate**, the one chokepoint every transport shares:
+  records matching the `UnresolvedCitation` condition are held (like held-out X7),
+  enumerated in the ChangePlan under their own heading, and enter the record only when the
+  source is secured or the approver passes an explicit `include_unverified` (recorded in
+  the audit event). No per-session state on the MCP path; the AICC conversational
+  dead-end stays as-is, orthogonal. Docs reword the "BYO-LLM by construction" claim to
+  locate the guarantee honestly (surface = whitelist; record = gate).
+- **Why:** Probe B showed an agent over raw MCP can `cds_new → cds_commit` a definition
+  with no escalate-then-stop gate; the whitelist confines the served surface, not an
+  agentic client's own tools.
+- **Applies-to:** [commit_gate.py](../../../src/cds/app/commit_gate.py),
+  [verify.py](../../../src/cds/core/verify.py) (`unresolved_citations` shared helper),
+  `cds_commit` tool arg, ADR-6 amendment, mcp-server.md.
+- **Fix commit:** `6be2e87`

@@ -107,7 +107,7 @@
                 "type": "null"
               }
             ],
-            "description": "Slug of the parent mapping (create it first with cds_synthesis).",
+            "description": "Slug of the parent mapping ('mapping' and 'synthesis' name the same container; create it first with cds_synthesis).",
             "title": "Synthesis"
           }
         },
@@ -340,7 +340,7 @@
             "title": "Supersedes"
           },
           "synthesis": {
-            "description": "Slug of the parent mapping (create it first with cds_synthesis).",
+            "description": "Slug of the parent mapping ('mapping' and 'synthesis' name the same container; create it first with cds_synthesis).",
             "title": "Synthesis",
             "type": "string"
           }
@@ -589,7 +589,7 @@
             "title": "Supersedes"
           },
           "synthesis": {
-            "description": "Slug of the parent mapping (create it first with cds_synthesis).",
+            "description": "Slug of the parent mapping ('mapping' and 'synthesis' name the same container; create it first with cds_synthesis).",
             "title": "Synthesis",
             "type": "string"
           }
@@ -881,7 +881,7 @@
             "type": "string"
           },
           "rule": {
-            "description": "The verify rule (check name) being waived; see the oracle's /rules.",
+            "description": "The verify rule (check name) being waived. Pass an unknown name to list the valid ones; the separate conformance-oracle service describes each rule at its /rules endpoint.",
             "title": "Rule",
             "type": "string"
           },
@@ -1109,7 +1109,7 @@
     },
     "/tools/cds_edit": {
       "post": {
-        "description": "Edit an EXISTING record (scratch mode; copies a canonical record on write). REPLACES the whole record: restate every field you want to keep, including links. Refuses an absent slug.",
+        "description": "Edit an EXISTING record in your session (a committed record is copied into the session on first edit; the record itself is untouched until commit). REPLACES the whole record: restate every field you want to keep, including links. Refuses an absent slug.",
         "operationId": "cds_edit",
         "requestBody": {
           "content": {
@@ -1577,7 +1577,7 @@
     },
     "/tools/cds_verify": {
       "post": {
-        "description": "Verify the staging graph (advisory preview with tiered findings).",
+        "description": "Verify the staging graph (advisory preview; findings are tiered: T1 must be fixed before commit, T2 is a warning, T3 is a note).",
         "operationId": "cds_verify",
         "requestBody": {
           "content": {
@@ -1616,7 +1616,7 @@
     },
     "/tools/cds_waive": {
       "post": {
-        "description": "Waive a T2/T3 finding with a reason (append-only; T1 refused).",
+        "description": "Waive a warning-level (T2/T3) finding with a reason, recorded append-only; T1 findings can never be waived. Pass an unknown rule name to list the valid ones.",
         "operationId": "cds_waive",
         "requestBody": {
           "content": {

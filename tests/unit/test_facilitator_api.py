@@ -119,7 +119,10 @@ def test_every_tool_call_is_audited(client: TestClient, tmp_path: Path) -> None:
 def test_chat_503_without_llm(client: TestClient) -> None:
     r = client.post("/chat", json={"message": "hello"})
     assert r.status_code == 503
-    assert "CDS_LLM_BASE_URL" in r.json()["detail"]  # the ADR-8 hint
+    detail = r.json()["detail"]
+    # LARP re-probe: the public surface names no env vars; it reassures and directs
+    assert "CDS_LLM" not in detail
+    assert "model" in detail and "/tools/" in detail
 
 
 def test_chat_drives_tools_with_scripted_backend(tmp_path: Path) -> None:

@@ -53,5 +53,6 @@ COMMIT_SESSION_UNBOUND = (
 
 STAGED_COUNT_NOTE = (
     "Drafts live in your session only until a reviewer commits them; if the session "
-    "ends first, they are gone. Compile or commit anything you want to keep."
+    "ends first, they are gone. Committing is what preserves them; compiling gives "
+    "you a copy of the brief to save yourself."
 )

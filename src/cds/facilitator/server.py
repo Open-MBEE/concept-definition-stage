@@ -40,7 +40,8 @@ _FIELD_DESCRIPTIONS: dict[str, str] = {
     "slug": "Short kebab-case id for this record (e.g. 'reach-a-human').",
     "label": "Short human name.",
     "description": "The content statement (for a position: the stance rationale).",
-    "synthesis": "Slug of the parent mapping (create it first with cds_synthesis).",
+    "synthesis": "Slug of the parent mapping ('mapping' and 'synthesis' name the same "
+                 "container; create it first with cds_synthesis).",
     "title": "Human title of the mapping.",
     "cites": "Source IRIs for provenance.",
     "supersedes": "Record(s) this one replaces in the durable record: bare slug "
@@ -64,7 +65,9 @@ _FIELD_DESCRIPTIONS: dict[str, str] = {
     "note": "Free-form note.",
     "between": "IRIs of the records in tension.",
     "waiver_id": "IRI identifying this waiver (append-only ledger entry).",
-    "rule": "The verify rule (check name) being waived; see the oracle's /rules.",
+    "rule": "The verify rule (check name) being waived. Pass an unknown name to list "
+            "the valid ones; the separate conformance-oracle service describes each "
+            "rule at its /rules endpoint.",
     "focus": "Optional focus node the waiver is scoped to.",
     "by": "Operator IRI accepting the waiver.",
     "check_conflicts": "Also run the cross-record consistency checks.",
@@ -172,8 +175,9 @@ def build_app(project: Project, llm: Any = None) -> Any:
         if llm is None:
             raise HTTPException(
                 status_code=503,
-                detail="no LLM is configured. Set CDS_LLM_BASE_URL, CDS_LLM_MODEL, and "
-                       "CDS_LLM_API_KEY, then restart cds-serve; the /tools/* routes "
+                detail="no model is connected to this chat. Everything else works "
+                       "without one; ask whoever runs this service to connect a model. "
+                       "The /tools/* routes "
                        "work without one",
             )
         from cds.facilitator.aicc import run_turn
