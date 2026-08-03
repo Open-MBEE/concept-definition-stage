@@ -235,6 +235,15 @@ cds:captureTier
     rdfs:label "captureTier" ;
     rdfs:range skos:Concept .
 
+cds:changePlanHash
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    cds:frameworkRole cds:Available ;
+    rdfs:comment "The ChangePlan content hash a commit activity executed (K4/ADR-9)." ;
+    rdfs:domain prov:Activity ;
+    rdfs:label "changePlanHash" ;
+    rdfs:range xsd:string .
+
 cds:characterizes
     a owl:ObjectProperty,
         rdf:Property ;
@@ -322,6 +331,15 @@ cds:licenseText
     rdfs:label "licenseText" ;
     rdfs:range xsd:string .
 
+cds:llmMediated
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    cds:frameworkRole cds:Available ;
+    rdfs:comment "Whether an LLM mediated this activity — an explicit assertion either way, so 'no model' is a claim, never an evidence gap (K4)." ;
+    rdfs:domain prov:Activity ;
+    rdfs:label "llmMediated" ;
+    rdfs:range xsd:boolean .
+
 cds:locator
     a owl:DatatypeProperty,
         rdf:Property ;
@@ -329,6 +347,15 @@ cds:locator
     rdfs:comment "The locator (URI or document number) of a source." ;
     rdfs:domain cds:Source ;
     rdfs:label "locator" ;
+    rdfs:range xsd:string .
+
+cds:modelId
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    cds:frameworkRole cds:Available ;
+    rdfs:comment "The LLM model id that mediated an activity — attributed, never accountable (the human agent it actedOnBehalfOf is)." ;
+    rdfs:domain prov:SoftwareAgent ;
+    rdfs:label "modelId" ;
     rdfs:range xsd:string .
 
 cds:nrmCanon
@@ -384,6 +411,15 @@ cds:retrievalStatus
     rdfs:domain cds:RetrievalActivity ;
     rdfs:label "retrievalStatus" ;
     rdfs:range skos:Concept .
+
+cds:sessionId
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    cds:frameworkRole cds:Available ;
+    rdfs:comment "The authoring-session identifier a commit activity ran under (K4)." ;
+    rdfs:domain prov:Activity ;
+    rdfs:label "sessionId" ;
+    rdfs:range xsd:string .
 
 cds:snapshot
     a owl:DatatypeProperty,
@@ -456,6 +492,15 @@ cds:textLicense
     rdfs:domain cds:LifecycleModel ;
     rdfs:label "textLicense" ;
     rdfs:range dcterms:LicenseDocument .
+
+cds:toolVersion
+    a owl:DatatypeProperty,
+        rdf:Property ;
+    cds:frameworkRole cds:Available ;
+    rdfs:comment "The cds version that performed an activity (K4)." ;
+    rdfs:domain prov:Activity ;
+    rdfs:label "toolVersion" ;
+    rdfs:range xsd:string .
 
 cds:verificationMethod
     a owl:ObjectProperty,

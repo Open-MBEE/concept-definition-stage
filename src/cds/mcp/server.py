@@ -45,7 +45,8 @@ def list_tools() -> list[str]:
 
 def _bind_project(fn: Any, project: Project) -> Any:
     """Close over ``project`` and re-sign the wrapper so the SDK derives the arg schema
-    from the tool's remaining (client-facing) parameters."""
+    from the tool's remaining (client-facing) parameters. (Audit happens at the registry —
+    every invocation path is logged identically.)"""
     sig = inspect.signature(fn)
     params = [p for name, p in sig.parameters.items() if name != "project"]
 

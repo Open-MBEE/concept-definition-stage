@@ -24,6 +24,10 @@ from __future__ import annotations
 import hashlib
 import subprocess
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from cds.mcp.provenance import AuditLog
 
 from rdflib import RDF, Graph, Literal, URIRef
 
@@ -33,7 +37,7 @@ from cds.core.authoring import (
     project_graph,
     retract_record,
 )
-from cds.core.namespaces import CDS
+from cds.core.namespaces import CDS, PROV
 from cds.core.verify import verify
 from cds.core.view import current_view
 from cds.core.workspace import Project
@@ -146,7 +150,9 @@ def render_plan(plan: ChangePlan) -> str:
     supers = "\n".join(f"- {old} → {new}" for old, new in plan.supersessions) or "- (none)"
     return (
         "# Change plan\n\n"
-        f"content-hash: `{plan.content_hash}`\n\n"
+        f"content-hash: `{plan.content_hash}`\n"
+        "(preimage: SHA-256 over the staging graph serialized as sorted N-Triples — "
+        "recomputable by any auditor from the staged instance files)\n\n"
         f"approver: {plan.approver or '(unrecorded)'}\n\n"
         f"## Adds\n{names(plan.adds)}\n\n"
         f"## Revisions (approver-confirmed, same IRI; prior bytes preserved by git)\n"
@@ -165,6 +171,7 @@ def commit(
     approver_roles: frozenset[str],
     approver: str | None = None,
     plan: ChangePlan | None = None,
+    model: str | None = None,
 ) -> ChangePlan:
     """Merge staging → canonical through the K2 gate; returns the executed plan."""
     if APPROVER_ROLE not in approver_roles:
@@ -206,6 +213,9 @@ def commit(
     (plans_dir / f"{executed.content_hash[:12]}.md").write_text(
         render_plan(executed), encoding="utf-8")
 
+    if not executed.empty:
+        _write_provenance(canonical, staging_project, executed, model=model)
+
     # apply — composes R2 primitives; appends only
     for s in executed.adds + executed.revisions:
         merge_subject_graph(canonical, s, staged_full)
@@ -220,8 +230,60 @@ def commit(
         retract_record(canonical, kind, slug,
                        reason=str(reason) if reason is not None else None)
 
+    _audit(canonical).append({
+        "action": "commit", "content_hash": executed.content_hash,
+        "approver": approver or "urn:cds:agent:unattributed",
+        "adds": len(executed.adds), "revisions": len(executed.revisions),
+        "supersessions": len(executed.supersessions),
+        "retractions": len(executed.retractions), "held": len(executed.held),
+    })
     _git_commit(canonical, executed)
     return executed
+
+
+def _audit(canonical: Project) -> AuditLog:
+    from cds.mcp.provenance import AuditLog as _AuditLog
+
+    return _AuditLog(canonical.root / "concept-definition" / "audit.jsonl")
+
+
+def _write_provenance(canonical: Project, staging: Project, plan: ChangePlan,
+                      *, model: str | None) -> None:
+    """One append-only PROV file per commit (K4.1) — activity keyed on the plan hash."""
+    from cds import __version__
+    from cds.core.serialize import canonical_turtle
+    from cds.mcp.provenance import stamp
+
+    activity_iri = f"{canonical.base_iri}activity/commit-{plan.content_hash[:12]}"
+    generated = list(plan.adds) + list(plan.revisions)
+    g = stamp(
+        generated,
+        user=plan.approver or "urn:cds:agent:unattributed",
+        session=staging.root.name,
+        model=model,
+        version=__version__,
+        activity_iri=activity_iri,
+    )
+    activity = URIRef(activity_iri)
+    g.add((activity, CDS.changePlanHash, Literal(plan.content_hash)))
+    for s in plan.retractions:
+        g.add((s, PROV.wasInvalidatedBy, activity))
+    for old, new in plan.supersessions:
+        g.add((new, PROV.wasRevisionOf, old))
+    prov_dir = canonical.root / "concept-definition" / "provenance"
+    prov_dir.mkdir(parents=True, exist_ok=True)
+    out = prov_dir / f"{plan.content_hash[:12]}.ttl"
+    if out.exists():  # append-only: a provenance record is never rewritten
+        return
+    out.write_text(canonical_turtle(g, prefixes=_PROV_PREFIXES), encoding="utf-8")
+
+
+_PROV_PREFIXES: dict[str, str] = {
+    "cds": str(CDS),
+    "prov": str(PROV),
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+}
 
 
 def _git_commit(canonical: Project, plan: ChangePlan) -> None:

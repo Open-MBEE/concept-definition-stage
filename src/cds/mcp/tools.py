@@ -13,6 +13,8 @@ mounted by both the MCP server (``cds.mcp.server``, stdio) and the facilitator s
 
 from __future__ import annotations
 
+import functools
+import inspect
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
@@ -101,7 +103,25 @@ def _tool(
     name: str, description: str, *, mode: ToolMode = ToolMode.READ
 ) -> Callable[[Callable[..., object]], Callable[..., object]]:
     def register(fn: Callable[..., object]) -> Callable[..., object]:
-        TOOLS[name] = ToolSpec(name=name, fn=fn, description=description, mode=mode)
+        @functools.wraps(fn)  # preserves signature/annotations for schema derivation
+        def audited(project: Project, *args: object, **kwargs: object) -> object:
+            # K4 at the REGISTRY, not the transport (auditor finding K-5): every
+            # invocation path — HTTP, MCP, in-process — lands in the session's
+            # hash-chained audit log, refusals included.
+            from cds.mcp.provenance import AuditLog
+
+            log = AuditLog(project.root / "audit.jsonl")
+            try:
+                result = fn(project, *args, **kwargs)
+            except Exception as exc:
+                log.append({"action": "tool", "tool": name,
+                            "status": type(exc).__name__})
+                raise
+            log.append({"action": "tool", "tool": name, "status": "ok"})
+            return result
+
+        audited.__signature__ = inspect.signature(fn)  # type: ignore[attr-defined]
+        TOOLS[name] = ToolSpec(name=name, fn=audited, description=description, mode=mode)
         return fn
 
     return register
