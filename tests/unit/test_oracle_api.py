@@ -27,7 +27,9 @@ def client() -> TestClient:
 
 
 def test_surface_is_exactly_three_routes(client: TestClient) -> None:
-    paths = {getattr(r, "path", None) for r in client.app.routes}
+    from typing import Any, cast
+
+    paths = {getattr(r, "path", None) for r in cast(Any, client.app).routes}
     tool_paths = {p for p in paths if p and not p.startswith(("/openapi", "/docs", "/redoc"))}
     assert tool_paths == {"/verify", "/rules", "/healthz"}
 
