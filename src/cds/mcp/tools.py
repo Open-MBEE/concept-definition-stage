@@ -18,6 +18,7 @@ from dataclasses import dataclass
 
 from rdflib import Graph
 
+from cds.contracts import ConformanceOracle, InProcessOracle
 from cds.core import compile as compile_mod
 from cds.core import explain as explain_mod
 from cds.core.authoring import (
@@ -47,7 +48,6 @@ from cds.core.verify import (
     Severity,
     VerifyResult,
     Waiver,
-    verify,
     waiver_to_graph,
 )
 from cds.core.workspace import Project
@@ -85,6 +85,11 @@ def _staging_graph(project: Project) -> Graph:
     return project_graph(project)
 
 
+# The verification seam (spec §8.3): tools consult the oracle via its contract, so the check
+# can move out-of-process (cds-oracle service, D8) without touching this module.
+_ORACLE: ConformanceOracle = InProcessOracle()
+
+
 # ---------------------------------------------------------------------------- read / preview
 
 
@@ -105,7 +110,7 @@ def cds_show(project: Project, kind: str, slug: str) -> list[str] | None:
 
 @_tool("cds_verify", "Verify the staging graph — tri-severity findings; preview only.")
 def cds_verify(project: Project, check_conflicts: bool = True) -> VerifyResult:
-    return verify(_staging_graph(project), check_conflicts=check_conflicts)
+    return _ORACLE.check(_staging_graph(project), check_conflicts=check_conflicts)
 
 
 @_tool("cds_compile", "Compile the staging graph to a Markdown brief; preview only.")
@@ -216,7 +221,7 @@ def _append_waiver(project: Project, addition: Graph) -> None:
        writes=True)
 def cds_waive(project: Project, waiver_id: str, rule: str, reason: str,
               focus: str | None = None, by: str | None = None) -> str:
-    result = verify(_staging_graph(project), check_conflicts=True)
+    result = _ORACLE.check(_staging_graph(project), check_conflicts=True)
     refuse_if_waives_t1(result.findings, rule=rule, focus=focus)
     w = Waiver(id=waiver_id, rule=rule, reason=reason, focus=focus, by=by)
     _append_waiver(project, waiver_to_graph(w))
