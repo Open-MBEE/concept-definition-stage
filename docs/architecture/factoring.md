@@ -73,10 +73,15 @@ cds.core  ←  cds.contracts  ←  { cds.mcp , cds.oracle }
 | Rust SHACL backend (D1) | `cds.core.verify.VerifierBackend` | W3C-suite + differential parity green (VB.1) |
 | HTTP `ConformanceOracle` client (D8) | `cds.contracts.ConformanceOracle` | an out-of-process consumer (P5/P6 app tier) |
 | Flexo-backed store service (D9) | `cds.contracts.ModelStore` | ROADMAP T6 acceptance (live round-trip) |
-| Session staging automation | `cds.mcp.staging.new_session_project` | P2 |
 | PROV-O stamping + audit | `cds.mcp.provenance.stamp` | P3 |
 | AICC/LLM sidecar | `cds.facilitator.aicc.run_turn` | P4 (BYO-LLM per ADR-8 amendment) |
 | marimo substrate swap (D3) | app tier only | ops weight dominates |
+
+Landed (formerly deferred): session staging (`cds.mcp.staging`, P2-a — sparse overlay) and
+the K2 commit gate (`cds.app.commit_gate`, P2-b — ChangePlan with approver + content-hash
+binding). One sanctioned lazy seam crosses the DAG upward: `cds_commit` imports
+`cds.app.commit_gate` at call time — the K2 gate lives in the app tier by design (§6.1 T8),
+and the factoring guard permits it exactly the way it permits the transport SDKs.
 
 ## Related docs
 

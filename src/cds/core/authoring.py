@@ -220,6 +220,21 @@ def mark_superseded(project: Project, kind: str, slug: str, *, by: URIRef) -> No
     _append_marker_triples(project, kind, marker)
 
 
+def merge_subject_graph(project: Project, subject: URIRef, source: Graph) -> None:
+    """Upsert one subject's triples (taken from ``source``) into its per-kind file.
+
+    The commit gate's merge primitive: routes by the IRI's ``<kind>/<slug>`` path segment
+    (``synthesis`` → the container file). Uses the same deterministic upsert as authoring.
+    """
+    rel = str(subject)[len(project.base_iri):]
+    kind = rel.split("/", 1)[0]
+    target = _synthesis_file(project) if kind == "synthesis" else _kind_file(project, kind)
+    sub = Graph()
+    for triple in source.triples((subject, None, None)):
+        sub.add(triple)
+    _merge_into(target, sub, project)
+
+
 def find_referrers(project: Project, target: URIRef) -> list[URIRef]:
     """Subjects anywhere in the project that link to ``target`` — the retraction/discard
     pre-check (lineage pattern): callers warn with this list rather than dangling silently."""

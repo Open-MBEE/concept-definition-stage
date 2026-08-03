@@ -106,11 +106,36 @@ claude mcp add cds -- uv run --directory /path/to/cds cds-mcp --project /tmp/cds
 Then ask your agent to author a concept definition — it can only reach the 15 whitelisted
 tools ([manifest](services/mcp-manifest.md)).
 
+### 6. Play — the commit gate (P2): scratch session → durable record
+
+Give the session a canonical target and the reviewer role (operator config until P6 auth):
+
+```bash
+uv run cds init /tmp/cds-canonical --name canonical && git -C /tmp/cds-canonical init -q
+```
+
+```bash
+uv run cds-serve --canonical /tmp/cds-canonical --role cds-reviewer --approver "https://example.org/you" --port 8800
+```
+
+No `--project` needed — each server start mints a **fresh isolated session** overlaid on the
+canonical current view (canonical records show up in `cds_list`/`cds_verify`; your edits
+shadow them without touching canonical). Author candidates, then:
+
+```bash
+curl -s -X POST http://127.0.0.1:8800/tools/cds_commit -H 'Content-Type: application/json' -d '{}'
+```
+
+The response is the executed **ChangePlan** (adds / revisions / supersessions / retractions
+/ held-out) with its content hash; the same plan lands as an artifact under
+`/tmp/cds-canonical/concept-definition/changeplans/` and as a git commit. Start the server
+*without* `--role cds-reviewer` to feel the K2 refusal. Records citing an unverified source
+are **held out** — committed later, never fabricated around.
+
 ### What lands next here
 
 | Phase | New playground moves |
 |---|---|
-| P2 | staged→canonical commit as `cds-reviewer`; held-out terms visible in the report |
 | P3 | inspect PROV-O provenance + replay the audit log |
 | P4 | chat with the AICC facilitator (BYO-LLM triplet) |
 | P5/P6 | the Voilà web app; login via Keycloak |

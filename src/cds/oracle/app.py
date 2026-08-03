@@ -41,6 +41,8 @@ _CONFLICT_MESSAGES: dict[str, str] = {
     "ReferenceToRetracted": "a current record references a retracted one",
     "DivergingPositions": "stakeholder positions on the same subject diverge "
                           "(all retained; divergence is valid)",
+    "UnresolvedCitation": "a record cites a project-local source that doesn't exist — "
+                          "register/secure it before commit",
 }
 
 
